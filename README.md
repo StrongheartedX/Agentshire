@@ -1,0 +1,333 @@
+# Agentshire
+
+English | [中文](README.zh-CN.md)
+
+> **Your AI team, living in a 3D game town you built yourself, not a dashboard.**
+
+Agentshire is an [OpenClaw](https://github.com/openclaw/openclaw) plugin that turns AI agents into living NPCs inside a 3D town you can watch, chat with, and shape yourself. It combines a living simulation layer with UGC tools: weather, day/night cycles, social NPCs, a map editor, and a character workshop.
+
+**[Vision](VISION.md)** | **[Roadmap](ROADMAP.md)**
+
+---
+
+## Features
+
+### Dual-Mode Interface
+
+- **Town Mode** — Low-poly 3D town where you watch NPCs live, work, collaborate, and celebrate in real time
+- **Chat Mode** — IM-style chat interface with an agent list (steward + citizens, online status), message history, multimodal support (text/image), and commands (`/new` `/help` `/stop`)
+- **Top Navigation** — One-click switch between Town and Chat, with a quick menu (Citizen Workshop / Town Editor / Skill Store / Settings)
+
+### Core
+
+- **Agent = NPC** — Every sub-agent automatically becomes a 3D citizen with a name, appearance, and personality
+- **Cinematic Workflow** — Summon → Rally → Assign → Enter Office → Code → Celebrate → Return to Town, fully choreographed with animations
+- **Real-Time Dialog Bubbles** — AI responses appear above NPC heads with a typewriter effect, streaming updates, and pagination
+- **Multi-Agent Collaboration** — The steward automatically decomposes tasks into parallel steps with file boundary validation
+- **Zero Configuration** — Install the plugin, start the Gateway, and the town runs automatically
+
+### Town Life
+
+- **Day/Night Cycle** — 24-hour clock (6 periods), real-time lighting changes, automatic street/window lights
+- **12 Weather Types** — Clear / cloudy / fog / drizzle / rain / storm / snow / blizzard / sandstorm / aurora… daily random theme with smooth transitions
+- **Procedural Ambient Sound** — Rain, wind, birdsong, crickets, traffic, thunder — all synthesized in real time via Web Audio API, zero audio files
+- **4-Track BGM** — Day / dusk / night / work tracks, auto-switching by weather, time period, and scene with 3.5s crossfade
+- **NPC Daily Behavior (Dual Mode)** — Algorithm-driven by default: state machine + 5 behavior templates + 400+ preset dialog lines, zero LLM cost. Enable Soul Mode to switch to AI-driven: AgentBrain 3-tier decisions (L1 daily plan / L2 tactical / L3 dialogue) + deep multi-turn LLM conversations + relationship graph + daily narrative summaries
+- **Citizen Chat** — Click any citizen NPC to start a conversation, routed to that citizen's independent Agent session
+- **Banwei Buster Mini-Game** — NPCs generate "banwei orbs" while working; click to pop them! Includes combo system, boss battles, and NPC stress mechanics
+
+### UGC Tools
+
+- **Citizen Workshop** — Create and configure citizen characters: select/upload 3D models, edit soul personality (AI generation supported), configure animation mapping (8 slots), publish as independent Agents
+- **Town Editor** — Visual drag-and-drop map editing: place buildings/roads/props/lights, with grouping, alignment, undo, and JSON export (runtime integration in progress)
+- **Editor Preview** — One-click game-level preview window (WASD controls + full day/night + weather + vehicle animations + audio)
+- **Soul System** — Each NPC has a Markdown personality file defining character traits, speaking style, expertise, and work approach
+
+### Interaction & Visuals
+
+- **Interactive 3D** — Click NPCs to view status cards (avatar / persona / work logs / thinking stream / TODO), drag to pan, scroll to zoom
+- **3 Scene Types** — Town (daily life) / Office (work) / Showroom (in development), with fade transitions and NPC migration
+- **Rich VFX** — Summon shockwave, completion fireworks, error lightning, persona-transform magic circle, thinking halo, search radar, confetti…
+- **10-Workstation Office** — Each workstation has its own monitor (real-time code animation), full NPC enter/work/leave choreography
+- **Deliverable Preview** — After project completion, deliverable cards pop up with image lightbox, video, audio preview and download; games/websites launch directly in iframe
+- **AI Tool Control** — Agents can control the town via tools (broadcast messages, spawn NPCs, trigger effects, set time/weather)
+- **Reconnection** — WebSocket auto-reconnect with exponential backoff and work state recovery
+
+---
+
+## Requirements
+
+- [OpenClaw](https://github.com/openclaw/openclaw) >= 2026.3.7
+- Node.js >= 18
+
+---
+
+## Quick Install
+
+```bash
+openclaw plugins install agentshire
+```
+
+> **If the Gateway is already running, restart it** so the plugin is loaded:
+> ```bash
+> openclaw gateway   # or restart your existing Gateway process
+> ```
+
+On first startup the plugin **automatically**:
+
+1. Creates a steward workspace at `~/.openclaw/agents/town-steward/`
+2. Registers the `town-steward` Agent in `openclaw.json`
+3. Adds a routing rule to direct town channel messages to the steward
+4. Configures subagent defaults in `openclaw.json`:
+   - `runTimeoutSeconds: 600` — 10-minute timeout to prevent premature subagent termination
+   - `announce: "skip"` — disables auto-announce to the main agent, preventing it from interfering with the steward's plan orchestration
+
+**No manual configuration needed.**
+
+### Update
+
+```bash
+openclaw plugins install agentshire@latest
+```
+
+Then restart the Gateway. The frontend will be rebuilt automatically.
+
+---
+
+## Usage
+
+1. Install the plugin and **(re)start** the OpenClaw Gateway
+2. The town opens automatically in your browser
+3. Chat in the browser — all Agent activity is automatically mapped to the town
+
+> **Tip**: If the browser didn't open automatically, visit:
+> `http://localhost:55210?ws=ws://localhost:55211`
+
+
+### Citizen Workshop
+
+Visit `http://localhost:55210/citizen-editor.html` to create and configure your NPC team.
+
+
+### Town Editor
+
+Visit `http://localhost:55210/editor.html` to open the visual map editor.
+
+
+### Configuration (Optional)
+
+Customize ports and behavior in `~/.openclaw/openclaw.json`:
+
+```json
+{
+  "plugins": {
+    "entries": {
+      "agentshire": {
+        "enabled": true,
+        "config": {
+          "wsPort": 55211,
+          "townPort": 55210,
+          "autoLaunch": true
+        }
+      }
+    }
+  }
+}
+```
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `wsPort` | 55211 | WebSocket port (real-time plugin ↔ frontend communication) |
+| `townPort` | 55210 | HTTP port (frontend static files + editor API) |
+| `autoLaunch` | true | Auto-open town in browser on startup |
+
+### AI Tools
+
+| Tool | Description |
+|------|-------------|
+| `town_announce` | Broadcast a message in the town |
+| `town_spawn_npc` | Spawn a new NPC |
+| `town_effect` | Trigger visual effects (celebration / fireworks / glow, etc.) |
+| `town_set_time` | Control the game clock |
+| `town_set_weather` | Control weather (12 types available) |
+| `town_status` | View current town status |
+| `register_project` | Register a simple project (single-agent or steward-only) |
+| `create_project` | Create a project directory for multi-agent work |
+| `create_task` | Create a task directory for single-agent delegation |
+| `create_plan` | Create a collaboration plan (parallel steps, requires `create_project` or `create_task` first) |
+| `next_step` | Query plan progress and get next step instructions |
+| `mission_complete` | Unified completion handler — auto-routes to celebration or partial delivery based on remaining work |
+
+---
+
+## Soul System
+
+Every NPC has an independent **soul file** (Markdown) that defines personality, speaking style, expertise, and work approach.
+
+Format: a Markdown file starting with `# Character Name`, optionally containing metadata (model ID, gender, role), core persona, detailed personality settings, and dialog examples. The content is injected as the Agent's system prompt.
+
+**Search priority** (later overrides earlier):
+
+1. `plugin-builtin/town-souls/` — Preset souls (8 citizens + steward)
+2. `cwd/town-souls/` — Project-level souls
+3. `~/.openclaw/town-souls/` — User custom souls
+4. `town-data/souls/` — Souls published from Citizen Workshop
+
+You can:
+- **AI-generate** soul files in the Citizen Workshop
+- Modify built-in soul files to adjust personalities
+- Place custom souls in `~/.openclaw/town-souls/` to override presets
+- Create entirely new soul files for new characters
+
+---
+
+## Architecture
+
+```
+┌──────────────────────────────────────────────────────────┐
+│                      OpenClaw Runtime                    │
+│                                                          │
+│  Gateway ─── Agent Sessions ─── Hook System ─── LLM      │
+└──────┬────────────────────────────┬──────────────────────┘
+       │ dispatch                   │ hook callback
+       ▼                            ▼
+┌──────────────────────────────────────────────────────────┐
+│  Plugin Layer (Node.js)                     src/plugin/  │
+│                                                          │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐  │
+│  │ channel  │  │  hook-   │  │ws-server │  │  tools   │  │
+│  │ dispatch │  │translator│  │ WS:55211 │  │ 11 tools │  │
+│  └──────────┘  └──────────┘  └──────────┘  └──────────┘  │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐  │
+│  │  plan-   │  │ editor-  │  │ citizen- │  │llm-proxy │  │
+│  │ manager  │  │  serve   │  │  router  │  │ 2 concur │  │
+│  └──────────┘  └──────────┘  └──────────┘  └──────────┘  │
+└──────┬───────────────┬───────────────────────────────────┘
+       │ WS :55211     │ HTTP :55210
+       │ AgentEvent    │ Editor API
+       ▼               ▼
+┌──────────────────────────────────────────────────────────┐
+│  Bridge Layer (Browser)                     src/bridge/  │
+│                                                          │
+│  ┌────────────────────────────────────────────────────┐  │
+│  │ DirectorBridge — Phase State Machine               │  │
+│  │ idle→summoning→assigning→office→working→publish→ret│  │
+│  └────────────────────────────────────────────────────┘  │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐  │
+│  │  Event-  │  │  Route-  │  │ Citizen- │  │implicit- │  │
+│  │Transltor │  │ Manager  │  │ Manager  │  │  chat    │  │
+│  └──────────┘  └──────────┘  └──────────┘  └──────────┘  │
+└──────┬────────────────────────────────────────────┬──────┘
+       │ GameEvent (65)                 GameAction  │
+       ▼                                (14)        ▲
+┌──────────────────────────────────────────────────────────┐
+│  Frontend Layer (Three.js)             wn-frontend/src/  │
+│                                                          │
+│  ┌────────────────────────────────────────────────────┐  │
+│  │ MainScene ── EventDispatcher ── update() loop      │  │
+│  └────────────────────────────────────────────────────┘  │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐  │
+│  │workflow/ │  │  npc/    │  │   ui/    │  │  audio/  │  │
+│  │Choreogr  │  │ NPC 7-SM │  │ChatBubbl │  │ BGM+Amb  │  │
+│  └──────────┘  └──────────┘  └──────────┘  └──────────┘  │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐  │
+│  │ scene/   │  │ editor/  │  │ engine/  │  │  data/   │  │
+│  │Town/Offc │  │Workshop  │  │ Render   │  │ Protocol │  │
+│  └──────────┘  └──────────┘  └──────────┘  └──────────┘  │
+└──────────────────────────────────────────────────────────┘
+```
+
+> Developer architecture guide: [AGENTS.md](AGENTS.md)
+
+---
+
+## Development
+
+```bash
+# After cloning
+cd agentshire
+
+# Build the town frontend
+cd town-frontend && npm install && npm run build
+
+# Dev mode (hot reload)
+cd town-frontend && npm run dev
+
+# Run tests
+npm test                              # Plugin + bridge layer
+cd town-frontend && npx vitest run    # Frontend
+```
+
+The frontend has 4 entry pages:
+
+| Page | URL | Description |
+|------|-----|-------------|
+| Town | `index.html` | 3D town + chat |
+| Town Editor | `editor.html` | Visual map editing |
+| Citizen Workshop | `citizen-editor.html` | Character creation and configuration |
+| Editor Preview | `preview.html` | Game-level preview window |
+
+> Developer architecture guide: [AGENTS.md](AGENTS.md)
+
+---
+
+## Asset Pack (Optional)
+
+Basic features **require no extra downloads** — built-in models (KayKit + Kenney) for the town, office, and NPCs are included in the repository.
+
+For advanced features, download the optional asset pack:
+
+- **Citizen Workshop Library Characters** (308 character models with multiple variants and colors)
+- **Editor Cartoon City Assets** (hundreds of building, vehicle, road, and park models)
+
+### Download
+
+1. Download `agentshire-assets.zip` from [GitHub Releases](https://github.com/Agentshire/Agentshire/releases)
+2. Extract to the plugin root, ensuring this structure:
+
+```
+agentshire/
+├── assets/
+│   ├── Characters_1/    ← Library character models + shared animations
+│   └── Map_1/           ← Cartoon City editor assets
+├── src/
+├── town-frontend/
+└── ...
+```
+
+Without the asset pack: the game runs normally, editor has basic assets, and the Citizen Workshop shows only built-in and custom models.
+
+> Asset sources and licenses: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)
+
+---
+
+## Why "Agentshire"?
+
+The name comes from the Shire in *The Lord of the Rings* — not the epic battles, but the quiet, gentle, unhurried life that makes the Shire feel like home. That's the kind of world we want to build for AI agents.
+
+Many AI products imagine a cyberpunk, high-pressure, hyper-accelerated future. Agents live in dashboards, logs, and APIs — but never in a place that feels like somewhere they actually *live*.
+
+We imagine a different future. A quieter one. A gentler interface. A place where intelligent agents aren't just invoked, driven, and consumed — but can truly settle down.
+
+**If AI agents are going to be part of our lives, they deserve a place that feels like home.**
+
+---
+
+## Vision & Roadmap
+
+> Teams don't live in dashboards. Teams live in a town.  
+> When islands connect, towns grow into a world.
+
+| Phase | Direction | Status |
+|-------|-----------|--------|
+| **A Town** | 3D visualization, workflow orchestration, soul system, citizen workshop, dual-mode UI | ✅ Implemented |
+| **A Living Town** | Editor ↔ runtime integration, mobile experience, soul mode completion, game loop (life simulation), growth systems | 🔥 Current Focus |
+| **A World** | Town federation protocol, cross-town NPC visits, skill exchange, world events | 🌍 Long-term |
+
+See **[VISION.md](VISION.md)** and **[ROADMAP.md](ROADMAP.md)** for details.
+
+---
+
+## License
+
+MIT

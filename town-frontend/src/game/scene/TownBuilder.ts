@@ -1,0 +1,577 @@
+import * as THREE from 'three'
+import { AssetLoader } from '../visual/AssetLoader'
+
+interface WindowDef {
+  pos: [number, number, number]
+}
+
+interface BuildingDef {
+  id: string
+  modelKey: string
+  pos: [number, number, number]
+  scale: number
+  rotationY: number
+  doorOffset: [number, number, number]
+  size: [number, number, number]
+  color: number
+  roofColor?: number
+  windows?: WindowDef[]
+}
+
+const BUILDINGS: BuildingDef[] = [
+  {
+    id: 'office', modelKey: 'building_A', pos: [17, 0, 3], scale: 3.0, rotationY: 0,
+    doorOffset: [0, 0.05, 5], size: [8, 12, 6], color: 0x6688aa,
+    windows: [
+      { pos: [0, 0.95, 1.01] },
+    ],
+  },
+  {
+    id: 'house_a', modelKey: 'building_B', pos: [3, 0, 5], scale: 1.8, rotationY: 0,
+    doorOffset: [0, 0.05, 7], size: [3, 4, 3], color: 0xf5f0e8, roofColor: 0x44aa44,
+    windows: [
+      { pos: [0, 0.7, 1.01] },
+    ],
+  },
+  {
+    id: 'house_b', modelKey: 'building_C', pos: [3, 0, 10], scale: 1.8, rotationY: 0,
+    doorOffset: [0, 0.05, 12], size: [3, 4, 3], color: 0xf5f0e8, roofColor: 0x4488cc,
+    windows: [
+      { pos: [0, 0.95, 1.01] },
+    ],
+  },
+  {
+    id: 'house_c', modelKey: 'building_D', pos: [3, 0, 15], scale: 1.8, rotationY: 0,
+    doorOffset: [0, 0.05, 17], size: [3, 4, 3], color: 0xf5f0e8, roofColor: 0xcc8844,
+    windows: [
+      { pos: [0, 0.95, 1.01] },
+    ],
+  },
+  {
+    id: 'market', modelKey: 'building_E', pos: [32, 0, 3], scale: 2.5, rotationY: 0,
+    doorOffset: [0, 0.05, 6], size: [8, 4, 5], color: 0xf0f0f0,
+    windows: [
+      { pos: [0, 1.1, 1.01] },
+    ],
+  },
+  {
+    id: 'cafe', modelKey: 'building_F', pos: [32, 0, 9], scale: 2.0, rotationY: 0,
+    doorOffset: [0, 0.05, 12], size: [5, 3, 4], color: 0xd4a574,
+    windows: [
+      { pos: [0, 1.1, 1.01] },
+    ],
+  },
+  {
+    id: 'user_home', modelKey: 'building_G', pos: [3, 0, 20], scale: 1.8, rotationY: 0,
+    doorOffset: [0, 0.05, 22], size: [3, 4, 3], color: 0xf5f0e8, roofColor: 0xddaa44,
+    windows: [
+      { pos: [0, 0.95, 1.01] },
+    ],
+  },
+  {
+    id: 'museum', modelKey: 'building_H', pos: [32, 0, 15], scale: 2.5, rotationY: 0,
+    doorOffset: [0, 0.05, 18], size: [6, 4, 5], color: 0xe8e8e8,
+    windows: [
+      { pos: [0, 1.4, 1.01] },
+    ],
+  },
+]
+
+const GRASS_COLOR    = 0x7ec850
+const SIDEWALK_COLOR = 0xc4b8a8
+const PLAZA_COLOR    = 0xe8dcc8
+const ROAD_COLOR     = 0x505050
+const DIRT_COLOR     = 0xb89968
+const SKY_COLOR      = 0x87ceeb
+
+export interface TownLightingRefs {
+  ambient: THREE.AmbientLight
+  directional: THREE.DirectionalLight
+  hemisphere: THREE.HemisphereLight
+  streetLightPoints: THREE.PointLight[]
+  windowLights: THREE.PointLight[]
+}
+
+export class TownBuilder {
+  private scene: THREE.Scene
+  private doorMarkers: Map<string, THREE.Mesh> = new Map()
+  private townGroup = new THREE.Group()
+  private lightingRefs: TownLightingRefs | null = null
+
+  constructor(scene: THREE.Scene) {
+    this.scene = scene
+  }
+
+  getLightingRefs(): TownLightingRefs | null {
+    return this.lightingRefs
+  }
+
+  build(assets: AssetLoader): void {
+    this.townGroup.name = 'town'
+    this.scene.add(this.townGroup)
+
+    this.buildSkyAndFog()
+    this.buildLighting()
+    this.buildGround()
+    this.buildBuildings(assets)
+    this.buildStreetLights(assets)
+    this.buildTrees(assets)
+    this.buildBenches(assets)
+    this.buildFountain(assets)
+    this.buildFlowerBeds()
+    this.buildFireHydrants(assets)
+  }
+
+  getDoorMarker(buildingId: string): THREE.Mesh | undefined {
+    return this.doorMarkers.get(buildingId)
+  }
+
+  getDoorMarkers(): Map<string, THREE.Mesh> {
+    return this.doorMarkers
+  }
+
+  clear(): void {
+    this.townGroup.traverse((obj) => {
+      if (obj instanceof THREE.Mesh) {
+        obj.geometry.dispose()
+        const mat = obj.material
+        if (Array.isArray(mat)) mat.forEach(m => m.dispose())
+        else mat.dispose()
+      }
+    })
+    this.scene.remove(this.townGroup)
+    this.townGroup = new THREE.Group()
+    this.doorMarkers.clear()
+  }
+
+  /* ───── Helpers ───── */
+
+  private enableShadows(obj: THREE.Object3D): void {
+    obj.traverse(child => {
+      if ((child as THREE.Mesh).isMesh) {
+        child.castShadow = true
+        child.receiveShadow = true
+      }
+    })
+  }
+
+  private placeModel(
+    model: THREE.Group,
+    x: number, y: number, z: number,
+    scale: number,
+    rotationY = 0,
+  ): void {
+    model.position.set(x, y, z)
+    model.scale.setScalar(scale)
+    model.rotation.y = rotationY
+    this.enableShadows(model)
+    this.townGroup.add(model)
+  }
+
+  /* ───────── Sky & Fog ───────── */
+
+  private buildSkyAndFog(): void {
+    this.scene.background = new THREE.Color(SKY_COLOR)
+    this.scene.fog = new THREE.Fog(SKY_COLOR, 40, 80)
+  }
+
+  /* ───────── Lighting ───────── */
+
+  private buildLighting(): void {
+    const ambient = new THREE.AmbientLight(0xc8d8f0, 0.6)
+    this.townGroup.add(ambient)
+
+    const dir = new THREE.DirectionalLight(0xfff8e8, 1.0)
+    dir.position.set(30, 30, -10)
+    dir.castShadow = true
+    dir.shadow.mapSize.set(2048, 2048)
+    dir.shadow.camera.left = -30
+    dir.shadow.camera.right = 30
+    dir.shadow.camera.top = 30
+    dir.shadow.camera.bottom = -30
+    dir.shadow.camera.near = 1
+    dir.shadow.camera.far = 80
+    dir.shadow.bias = -0.001
+    this.townGroup.add(dir)
+
+    const hemi = new THREE.HemisphereLight(0x87ceeb, 0x3a6020, 0.35)
+    this.townGroup.add(hemi)
+
+    this.lightingRefs = {
+      ambient,
+      directional: dir,
+      hemisphere: hemi,
+      streetLightPoints: [],
+      windowLights: [],
+    }
+  }
+
+  /* ───────── Ground ───────── */
+
+  private buildGround(): void {
+    const grassMat = new THREE.MeshLambertMaterial({ color: GRASS_COLOR })
+    const sidewalkMat = new THREE.MeshLambertMaterial({ color: SIDEWALK_COLOR })
+    const plazaMat = new THREE.MeshLambertMaterial({ color: PLAZA_COLOR })
+    const roadMat = new THREE.MeshLambertMaterial({ color: ROAD_COLOR })
+    const dirtMat = new THREE.MeshLambertMaterial({ color: DIRT_COLOR })
+    const whiteMat = new THREE.MeshLambertMaterial({ color: 0xffffff })
+
+    const grass = new THREE.Mesh(new THREE.PlaneGeometry(40, 24), grassMat)
+    grass.rotation.x = -Math.PI / 2
+    grass.position.set(20, 0, 12)
+    grass.receiveShadow = true
+    this.townGroup.add(grass)
+
+    const sidewalkPositions: [number, number, number, number, number][] = [
+      [6, 0.05, 12, 1.5, 24],
+      [10, 0.05, 12, 1, 24],
+      [28, 0.05, 12, 1.5, 24],
+      [19.375, 0.05, 21, 18.75, 1],
+    ]
+    const swGeo = new THREE.PlaneGeometry(1, 1)
+    for (const [x, y, z, w, d] of sidewalkPositions) {
+      const sw = new THREE.Mesh(swGeo, sidewalkMat)
+      sw.rotation.x = -Math.PI / 2
+      sw.scale.set(w, d, 1)
+      sw.position.set(x, y, z)
+      sw.receiveShadow = true
+      this.townGroup.add(sw)
+    }
+
+    const plaza = new THREE.Mesh(new THREE.PlaneGeometry(10, 8), plazaMat)
+    plaza.rotation.x = -Math.PI / 2
+    plaza.position.set(18, 0.05, 13)
+    plaza.receiveShadow = true
+    this.townGroup.add(plaza)
+
+    const road = new THREE.Mesh(new THREE.PlaneGeometry(40, 2), roadMat)
+    road.rotation.x = -Math.PI / 2
+    road.position.set(20, 0.06, 22.5)
+    road.receiveShadow = true
+    this.townGroup.add(road)
+
+    const lineGeo = new THREE.PlaneGeometry(2, 0.15)
+    for (let i = 0; i < 5; i++) {
+      const line = new THREE.Mesh(lineGeo, whiteMat)
+      line.rotation.x = -Math.PI / 2
+      line.position.set(16 + i * 2, 0.065, 22.5)
+      this.townGroup.add(line)
+    }
+
+    const crossGeo = new THREE.PlaneGeometry(0.3, 2)
+    for (let i = 0; i < 6; i++) {
+      const stripe = new THREE.Mesh(crossGeo, whiteMat)
+      stripe.rotation.x = -Math.PI / 2
+      stripe.position.set(18 + i * 0.6 - 1.5, 0.065, 22.5)
+      this.townGroup.add(stripe)
+    }
+
+    const dirt = new THREE.Mesh(new THREE.PlaneGeometry(10, 5), dirtMat)
+    dirt.rotation.x = -Math.PI / 2
+    dirt.position.set(12, 0.01, 19)
+    dirt.receiveShadow = true
+    // this.townGroup.add(dirt)
+  }
+
+  /* ───────── Buildings ───────── */
+
+  private buildBuildings(assets: AssetLoader): void {
+    const doorGeo = new THREE.CylinderGeometry(0.3, 0.3, 0.1, 8)
+    const doorMat = new THREE.MeshLambertMaterial({
+      color: 0x00ffaa,
+      transparent: true,
+      opacity: 0.4,
+      emissive: 0x00ffaa,
+      emissiveIntensity: 0.5,
+    })
+
+    for (const def of BUILDINGS) {
+      const [bx, , bz] = def.pos
+
+      const model = assets.getBuildingModel(def.modelKey)
+      if (model) {
+        this.placeModel(model, bx, 0, bz, def.scale, def.rotationY)
+
+        if (def.windows && this.lightingRefs) {
+          for (const win of def.windows) {
+            const pl = new THREE.PointLight(0xffe0a0, 0, 4, 2)
+            pl.position.set(...win.pos)
+            model.add(pl)
+            this.lightingRefs.windowLights.push(pl)
+          }
+        }
+      } else {
+        const [w, h, d] = def.size
+        const bodyMat = new THREE.MeshLambertMaterial({ color: def.color })
+        const body = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), bodyMat)
+        body.position.set(bx, h / 2, bz)
+        body.castShadow = true
+        body.receiveShadow = true
+        this.townGroup.add(body)
+
+        if (def.roofColor !== undefined) {
+          const roofMat = new THREE.MeshLambertMaterial({ color: def.roofColor })
+          const roofW = w + 0.4
+          const roofD = d + 0.4
+          const roofH = 1.2
+          const roof = new THREE.Mesh(new THREE.BoxGeometry(roofW, roofH, roofD), roofMat)
+          roof.position.set(bx, h + roofH / 2 - 0.1, bz)
+          roof.castShadow = true
+          this.townGroup.add(roof)
+
+          const ridgeMat = new THREE.MeshLambertMaterial({ color: def.roofColor })
+          const ridge = new THREE.Mesh(new THREE.BoxGeometry(roofW * 0.3, 0.5, roofD + 0.2), ridgeMat)
+          ridge.position.set(bx, h + roofH + 0.15, bz)
+          ridge.castShadow = true
+          this.townGroup.add(ridge)
+        }
+      }
+
+      const [dx, dy, dz] = def.doorOffset
+      const door = new THREE.Mesh(doorGeo, doorMat)
+      door.position.set(dx === 0 ? bx : dx, dy, dz)
+      door.name = `door_${def.id}`
+      this.townGroup.add(door)
+      this.doorMarkers.set(def.id, door)
+    }
+  }
+
+  /* ───────── Street Lights ───────── */
+
+  private buildStreetLights(assets: AssetLoader): void {
+    const DEG = Math.PI / 180
+
+    const lightDefs: Array<{ x: number; z: number; rotY: number }> = [
+      // 左侧人行道 (x=7.5)
+      { x: 7.5, z: 2,  rotY: 0 },
+      { x: 7.5, z: 8,  rotY: 0 },
+      { x: 7.5, z: 14, rotY: 0 },
+      { x: 7.5, z: 20, rotY: 0 },
+      // 右侧人行道 (x=26.5)
+      { x: 26.5, z: 2,  rotY: -180 * DEG },
+      { x: 26.5, z: 8,  rotY: -180 * DEG },
+      { x: 26.5, z: 14, rotY: -180 * DEG },
+      { x: 26.5, z: 20, rotY: -180 * DEG },
+      // 广场区域
+      { x: 13, z: 9.5,  rotY: 135 * DEG },
+      { x: 13, z: 16.5, rotY: -135 * DEG },
+      { x: 18, z: 9.5,  rotY: 90 * DEG },
+      { x: 18, z: 16.5, rotY: -90 * DEG },
+      { x: 23, z: 9.5,  rotY: 45 * DEG },
+      { x: 23, z: 16.5, rotY: -45 * DEG },
+    ]
+
+    const poleMat = new THREE.MeshLambertMaterial({ color: 0x555555 })
+    const bulbMat = new THREE.MeshLambertMaterial({
+      color: 0xffee88,
+      emissive: 0xffdd44,
+      emissiveIntensity: 0.6,
+    })
+    const poleGeo = new THREE.CylinderGeometry(0.06, 0.08, 3, 6)
+    const bulbGeo = new THREE.SphereGeometry(0.15, 6, 6)
+
+    for (const def of lightDefs) {
+      const rotY = def.rotY
+
+      const model = assets.getPropModel('streetlight')
+      if (model) {
+        this.placeModel(model, def.x, 0, def.z, 3.5, rotY)
+
+        if (this.lightingRefs) {
+          const pl = new THREE.PointLight(0xffe4b0, 0, 12, 2)
+          pl.position.set(-0.22, 0.82, 0)
+          model.add(pl)
+          this.lightingRefs.streetLightPoints.push(pl)
+        }
+      } else {
+        const pole = new THREE.Mesh(poleGeo, poleMat)
+        pole.position.set(def.x, 1.5, def.z)
+        pole.castShadow = true
+        this.townGroup.add(pole)
+
+        const bulb = new THREE.Mesh(bulbGeo, bulbMat)
+        bulb.position.set(def.x, 3.15, def.z)
+        this.townGroup.add(bulb)
+
+        if (this.lightingRefs) {
+          const pl = new THREE.PointLight(0xffe4b0, 0, 8, 2)
+          pl.position.set(def.x, 3.15, def.z)
+          this.townGroup.add(pl)
+          this.lightingRefs.streetLightPoints.push(pl)
+        }
+      }
+    }
+  }
+
+  /* ───────── Trees ───────── */
+
+  private buildTrees(assets: AssetLoader): void {
+    const treePositions: [number, number, boolean][] = [
+      [8, 3, false], [8, 7, true], [8, 11, false], [8, 15, true],
+      // [9, 18, false], [11, 17, true], [14, 18, false], [14, 20, true],
+      // [10, 20, false], [12, 21, true],
+      [13, 10, true], [23, 10, true], [13, 16, true], [23, 16, true],
+      [25, 4, false], [25, 8, true], [25, 12, false], [25, 16, true],
+      [12, 1, true], [22, 1, true],
+    ]
+
+    const trunkMat = new THREE.MeshLambertMaterial({ color: 0x8b6914 })
+    const crownMat = new THREE.MeshLambertMaterial({ color: 0x55aa33 })
+    const darkCrownMat = new THREE.MeshLambertMaterial({ color: 0x338822 })
+    const trunkGeo = new THREE.CylinderGeometry(0.1, 0.15, 1.5, 6)
+    const crownGeo = new THREE.SphereGeometry(0.8, 6, 5)
+    const smallCrownGeo = new THREE.SphereGeometry(0.5, 6, 5)
+
+    for (const [x, z, small] of treePositions) {
+      const model = assets.getPropModel('bush')
+      if (model) {
+        this.placeModel(model, x, 0, z, small ? 5.0 : 7.0)
+      } else {
+        const trunk = new THREE.Mesh(trunkGeo, trunkMat)
+        trunk.position.set(x, 0.75, z)
+        trunk.castShadow = true
+        this.townGroup.add(trunk)
+
+        const geo = small ? smallCrownGeo : crownGeo
+        const mat = small ? darkCrownMat : crownMat
+        const crown = new THREE.Mesh(geo, mat)
+        crown.position.set(x, small ? 1.9 : 2.2, z)
+        crown.castShadow = true
+        this.townGroup.add(crown)
+      }
+    }
+  }
+
+  /* ───────── Benches ───────── */
+
+  private buildBenches(assets: AssetLoader): void {
+    const plazaBenches: [number, number, number][] = [
+      [15, 0, 11], [21, 0, 11], [15, 0, 15], [21, 0, 15], // [17, 0, 10], [19, 0, 16],
+    ]
+    const parkBenches: [number, number, number][] = [
+      // [10, 0, 19], [15, 0, 19], [10, 0, 21], [14, 0, 21],
+    ]
+
+    const seatMat = new THREE.MeshLambertMaterial({ color: 0x8b6c42 })
+    const legMat = new THREE.MeshLambertMaterial({ color: 0x444444 })
+    const seatGeo = new THREE.BoxGeometry(1.2, 0.08, 0.4)
+    const legGeo = new THREE.BoxGeometry(0.06, 0.35, 0.06)
+    const backGeo = new THREE.BoxGeometry(1.2, 0.5, 0.06)
+
+    for (const [x, , z] of [...plazaBenches, ...parkBenches]) {
+      const model = assets.getPropModel('bench')
+      if (model) {
+        this.placeModel(model, x, 0, z, 6.0)
+      } else {
+        const seat = new THREE.Mesh(seatGeo, seatMat)
+        seat.position.set(x, 0.4, z)
+        seat.castShadow = true
+        this.townGroup.add(seat)
+
+        const back = new THREE.Mesh(backGeo, seatMat)
+        back.position.set(x, 0.65, z - 0.17)
+        back.castShadow = true
+        this.townGroup.add(back)
+
+        for (const ox of [-0.5, 0.5]) {
+          for (const oz of [-0.12, 0.12]) {
+            const leg = new THREE.Mesh(legGeo, legMat)
+            leg.position.set(x + ox, 0.175, z + oz)
+            this.townGroup.add(leg)
+          }
+        }
+      }
+    }
+  }
+
+  /* ───────── Fountain ───────── */
+
+  private buildFountain(assets: AssetLoader): void {
+    const stoneMat = new THREE.MeshLambertMaterial({ color: 0xbbbbbb })
+
+    const base = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.6, 0.3, 12), stoneMat)
+    base.position.set(18, 0.15, 13)
+    base.castShadow = true
+    base.receiveShadow = true
+    this.townGroup.add(base)
+
+    const wall = new THREE.Mesh(new THREE.CylinderGeometry(1.3, 1.3, 0.5, 12), stoneMat)
+    wall.position.set(18, 0.55, 13)
+    this.townGroup.add(wall)
+
+    const capybara = assets.getPropModel('capybara')
+    if (capybara) {
+      capybara.traverse(child => {
+        if (!(child as THREE.Mesh).isMesh) return
+        const mats = Array.isArray((child as THREE.Mesh).material)
+          ? (child as THREE.Mesh).material as THREE.MeshStandardMaterial[]
+          : [(child as THREE.Mesh).material as THREE.MeshStandardMaterial]
+        for (const mat of mats) {
+          if (mat.color) {
+            const hsl = { h: 0, s: 0, l: 0 }
+            mat.color.getHSL(hsl)
+            mat.color.setHSL(hsl.h, Math.min(hsl.s * 1.6, 1.0), hsl.l)
+          }
+          if (mat.map) mat.map.colorSpace = THREE.SRGBColorSpace
+          mat.roughness = Math.max((mat.roughness ?? 1) * 0.75, 0.35)
+        }
+      })
+      const box = new THREE.Box3().setFromObject(capybara)
+      const size = box.getSize(new THREE.Vector3())
+      const maxDim = Math.max(size.x, size.y, size.z)
+      const targetSize = 4.0
+      const scale = maxDim > 0 ? targetSize / maxDim : 8.0
+      const yOffset = -box.min.y * scale
+      this.placeModel(capybara, 18, 0.8 + yOffset, 13, scale)
+    }
+  }
+
+  private buildFlowerBeds(): void {
+    const flowerColors = [0xff6688, 0xffaa33, 0xff44aa, 0xaa44ff, 0xffff44]
+    const stemMat = new THREE.MeshLambertMaterial({ color: 0x44882c })
+    const stemGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.25, 4)
+    const petalGeo = new THREE.SphereGeometry(0.08, 5, 4)
+
+    const bedCenters: [number, number][] = [
+      [5, 4], [5, 8], [5, 13], [30, 5], [30, 11], [9, 17], [35, 14],
+    ]
+
+    for (const [cx, cz] of bedCenters) {
+      for (let i = 0; i < 5; i++) {
+        const fx = cx + (Math.random() - 0.5) * 1.2
+        const fz = cz + (Math.random() - 0.5) * 1.2
+        const colorIdx = (cx * 7 + cz * 3 + i) % flowerColors.length
+
+        const stem = new THREE.Mesh(stemGeo, stemMat)
+        stem.position.set(fx, 0.125, fz)
+        this.townGroup.add(stem)
+
+        const petalMat = new THREE.MeshLambertMaterial({
+          color: flowerColors[colorIdx],
+          emissive: flowerColors[colorIdx],
+          emissiveIntensity: 0.15,
+        })
+        const petal = new THREE.Mesh(petalGeo, petalMat)
+        petal.position.set(fx, 0.28, fz)
+        this.townGroup.add(petal)
+      }
+    }
+  }
+
+  /* ───────── Fire Hydrants ───────── */
+
+  private buildFireHydrants(assets: AssetLoader): void {
+    const positions: [number, number][] = [
+      [7, 21],
+      [27, 21],
+      [18, 21],
+    ]
+
+    for (const [x, z] of positions) {
+      const model = assets.getPropModel('firehydrant')
+      if (model) {
+        this.placeModel(model, x, 0, z, 3.5)
+      }
+    }
+  }
+}

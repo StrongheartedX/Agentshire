@@ -1,0 +1,105 @@
+---
+description: UI 布局与组件开发规范 — 在编辑 town-frontend/src/ 下的 UI 文件时自动应用
+globs:
+  - town-frontend/src/app/**
+  - town-frontend/src/components/**
+  - town-frontend/src/ui/**
+  - town-frontend/src/styles/**
+  - town-frontend/index.html
+alwaysApply: false
+---
+
+# UI 布局与组件开发规范
+
+## 技术栈
+
+- **React 18** + TypeScript（`.tsx`）用于所有新增 UI 组件
+- **Tailwind CSS v4**（通过 `@import "tailwindcss"` 引入）用于样式
+- **shadcn/ui** 组件库（`src/components/ui/`）
+- **Lucide React** 图标（`lucide-react`）— 不用 emoji 做图标
+- 路径别名：`@/` 指向 `src/`
+- 工具函数：`cn()` 来自 `@/lib/utils`
+
+## 布局架构
+
+```
+App.tsx（根组件）
+├── TopNav          — 顶部导航（Tab 切换 + 右上角菜单）
+├── TownView        — 小镇模式（包裹 legacy vanilla Three.js）
+│   └── #game-root  — 原生 DOM，由 town-boot.ts 初始化
+└── ChatView        — 聊天模式（纯 React）
+```
+
+## z-index 分层（必须遵守）
+
+| 层级 | z-index | 用途 |
+|------|---------|------|
+| 场景层 | 0 | 3D canvas、ChatBubble |
+| 内容层 | 10 | NpcCard、进度条 |
+| HUD 层 | 20 | TimeHUD、ModeIndicator |
+| 输入层 | 30 | InputBar（底部浮岛） |
+| 导航层 | 40 | TopNav、模式切换器 |
+| 面板层 | 50 | 聊天面板 overlay |
+| 遮罩层 | 60 | backdrop（blur + dim） |
+| 弹窗层 | 70 | SkillPanel、TownSetup、MediaPreview |
+| Toast 层 | 80 | Toast 通知 |
+| Loading 层 | 90 | 全屏 loading |
+
+**禁止**使用 z-index > 100 的值。现有代码中 z-index: 999 的元素需要逐步迁移。
+
+## 颜色 Token
+
+使用现有的 CSS 变量，不要发明新色值：
+
+```css
+--town-bg: #050508;
+--town-surface: #0a0a12;
+--town-border: #1a1a2e;
+--town-text: #e8e8f0;
+--town-dim: #6a6a8a;
+--town-accent: #45E796;   /* 绿色重点 */
+--town-cyan: #00d4ff;     /* 青色重点 */
+--town-red: #f87171;      /* 错误/危险 */
+```
+
+Tailwind 中使用 `bg-[rgba(10,10,18,0.92)]` 等直接值，或引用 CSS 变量 `bg-[var(--town-surface)]`。
+
+## 组件开发规则
+
+### 新组件必须用 React
+- 所有新增 UI 组件用 `.tsx` 文件，放在 `src/app/` 或 `src/components/`
+- 使用 `cn()` 合并 className
+- 使用 Lucide React 图标，不用 emoji
+- 使用 shadcn/ui 基础组件（Dialog、DropdownMenu、Sheet 等）
+
+### 不修改的 Vanilla 区域
+- `src/game/` — Three.js 场景和工作流
+- `src/npc/` — NPC 系统
+- `src/engine/` — 渲染引擎
+- `src/audio/` — 音频系统
+- `src/editor/` — 编辑器
+- `src/ui/ChatBubble.ts` — 3D 气泡（依赖 canvas 坐标）
+
+### 禁止的模式
+- ❌ `Object.assign(el.style, {...})` 做布局定位（新代码）
+- ❌ `position: fixed` + 硬编码 `top/left` 像素值
+- ❌ `document.createElement` + `document.body.appendChild`（新 UI）
+- ❌ z-index > 100
+- ❌ emoji 作为 UI 图标（✨💬🏘️ 等）
+- ❌ 多个独立 fixed 元素占据同一位置
+
+### 响应式断点
+- 手机：`< 768px`（`md` 以下）
+- 桌面：`>= 768px`（`md` 以上）
+- 最小触摸目标：44x44px
+
+### 动画
+- 微交互：150-300ms
+- 面板滑入/滑出：200-300ms
+- 使用 `transition-colors`、`transition-opacity`，不用 `transition-all`
+- 尊重 `prefers-reduced-motion`
+
+## 文件命名
+- React 组件：PascalCase（`TopNav.tsx`、`ChatView.tsx`）
+- 工具/hooks：camelCase（`useAppMode.ts`、`utils.ts`）
+- CSS 文件：kebab-case（`town-panel.css`）

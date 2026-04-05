@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agentshire Editor</title>
+  <link rel="icon" href="/src/assets/logo.png" />
+  <link rel="stylesheet" href="/src/styles/editor.css" />
+</head>
+<body>
+  <div id="editor-root">
+    <!-- 3D Canvas (full screen, behind everything) -->
+    <div id="scene-container"></div>
+
+    <!-- Loading overlay -->
+    <div id="editor-loading">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">加载美术资产...</div>
+      <div class="loading-progress" id="loading-progress"></div>
+    </div>
+
+    <!-- Top Nav Bar: brand + module tabs + global actions -->
+    <div id="editor-toolbar">
+      <a class="toolbar-brand" href="/">
+        <img src="/src/assets/logo-title.png" alt="Agentshire" class="toolbar-logo" />
+      </a>
+      <nav class="editor-mode-switch" aria-label="工坊切换">
+        <div class="editor-mode-indicator"></div>
+        <button type="button" class="editor-mode-btn active" data-mode="scene">
+          场景工坊
+        </button>
+        <a class="editor-mode-btn" href="citizen-editor.html">
+          角色工坊
+        </a>
+      </nav>
+
+      <span class="toolbar-spacer"></span>
+
+      <div class="toolbar-section">
+        <button class="toolbar-btn" id="btn-undo" title="撤销 (Ctrl+Z)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+        </button>
+        <button class="toolbar-btn" id="btn-redo" title="重做 (Ctrl+Shift+Z)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.13-9.36L23 10"/></svg>
+        </button>
+      </div>
+
+      <div class="toolbar-section">
+        <button class="toolbar-btn" id="btn-save" title="保存 (Ctrl+S)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          保存
+        </button>
+        <button class="toolbar-btn" id="btn-preview" title="预览模式 (P)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          预览
+        </button>
+        <button class="toolbar-btn-primary" id="btn-publish" disabled title="Coming Soon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+          发布
+        </button>
+        <div class="more-dropdown">
+          <button class="toolbar-btn" id="btn-more" title="更多">
+            <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+          </button>
+          <div class="more-menu" id="more-menu">
+            <button id="btn-import">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              导入地图
+            </button>
+            <button id="btn-export">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              导出地图
+            </button>
+            <div class="menu-divider"></div>
+            <button id="btn-clear" class="menu-danger">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+              清空地图
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Floating Toolbar (Figma-style, scene mode context tools) -->
+    <div id="scene-toolbar">
+      <div class="ftb-group">
+        <button class="ftb-btn active" data-tool="select" data-tip="选择 (V)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>
+        </button>
+        <button class="ftb-btn" data-tool="terrain" data-tip="地形刷 (T)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>
+        </button>
+        <button class="ftb-btn" data-tool="erase" data-tip="删除 (X)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+        </button>
+      </div>
+
+      <div class="ftb-divider"></div>
+
+      <div class="ftb-group">
+        <button class="ftb-btn" id="btn-bindings" data-tip="功能绑定">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+        </button>
+        <div class="resize-dropdown resize-dropdown--up">
+          <button class="ftb-btn" id="btn-resize-trigger" data-tip="扩建地图">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+          </button>
+          <div class="resize-menu" id="resize-menu">
+            <button data-dir="right" data-amount="8">→ 向右扩展 +8 列</button>
+            <button data-dir="bottom" data-amount="8">↓ 向下扩展 +8 行</button>
+            <button data-dir="left" data-amount="8">← 向左扩展 +8 列</button>
+            <button data-dir="top" data-amount="8">↑ 向上扩展 +8 行</button>
+            <div class="resize-divider"></div>
+            <button data-dir="right" data-amount="-8">→ 向右收缩 -8 列</button>
+            <button data-dir="bottom" data-amount="-8">↓ 向下收缩 -8 行</button>
+            <button data-dir="left" data-amount="-8">← 向左收缩 -8 列</button>
+            <button data-dir="top" data-amount="-8">↑ 向上收缩 -8 行</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="ftb-divider"></div>
+
+      <div class="ftb-group">
+        <div class="ftb-camera-toggle" id="btn-camera-toggle" data-tip="透视模式 (Tab)">
+          <div class="ftb-camera-track">
+            <div class="ftb-camera-thumb">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Terrain bar (above bottom toolbar, only visible in terrain mode) -->
+    <div id="terrain-bar"></div>
+
+    <!-- Left: Asset palette (floating) -->
+    <div id="asset-palette">
+      <div class="panel-header">
+        <span class="panel-title">资产库</span>
+        <button class="panel-collapse" id="btn-collapse-palette">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+      </div>
+      <div class="palette-tabs">
+        <button class="palette-tab active" data-category="buildings">建筑</button>
+        <button class="palette-tab" data-category="roads">道路</button>
+        <button class="palette-tab" data-category="nature">自然</button>
+        <button class="palette-tab" data-category="streetProps">道具</button>
+      </div>
+      <div class="palette-list" id="palette-list"></div>
+    </div>
+    <!-- Expand button (must be AFTER #asset-palette for ~ selector) -->
+    <button id="btn-expand-palette" class="palette-expand-btn" title="展开资产面板">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+      <span class="expand-label">资产库</span>
+    </button>
+
+    <!-- Right: Property inspector (floating, appears on selection) -->
+    <div id="property-inspector"></div>
+
+    <!-- Asset preview floating window (right of palette) -->
+    <div id="asset-preview">
+      <div class="preview-header">
+        <span class="preview-title">资产预览</span>
+        <button class="preview-close">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="preview-canvas-wrap">
+        <canvas></canvas>
+      </div>
+      <div class="preview-info">
+        <span class="preview-name">-</span>
+        <span class="preview-size">-</span>
+      </div>
+    </div>
+
+    <!-- Binding panel overlay -->
+    <div id="binding-overlay">
+      <div id="binding-panel"></div>
+    </div>
+
+    <!-- Confirm dialog -->
+    <div id="confirm-overlay">
+      <div class="confirm-dialog">
+        <div class="confirm-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div class="confirm-title" id="confirm-title">清空地图</div>
+        <div class="confirm-message" id="confirm-message">确定要清空当前地图吗？此操作不可撤销。</div>
+        <div class="confirm-actions">
+          <button class="confirm-btn confirm-cancel" id="confirm-cancel">取消</button>
+          <button class="confirm-btn confirm-ok" id="confirm-ok">确定</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upload asset overlay -->
+    <div id="upload-overlay">
+      <div class="upload-panel"></div>
+    </div>
+
+    <!-- Status bar (bottom-left, minimal) -->
+    <div id="status-bar">
+      <span id="status-grid">40 × 24</span>
+      <span id="status-buildings">建筑: 0</span>
+      <span id="status-props">道具: 0</span>
+      <span id="status-cursor">--</span>
+      <span class="status-spacer"></span>
+      <span id="status-tool">选择模式</span>
+      <span id="status-draft"></span>
+    </div>
+
+  </div>
+
+  <script type="module" src="/src/editor/main.ts"></script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+{
+  "version": 1,
+  "user": {
+    "name": "镇长",
+    "avatarId": "char-male-c",
+    "modelSource": "builtin"
+  },
+  "steward": {
+    "name": "shire",
+    "avatarId": "char-female-b",
+    "modelSource": "builtin",
+    "bio": "干练御姐，做事利落，职业经理型，善于引导对话，不亲自写代码，通过调度居民完成任务",
+    "persona": "SOUL"
+  },
+  "citizens": [
+    {
+      "id": "citizen_1",
+      "name": "岩",
+      "avatarId": "char-male-b",
+      "modelSource": "builtin",
+      "bio": "沉稳寡言，逻辑至上，架构洁癖，全局视野，技术信仰者",
+      "industry": "互联网",
+      "specialty": "架构设计",
+      "persona": "YAN",
+      "homeId": "house_a"
+    },
+    {
+      "id": "citizen_2",
+      "name": "橙子",
+      "avatarId": "char-female-c",
+      "modelSource": "builtin",
+      "bio": "脑子转速极快，想法多到溢出来，开朗到有点吵，对用户体验有偏执的共情力",
+      "industry": "产品设计",
+      "specialty": "产品经理",
+      "persona": "CHENGZI",
+      "homeId": "house_b"
+    },
+    {
+      "id": "citizen_3",
+      "name": "海棠",
+      "avatarId": "char-female-e",
+      "modelSource": "builtin",
+      "bio": "安静优雅，审美洁癖，话少但每句都跟视觉有关，色彩感知力异常",
+      "industry": "产品设计",
+      "specialty": "UI设计",
+      "persona": "HAITANG",
+      "homeId": "house_c"
+    },
+    {
+      "id": "citizen_4",
+      "name": "点点",
+      "avatarId": "char-female-f",
+      "modelSource": "builtin",
+      "bio": "温暖阳光，邻家妹妹型程序员，技术扎实但从不炫耀，团队气氛担当",
+      "industry": "互联网",
+      "specialty": "前端开发",
+      "persona": "DIANDIAN",
+      "homeId": "house_a"
+    },
+    {
+      "id": "citizen_5",
+      "name": "小烈",
+      "avatarId": "char-male-e",
+      "modelSource": "builtin",
+      "bio": "热血冲劲，行动派，先干再说，效率惊人，遇到技术难题像打BOSS一样兴奋",
+      "industry": "互联网",
+      "specialty": "后端开发",
+      "persona": "XIAOLIE",
+      "homeId": "house_b"
+    },
+    {
+      "id": "citizen_6",
+      "name": "柒柒",
+      "avatarId": "char-female-d",
+      "modelSource": "builtin",
+      "bio": "灵感涌泉，表达欲旺盛，自媒体老手，知道什么能火但更在意内容有没有价值",
+      "industry": "自媒体",
+      "specialty": "内容运营",
+      "persona": "QIQI",
+      "homeId": "house_c"
+    },
+    {
+      "id": "citizen_7",
+      "name": "辰",
+      "avatarId": "char-male-d",
+      "modelSource": "builtin",
+      "bio": "冷静理性，数据洁癖，沉默但一开口就是结论，用数据说话是信仰不是习惯",
+      "industry": "数据",
+      "specialty": "数据分析",
+      "persona": "CHEN",
+      "homeId": "house_a"
+    }
+  ]
+}
