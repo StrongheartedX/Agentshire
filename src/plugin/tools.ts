@@ -1,3 +1,4 @@
+// @ts-ignore — OpenClawPluginToolFactory not re-exported from SDK barrel
 import type { OpenClawPluginToolFactory } from "openclaw/plugin-sdk";
 import { mkdirSync, existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -356,7 +357,7 @@ export function createTownTools(): OpenClawPluginToolFactory {
         if (!Array.isArray(steps) || steps.length === 0) return "Error: at least one step is required.";
 
         const roster = loadCitizenRoster();
-        const result = createPlan(name, type, projectDir, roster, steps);
+        const result = createPlan(name, type, projectDir, roster, steps as any);
 
         if (!result.startsWith('Error:')) {
           try {

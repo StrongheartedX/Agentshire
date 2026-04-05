@@ -771,6 +771,7 @@ function computeChangeset(
     citizenName: string;
     agentId: string;
     soulContent?: string;
+    specialty?: string;
   }>;
 } {
   const oldChars: any[] = oldConfig?.characters ?? [];
@@ -788,6 +789,7 @@ function computeChangeset(
     citizenName: string;
     agentId: string;
     soulContent?: string;
+    specialty?: string;
   }> = [];
 
   function buildAgentId(citizenId: string): string {

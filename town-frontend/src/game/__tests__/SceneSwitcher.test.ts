@@ -137,7 +137,7 @@ describe('SceneSwitcher', () => {
 
   it('restores office layout when re-entering office during work mode (working sub-state)', async () => {
     deps.modeManager.isWorkMode = vi.fn(() => true)
-    deps.modeManager.getWorkSubState = vi.fn(() => 'working')
+    deps.modeManager.getWorkSubState = vi.fn(() => 'working' as const)
     deps.getActiveOfficeNpcIds = vi.fn(() => ['citizen_1'])
 
     await switcher.switchScene('office')
