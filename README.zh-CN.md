@@ -280,8 +280,13 @@ cd town-frontend && npx vitest run    # 前端
 
 ### 下载方式
 
-1. 从 [GitHub Releases](https://github.com/Agentshire/Agentshire/releases) 下载 `agentshire-assets.zip`
-2. 解压到插件根目录，确保目录结构为：
+1. 从 [GitHub Releases](https://github.com/Agentshire/Agentshire/releases) 下载 `agentshire-assets.7z`（约 164MB，解压后约 4.4GB）
+2. 解压到插件根目录：
+   ```bash
+   cd /path/to/agentshire
+   7z x agentshire-assets.7z
+   ```
+3. 确保目录结构为：
 
 ```
 agentshire/

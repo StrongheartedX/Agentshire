@@ -282,8 +282,13 @@ For advanced features, download the optional asset pack:
 
 ### Download
 
-1. Download `agentshire-assets.zip` from [GitHub Releases](https://github.com/Agentshire/Agentshire/releases)
-2. Extract to the plugin root, ensuring this structure:
+1. Download `agentshire-assets.7z` from [GitHub Releases](https://github.com/Agentshire/Agentshire/releases) (~164MB, expands to ~4.4GB)
+2. Extract to the plugin root:
+   ```bash
+   cd /path/to/agentshire
+   7z x agentshire-assets.7z
+   ```
+3. Verify the directory structure:
 
 ```
 agentshire/
