@@ -236,6 +236,7 @@ export class DailyBehavior {
 
   update(deltaTime: number, _allNpcs: NPC[]): void {
     if (!this.active || this._inDialogue) return
+    if (!this.isLifeState()) return
     const dtMs = deltaTime * 1000
 
     if (this.pendingWake) {
