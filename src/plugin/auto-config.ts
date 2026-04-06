@@ -113,15 +113,12 @@ export async function ensureTownAgentConfig(): Promise<void> {
 
     const DEFAULT_TIMEOUT = 600;
     const subagents = cfg.agents?.defaults?.subagents ?? {};
-    const needTimeout = !subagents.runTimeoutSeconds || subagents.runTimeoutSeconds < DEFAULT_TIMEOUT;
-    const needAnnounce = subagents.announce !== "skip";
-    if (needTimeout || needAnnounce) {
+    if (!subagents.runTimeoutSeconds || subagents.runTimeoutSeconds < DEFAULT_TIMEOUT) {
       cfg.agents = cfg.agents ?? {};
       cfg.agents.defaults = cfg.agents.defaults ?? {};
       cfg.agents.defaults.subagents = {
         ...subagents,
         runTimeoutSeconds: Math.max(subagents.runTimeoutSeconds ?? 0, DEFAULT_TIMEOUT),
-        announce: "skip",
       };
       dirty = true;
     }

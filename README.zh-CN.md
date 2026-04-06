@@ -78,9 +78,7 @@ openclaw plugins install agentshire
 1. 在 `~/.openclaw/agents/town-steward/` 创建管家专属工作区
 2. 在 `openclaw.json` 中注册 `town-steward` Agent
 3. 添加路由规则，将小镇频道的消息路由到管家
-4. 在 `openclaw.json` 中配置子 Agent 默认参数：
-   - `runTimeoutSeconds: 600` — 子 Agent 运行超时 10 分钟，防止提前终止
-   - `announce: "skip"` — 禁止子 Agent 完成后向 main agent 发通知，避免其干扰管家的计划编排
+4. 在 `openclaw.json` 中设置 `subagents.runTimeoutSeconds: 600` — 子 Agent 运行超时 10 分钟，防止提前终止
 
 **无需手动配置。**
 

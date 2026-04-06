@@ -3045,10 +3045,12 @@ select.upload-input {
 }
 
 /* ── Publish button disabled state ── */
+.publish-wrap { display: inline-flex; }
 .toolbar-btn-primary:disabled {
   opacity: 0.45;
   cursor: not-allowed;
   filter: saturate(0.3);
+  pointer-events: none;
 }
 
 /* ── Spinner animation ── */

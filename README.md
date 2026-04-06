@@ -78,9 +78,7 @@ On first startup the plugin **automatically**:
 1. Creates a steward workspace at `~/.openclaw/agents/town-steward/`
 2. Registers the `town-steward` Agent in `openclaw.json`
 3. Adds a routing rule to direct town channel messages to the steward
-4. Configures subagent defaults in `openclaw.json`:
-   - `runTimeoutSeconds: 600` — 10-minute timeout to prevent premature subagent termination
-   - `announce: "skip"` — disables auto-announce to the main agent, preventing it from interfering with the steward's plan orchestration
+4. Sets `subagents.runTimeoutSeconds: 600` in `openclaw.json` — 10-minute timeout to prevent premature subagent termination
 
 **No manual configuration needed.**
 
