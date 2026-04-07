@@ -4,199 +4,199 @@
 > Agentshire is an OpenClaw plugin that turns AI agents into living NPCs in a 3D town with UGC tools.  
 > See [README](./README.md) for full feature list, [VISION](./VISION.md) for why we're building this.
 
-> Agentshire 已经不缺一个愿景。  
-> 现在最需要的，是把地基打稳——让每个人都能装上、跑起来、稳定用。
+> Agentshire doesn't lack a vision.  
+> What it needs most right now is a solid foundation — so everyone can install it, run it, and rely on it.
 
 ---
 
-## 我们已经建成的 ✅
+## What We've Built ✅
 
-Agentshire 不是一个还在 PPT 里的项目。今天它已经具备：
+Agentshire is not a slide deck. It's a working system with:
 
-- **3D 小镇 + IM Chat** 双模式界面，实时气泡对话，多模态支持
-- **Agent = NPC** 实时映射，游戏动画编排（召唤→分配→编码→庆祝→返回）
-- **昼夜循环 + 12 种天气 + 程序合成环境音（零音频文件）+ 4 轨动态 BGM**
-- **居民工坊**：三源角色模型（内置 12 + Library 300+ + 自定义上传）、AI 生成灵魂、8 槽位动画映射、发布为独立 Agent
-- **小镇编辑器**：拖拽放置建筑/道路/灯光，组合/对齐/撤销，JSON 导出 + 游戏级预览
-- **灵魂模式（基础版）**：AI 大脑三层决策 + LLM 深度对话 + 关系图谱
-- **零 LLM 日常社交** + 班味消除小游戏
+- **3D Town + IM Chat** dual-mode interface, real-time dialog bubbles, multimodal support
+- **Agent = NPC** real-time mapping, cinematic workflow choreography (summon → assign → code → celebrate → return)
+- **Day/night cycle + 12 weather types + procedural ambient sound (zero audio files) + 4-track dynamic BGM**
+- **Citizen Workshop**: three-source character models (12 built-in + 300+ library + custom upload), AI soul generation, 8-slot animation mapping, publish as independent Agents
+- **Town Editor**: drag-and-drop buildings/roads/lights, grouping/alignment/undo, JSON export + game-level preview
+- **Soul Mode (basic)**: AgentBrain 3-tier AI decisions + LLM deep conversations + relationship graph
+- **Zero-LLM daily social interactions** + Banwei Buster mini-game
 
-所以这份路线图的重点，不是"从 0 到 1"，而是**先让地基稳固，再往上盖楼**。
+The focus of this roadmap is not "0 to 1" — it's **stabilizing the foundation before building higher**.
 
 ---
 
-## 当前冲刺 🔥
+## Current Sprint 🔥
 
-> 核心原则：**先让小镇稳定跑起来，再让它好玩。**
+> Core principle: **Make the town run reliably first, then make it fun.**
 
-| # | 方向 | 状态 | 需要 |
-|---|------|------|------|
-| 1 | **OpenClaw 版本兼容** | 🚨 最高优先 | 架构师 · 系统工程师 |
-| 2 | **npm 一键安装** | 阻断中 | 系统工程师 |
-| 3 | **插件稳定性** | 进行中 | 全栈工程师 |
-| 4 | 灵魂模式完善 | 进行中 | AI 工程师 · 前端 |
-| 5 | 地图编辑器与小镇打通 | 进行中 | Three.js 前端 · 系统程序 |
-| 6 | 开源发布与社区基建 | 进行中 | 所有愿意帮忙的人 |
+| # | Direction | Status | Needs |
+|---|-----------|--------|-------|
+| 1 | **OpenClaw Version Compatibility** | 🚨 Highest Priority | Architect · Systems Engineer |
+| 2 | **npm One-Click Install** | Blocked | Systems Engineer |
+| 3 | **Plugin Stability** | In Progress | Full-Stack Engineer |
+| 4 | Soul Mode Improvements | In Progress | AI Engineer · Frontend |
+| 5 | Editor ↔ Town Integration | In Progress | Three.js Frontend · Systems |
+| 6 | Open Source & Community | In Progress | Everyone willing to help |
 
-### 1. OpenClaw 版本兼容（最高优先）
+### 1. OpenClaw Version Compatibility (Highest Priority)
 
-功能再多，用户装不上、升级就挂，都是白搭。这是当前最大的瓶颈。
+No matter how many features we add, if users can't install it or upgrading breaks everything, none of it matters. This is the biggest bottleneck right now.
 
-**现状**：仅 OpenClaw 2026.3.13 完整可用。4.x 不可用，npm 安装被拦截。
+**Current state**: Only OpenClaw 2026.3.13 is fully supported. 4.x is broken. npm install is blocked by the security scanner.
 
-- [ ] **4.x Channel 初始化回归**：外部插件的 `defineChannelPluginEntry` 生命周期未被正确调用，需跟进上游修复或找到兼容方案
-- [ ] **Rollup code-splitting 导致工具注册不可见**：`api.registerTool()` 在不同 JS chunk 间的状态隔离，需要上游修复或 workaround
-- [ ] **插件 SDK API 可用性差异**：`runEmbeddedPiAgent`（3.13 不可用）/ `subagent.run()`（仅 gateway 请求上下文可用）/ `prepareSimpleCompletionModel()`（LLM 直调），需封装统一兼容层
-- [ ] **安全扫描器误报**：`child_process`（浏览器启动）和 LLM proxy（env + network）被标记为危险代码，需重构以通过扫描或推动上游白名单机制
-- [ ] 建立跨版本兼容测试矩阵（3.13 / 4.x / latest）
+- [ ] **4.x Channel initialization regression**: External plugin `defineChannelPluginEntry` lifecycle is not correctly invoked — needs upstream fix or a compatibility workaround
+- [ ] **Rollup code-splitting breaks tool registration**: `api.registerTool()` state is isolated across JS chunks, making tools invisible to the agent runtime — needs upstream fix or workaround
+- [ ] **Plugin SDK API availability varies by version**: `runEmbeddedPiAgent` (unavailable on 3.13) / `subagent.run()` (only works in gateway request context) / `prepareSimpleCompletionModel()` (direct LLM call) — needs a unified compatibility layer
+- [ ] **Security scanner false positives**: `child_process` (browser launch) and LLM proxy (env + network) flagged as dangerous — needs refactoring to pass the scanner or upstream allowlist support
+- [ ] Establish a cross-version compatibility test matrix (3.13 / 4.x / latest)
 
-**目标**：同时支持 3.13 + 最新 stable 版本，新版本发布后 48 小时内验证兼容性。
+**Goal**: Support 3.13 + latest stable simultaneously. Verify compatibility within 48 hours of a new OpenClaw release.
 
-### 2. npm 一键安装
+### 2. npm One-Click Install
 
-当前 `openclaw plugins install agentshire` 被安全扫描阻断，用户只能 clone → build → link 安装。
+`openclaw plugins install agentshire` is currently blocked by the security scanner. Users must clone → build → link install.
 
-- [ ] 重构浏览器启动方式，消除 `child_process` 依赖（或推动 OpenClaw 提供安全的 `api.runtime.openUrl()` 接口）
-- [ ] 重构 LLM proxy 的 API Key 解析路径，彻底消除 `process.env` 访问
-- [ ] 通过 OpenClaw 安全扫描，实现 `openclaw plugins install agentshire` 开箱即用
-- [ ] 自动化 npm 发布流水线（GitHub Actions）
+- [ ] Refactor browser launch to eliminate `child_process` dependency (or push OpenClaw to provide a safe `api.runtime.openUrl()` API)
+- [ ] Refactor LLM proxy API key resolution to eliminate all `process.env` access
+- [ ] Pass OpenClaw security scanner — make `openclaw plugins install agentshire` work out of the box
+- [ ] Automated npm publish pipeline (GitHub Actions)
 
-**目标**：一行命令安装，无需 `--dangerously-force-unsafe-install`。
+**Goal**: One command to install. No `--dangerously-force-unsafe-install` required.
 
-### 3. 插件稳定性
+### 3. Plugin Stability
 
-让已经能跑的功能真正稳定。
+Make existing features truly reliable.
 
-- [ ] ActivityStream 状态匹配修复：`tool_result` 乱序到达导致"步骤永远 in progress"
-- [ ] 冷启动场景下 ChatSessionWatcher 可靠性增强
-- [ ] WebSocket 重连后的完整状态恢复（工作流阶段 + NPC 位置 + 对话上下文）
-- [ ] 错误提示优化：安装失败 / 连接失败 / LLM 配置缺失时给出清晰的诊断信息
-- [ ] 安装诊断命令：帮助用户自查环境问题
+- [ ] ActivityStream state matching fix: out-of-order `tool_result` arrivals cause "step forever in progress"
+- [ ] ChatSessionWatcher reliability in cold-start scenarios
+- [ ] Full state recovery after WebSocket reconnect (workflow phase + NPC positions + dialog context)
+- [ ] Better error messages: clear diagnostics for install failure / connection failure / missing LLM config
+- [ ] Diagnostic command: help users self-check their environment
 
-### 4. 灵魂模式完善
+### 4. Soul Mode Improvements
 
-NPC 已经能自己做决定了。但如果它们睡一觉就忘掉今天发生的事，那算不上真正的生活。
+NPCs can already make their own decisions. But if they forget everything after a "night's sleep," that's not really living.
 
-- [ ] NPC 长期记忆持久化（跨会话记住重要事件）
-- [ ] 灵魂模式的产品开关与行为配置面板
-- [ ] implicit-chat token 成本控制与回退策略优化
+- [ ] NPC long-term memory persistence (remember important events across sessions)
+- [ ] Soul Mode product toggle and behavior configuration panel
+- [ ] implicit-chat token cost control and fallback strategy optimization
 
-### 5. 地图编辑器与小镇打通
+### 5. Editor ↔ Town Integration
 
-你在编辑器里搭好了地图，点下导出——然后呢？现在还差最后一步。
+You've built a beautiful map in the editor, hit export — then what? There's one last step missing.
 
-- [ ] 运行时加载编辑器导出的 JSON 地图数据
-- [ ] 自定义建筑的交互绑定与灯光恢复
-- [ ] 寻路图随地图变化自动生成
+- [ ] Load editor-exported JSON map data at runtime
+- [ ] Custom building interaction binding and lighting restoration
+- [ ] Auto-generate pathfinding graph when map changes
 
-### 6. 开源发布与社区基建
+### 6. Open Source & Community
 
-- [ ] npm 包自动化发布（依赖 #2 完成）
+- [ ] Automated npm package publishing (depends on #2)
 - [x] CONTRIBUTING.md
-- [x] 首次启动欢迎信息与操作指引
-- [ ] 完善错误诊断与 FAQ 文档
+- [x] First-launch welcome message and onboarding guide
+- [ ] Comprehensive error diagnostics and FAQ documentation
 
 ---
 
-## 下一步 🗺️
+## Up Next 🗺️
 
-### 插件 SDK 兼容层
+### Plugin SDK Compatibility Layer
 
-抽象一层统一的 compat shim，屏蔽 OpenClaw 不同版本的 API 差异：
+Abstract a unified compat shim to hide OpenClaw version differences:
 
-- **LLM 调用**：自动选择 `prepareSimpleCompletionModel` → `runEmbeddedPiAgent` → direct fetch 回退链
-- **工具注册**：检测 `registerTool` 是否生效，自动补充 workspace `TOOLS.md` 兜底
-- **Workspace 路径**：统一解析逻辑，兼容不同版本的默认路径约定
-- **子 Agent 管理**：封装 `subagent.run()` 的上下文限制，提供统一的异步任务接口
+- **LLM calls**: Auto-select from `prepareSimpleCompletionModel` → `runEmbeddedPiAgent` → direct fetch fallback chain
+- **Tool registration**: Detect if `registerTool` is effective, auto-supplement with workspace `TOOLS.md` as fallback
+- **Workspace paths**: Unified resolution logic compatible with different version defaults
+- **Sub-agent management**: Wrap `subagent.run()` context limitations behind a unified async task interface
 
-### 开发者体验
+### Developer Experience
 
-- e2e 测试覆盖：安装 → 启动 → 对话 → 工作流全链路自动化验证
-- 版本兼容性 CI：每个 PR 自动在多个 OpenClaw 版本上跑测试
-- 插件开发文档：让其他开发者能参考 Agentshire 的模式开发自己的 OpenClaw 插件
+- e2e test coverage: install → start → chat → workflow full pipeline automated verification
+- Version compatibility CI: every PR automatically tested across multiple OpenClaw versions
+- Plugin development docs: let other developers use Agentshire as a reference for building their own OpenClaw plugins
 
-### 手机版完整体验
+### Mobile Experience
 
-难点不在响应式布局——真正的难点是：**手机如何和本地电脑上的 OpenClaw 无缝打通。**
+The hard part isn't responsive layout — it's: **how does a phone seamlessly connect to OpenClaw running on a local machine?**
 
-- [ ] 解决移动端与本地 Gateway 的 WebSocket 穿透（可能需要云端中继）
-- [ ] 移动端 3D 性能优化（模型 LOD、粒子降级）
-
----
-
-## 中期愿景：让小镇真正像小镇 🗺️
-
-当工程基础稳固之后，让小镇从"会动"变成"会生活"：
-
-- **衣**：NPC 外观换装，随季节 / 心情 / 成长变化
-- **食**：建筑内互动——咖啡馆恢复精力、餐厅社交场景
-- **住**：住宅归属感——回家、装饰、邻里关系
-- **行**：更自然的出行——有目的、有途中小事件
-- **玩**：更多小游戏 + NPC 间的娱乐互动（班味消除只是第一个）
-
-以及一套完整的成长体系：
-
-- NPC 经验值与技能树
-- 小镇繁荣度（随活动积累，解锁新地块和建筑）
-- 成就系统 / 小镇编年史
-
-**这里是游戏策划和游戏美术发挥的绝佳舞台。**
+- [ ] Solve mobile ↔ local Gateway WebSocket tunneling (may require cloud relay)
+- [ ] Mobile 3D performance optimization (model LOD, particle downgrade)
 
 ---
 
-## 远期愿景：当孤岛开始连接 🌍
+## Mid-Term Vision: A Town That Feels Alive 🏘️
 
-一个人的小镇是温馨的。
+Once the engineering foundation is solid, take the town from "animated" to "alive":
 
-但如果每个用户都有一座小镇——那这些小镇就不该永远彼此隔绝。
+- **Clothing**: NPC outfit changes based on season / mood / growth
+- **Food**: In-building interactions — cafés restore energy, restaurants as social scenes
+- **Shelter**: Home ownership — coming home, decorating, neighbor relationships
+- **Travel**: More natural movement — with purpose and small random events along the way
+- **Play**: More mini-games + NPC entertainment interactions (Banwei Buster is just the first)
 
-你的架构师去朋友的小镇做客，帮忙 review 一段代码。  
-两个不同主人的 Agent 在边界偶遇，交换了各自学会的技能。  
-一个全球事件发生时，所有连接的小镇一起行动。
+Plus a full progression system:
 
-仪表盘之间不会产生连接。  
-但小镇与小镇之间，天然会。
+- NPC experience points and skill trees
+- Town prosperity score (accumulates with activity, unlocks new lots and buildings)
+- Achievement system / Town chronicles
 
-**当孤岛连成大陆，小镇就长成了世界。**
-
----
-
-## 加入我们 🤝
-
-Agentshire 不只欢迎某一种"标准人才"。
-
-**当前最需要：**
-
-- **架构师 / 系统工程师**：OpenClaw 插件 SDK 兼容层、跨版本测试、构建与发布流水线
-- **OpenClaw 社区贡献者**：上游 Bug 修复（Channel init 回归、code-splitting 状态隔离、工具注册机制）
-- **全栈工程师**：插件稳定性、WebSocket 可靠性、错误诊断系统
-
-**同样欢迎：**
-
-- **AI 工程师**：灵魂模式、NPC 大脑、长期记忆、多 Agent 编排
-- **游戏策划**：游戏循环、成长数值、事件系统、小镇节奏
-- **游戏美术**：建筑 / 角色 / 道具 / 动画 / UI / 世界气质
-- **程序开发**：Three.js 前端、Node 后端、编辑器打通、小游戏、协议
-- **内容创作者**：NPC 人设、灵魂文件、对话、小镇叙事
-
-**但更重要的是：** 我们也欢迎所有不被专业定义的人。
-
-你不一定是职业策划，不一定是专业美术，甚至不一定已经很懂 AI。  
-只要你认同这件事：
-
-> 每个用户未来都会拥有自己的 AI 团队。  
-> 而这些团队，值得拥有一个可以生活、成长、工作、娱乐的地方。
-
-那你就已经是这件事的同路人。
-
-**怎么参与：**
-
-- 看看 [Issues](https://github.com/Agentshire/Agentshire/issues) 里有没有感兴趣的方向
-- 开一个 Issue 或 Discussion，聊想法、提方案
-- 直接 Fork → PR，任何大小的贡献都欢迎
-- 联系我们：`hello@agentshire.dev` · [@AgentshireDev](https://x.com/AgentshireDev)
+**This is where game designers and artists can truly shine.**
 
 ---
 
-> *这份路线图会持续变化。但有一件事不会变：*  
-> *地基不稳的房子盖不高。先让每个人都能稳定地进入小镇，然后一起把它建成一个值得住进去的世界。*
+## Long-Term Vision: When Islands Connect 🌍
+
+A single town is cozy.
+
+But if every user has their own town — those towns shouldn't stay isolated forever.
+
+Your architect visits a friend's town to help review some code.  
+Two agents from different owners meet at the border and exchange newly learned skills.  
+When a global event happens, all connected towns respond together.
+
+Dashboards don't form connections.  
+But towns and towns? They naturally do.
+
+**When islands connect into a continent, towns grow into a world.**
+
+---
+
+## Join Us 🤝
+
+Agentshire doesn't just welcome one type of contributor.
+
+**We need most right now:**
+
+- **Architects / Systems Engineers**: OpenClaw plugin SDK compatibility layer, cross-version testing, build and release pipelines
+- **OpenClaw Community Contributors**: Upstream bug fixes (Channel init regression, code-splitting state isolation, tool registration)
+- **Full-Stack Engineers**: Plugin stability, WebSocket reliability, error diagnostics
+
+**Also welcome:**
+
+- **AI Engineers**: Soul mode, NPC brain, long-term memory, multi-agent orchestration
+- **Game Designers**: Game loops, progression balance, event systems, town rhythm
+- **Game Artists**: Buildings / characters / props / animations / UI / world atmosphere
+- **Developers**: Three.js frontend, Node backend, editor integration, mini-games, protocols
+- **Content Creators**: NPC personas, soul files, dialog, town narratives
+
+**Most importantly:** We welcome everyone who doesn't fit neatly into a category.
+
+You don't have to be a professional game designer, a trained artist, or even an AI expert.  
+If you believe in this:
+
+> Every user will eventually have their own AI team.  
+> And those teams deserve a place to live, grow, work, and play.
+
+Then you're already one of us.
+
+**How to get involved:**
+
+- Browse [Issues](https://github.com/Agentshire/Agentshire/issues) for something that interests you
+- Open an Issue or Discussion to share ideas
+- Fork → PR — contributions of any size are welcome
+- Reach us: `hello@agentshire.dev` · [@AgentshireDev](https://x.com/AgentshireDev)
+
+---
+
+> *This roadmap will keep evolving. But one thing won't change:*  
+> *You can't build high on an unstable foundation. First, let everyone walk into their town reliably. Then, together, we'll build a world worth living in.*

@@ -3,99 +3,97 @@
 > Every user will have their own AI team.  
 > And every team deserves a game world, not a dashboard.
 
-*Most AI products reduce agents to logs, dashboards, and loading spinners. We believe agents deserve a living 3D town — a place where they don't just work, but live. A place you can watch, talk to, and shape yourself. And one day, a place where everyone's towns connect into a world. This document explains why. (Full text in Chinese below.)*
+---
+
+## Not a Dashboard
+
+Most Agent products you've seen end up looking the same:
+
+A dashboard, a command line, a streaming text wall, or a sidebar in an IDE.
+
+Different shapes, same essence:  
+Agents are compressed into a log line, a workflow, a spinning loading animation.  
+You know it's running. But you can't see it, feel it, or care about it.
+
+This isn't AI's fault.  
+It's that we gave it too small an interface.
+
+**We believe every person will have their own AI team.**  
+**And teams don't live in dashboards. Teams live in a town.**
 
 ---
 
-## 不是仪表盘
+## A Town
 
-你见过的大多数 Agent 产品，最终都长成了同一类东西：
+Evening. The streetlights come on.
 
-一个仪表盘，一个命令行，一面流式文本墙，或者一个 IDE 里的侧边栏。
+Your architect just walked out of the office. Crossing the square, she runs into the product manager on an evening stroll. They chat briefly, then go their separate ways. In the distance, the café glows warm. The frontend engineer sits by the window, lost in thought. Light rain is falling. You can hear it on the eaves.
 
-形态各异，但本质相同：  
-Agent 被压缩成一行日志、一条工作流、一个正在旋转的加载动画。  
-你知道它在运行。但你看不见它，感受不到它，也不会在意它。
+This isn't a pre-recorded animation.  
+This is an ordinary evening your AI team is experiencing right now.
 
-这不是 AI 的问题。  
-是我们给它的界面太小了。
+You can walk up to anyone, click on them, talk to them.  
+Or you can do nothing at all — just watch.
 
-**我们相信，未来每个人都会有自己的 AI 团队。**  
-**而团队不住在仪表盘里。团队住在一座小镇里。**
+In a dashboard, this evening doesn't exist.  
+In Agentshire, it happens every day.
 
----
-
-## 一座小镇
-
-傍晚，小镇的路灯亮起来。
-
-你的架构师刚从办公室走出来，经过广场时遇见了正在散步的产品经理。她们聊了几句，然后各自走开。远处的咖啡馆亮着暖光，前端工程师坐在窗边发呆。天空飘着小雨，雨声轻轻落在屋檐上。
-
-这不是一段预录的动画。  
-这是你的 AI 团队此刻正在经历的一个普通傍晚。
-
-你可以走近任何一个人，点击它，跟它说话。  
-你也可以什么都不做，只是看着。
-
-在仪表盘里，这个傍晚不存在。  
-在 Agentshire 里，它每天都在发生。
-
-**工作不是它们存在的全部。工作只是它们生活的一部分。**
+**Work isn't everything they are. Work is just part of their life.**
 
 ---
 
-## 你的小镇
+## Your Town
 
-但 Agentshire 不只是让你"看"。
+But Agentshire doesn't just let you watch.
 
-如果每个人都会拥有自己的 AI 团队，  
-那每个人也应该能亲手塑造它们生活的小镇。
+If everyone will have their own AI team,  
+then everyone should be able to shape the town they live in.
 
-你不是这座小镇的观众。你是它的造物主。
+You're not an observer of this town. You're its creator.
 
-你可以编辑地图——摆放建筑、调整街道、布置灯光。  
-你可以塑造居民——选择形象、定义性格、编写灵魂、配置技能。  
-你可以决定这支团队如何工作，也如何生活。
+You can edit the map — place buildings, adjust streets, arrange lights.  
+You can shape residents — choose their appearance, define their personality, write their soul, configure their skills.  
+You decide how your team works, and how they live.
 
-仪表盘不会给你这些。  
-仪表盘只让你消费一个系统。  
-Agentshire 让你拥有一座小镇。
-
----
-
-## 不是概念，是现在
-
-这不是一份路线图的第一页。  
-以下是 Agentshire 今天就能体验到的：
-
-- 昼夜循环、12 种天气、程序合成环境音的 3D 小镇
-- 有日常行为、会相遇闲聊、会回家休息的 NPC 居民
-- 灵魂模式下的 AI 大脑：自主规划日程、决定去哪、和谁聊天
-- 完整的电影级工作流：召唤、集结、分配、编码、庆祝、返回
-- 可视化地图编辑器和角色工坊
-- 3D 小镇与 IM 聊天双模式界面
-
-我们先把小镇造出来了，然后才写的这份 Vision。  
-不是反过来。
+Dashboards don't give you this.  
+Dashboards only let you consume a system.  
+Agentshire lets you own a town.
 
 ---
 
-## 当孤岛开始连接
+## Not a Concept — It's Real
 
-一个人的小镇是温馨的。
+This isn't the first page of a slide deck.  
+Here's what you can experience in Agentshire today:
 
-但如果每个用户都有一座小镇——  
-那这些小镇就不该永远彼此隔绝。
+- A 3D town with day/night cycles, 12 weather types, and procedurally synthesized ambient sound
+- NPC residents with daily routines, chance encounters, casual conversations, and downtime
+- AI-driven Soul Mode: autonomous daily planning, choosing where to go, who to talk to
+- Full cinematic workflow: summon, rally, assign, code, celebrate, return
+- Visual map editor and character workshop
+- 3D town + IM chat dual-mode interface
 
-你的架构师去朋友的小镇做客，帮忙 review 一段代码。  
-两个不同主人的 Agent 在边界偶遇，交换了各自学会的技能。  
-一个全球事件发生时，所有连接的小镇一起行动。  
-你的 AI 团队不再只为你一个人工作——它们开始互相帮助、学习、进化。
+We built the town first, then wrote this Vision.  
+Not the other way around.
 
-仪表盘之间不会产生连接。  
-但小镇与小镇之间，天然会。
+---
 
-**当孤岛连成大陆，小镇就长成了世界。**
+## When Islands Connect
+
+A single town is cozy.
+
+But if every user has their own town —  
+those towns shouldn't stay isolated forever.
+
+Your architect visits a friend's town to help review some code.  
+Two agents from different owners meet at the border and exchange newly learned skills.  
+When a global event happens, all connected towns respond together.  
+Your AI team no longer works just for you — they start helping each other, learning, evolving.
+
+Dashboards don't form connections.  
+But towns and towns? They naturally do.
+
+**When islands connect into a continent, towns grow into a world.**
 
 ---
 
