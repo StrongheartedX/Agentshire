@@ -106,9 +106,9 @@ https://github.com/user-attachments/assets/fa6563ae-e78b-49b1-ae7b-8a8a96738341
 
 ## 快速安装
 
-> **⚠️ npm 安装暂不支持。** `openclaw plugins install agentshire` 会因安全扫描误报（浏览器启动代码和 LLM 代理代码）而失败。请使用下面的 **link 安装** 方式。
+> **⚠️ 插件尚未发布到 npm。** `openclaw plugins install agentshire` 暂不可用，请使用下面的 **link 安装** 方式。
 
-### Link 安装（推荐）
+### Link 安装
 
 ```bash
 # 1. 克隆仓库
@@ -121,11 +121,6 @@ cd town-frontend && npm install && npm run build && cd ..
 # 3. Link 安装到 OpenClaw
 openclaw plugins install --link .
 ```
-
-> 如果安全扫描仍然拦截，可追加 `--dangerously-force-unsafe-install`：
-> ```bash
-> openclaw plugins install --link . --dangerously-force-unsafe-install
-> ```
 
 ### 首次启动时插件自动配置
 
@@ -363,17 +358,6 @@ agentshire/
 ---
 
 ## 故障排除
-
-### 安装被安全扫描拦截
-
-**现象**：`openclaw plugins install` 报错 "dangerous code patterns detected"。
-
-**原因**：OpenClaw 的静态安全扫描器误报了浏览器启动代码（`child_process`）和 LLM 代理代码（环境变量 + 网络请求）。插件仅在打开浏览器时使用 `child_process`，API Key 从 `openclaw.json` 配置读取而非 `process.env`。
-
-**解决**：使用 link 安装并加 force 标志：
-```bash
-openclaw plugins install --link . --dangerously-force-unsafe-install
-```
 
 ### Agent 无法识别插件工具
 

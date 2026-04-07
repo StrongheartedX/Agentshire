@@ -106,9 +106,9 @@ https://github.com/user-attachments/assets/fa6563ae-e78b-49b1-ae7b-8a8a96738341
 
 ## Quick Install
 
-> **⚠️ npm install is not currently supported.** `openclaw plugins install agentshire` may fail due to security scanner false positives on browser-launch and LLM proxy code. Use the **link install** method below.
+> **⚠️ The plugin has not been published to npm yet.** `openclaw plugins install agentshire` is not available. Use the **link install** method below.
 
-### Link Install (Recommended)
+### Link Install
 
 ```bash
 # 1. Clone the repository
@@ -121,11 +121,6 @@ cd town-frontend && npm install && npm run build && cd ..
 # 3. Link-install into OpenClaw
 openclaw plugins install --link .
 ```
-
-> If the security scanner still blocks the install, append `--dangerously-force-unsafe-install`:
-> ```bash
-> openclaw plugins install --link . --dangerously-force-unsafe-install
-> ```
 
 ### What the plugin auto-configures on first start
 
@@ -365,17 +360,6 @@ Without the asset pack: the game runs normally, editor has basic assets, and the
 ---
 
 ## Troubleshooting
-
-### Plugin install blocked by security scanner
-
-**Symptom**: `openclaw plugins install` fails with "dangerous code patterns detected".
-
-**Cause**: OpenClaw's static security scanner flags browser-launch code (`child_process`) and LLM proxy code (`env + network`). These are false positives — the plugin uses `child_process` only to open the browser, and reads API keys from `openclaw.json` config (not `process.env`).
-
-**Fix**: Use link install with the force flag:
-```bash
-openclaw plugins install --link . --dangerously-force-unsafe-install
-```
 
 ### Plugin tools not recognized by the agent
 

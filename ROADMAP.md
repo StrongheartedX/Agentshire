@@ -47,21 +47,21 @@ No matter how many features we add, if users can't install it or upgrading break
 - [ ] **4.x Channel initialization regression**: External plugin `defineChannelPluginEntry` lifecycle is not correctly invoked — needs upstream fix or a compatibility workaround
 - [ ] **Rollup code-splitting breaks tool registration**: `api.registerTool()` state is isolated across JS chunks, making tools invisible to the agent runtime — needs upstream fix or workaround
 - [ ] **Plugin SDK API availability varies by version**: `runEmbeddedPiAgent` (unavailable on 3.13) / `subagent.run()` (only works in gateway request context) / `prepareSimpleCompletionModel()` (direct LLM call) — needs a unified compatibility layer
-- [ ] **Security scanner false positives**: `child_process` (browser launch) and LLM proxy (env + network) flagged as dangerous — needs refactoring to pass the scanner or upstream allowlist support
+- [x] ~~**Security scanner false positives**~~: Resolved — refactored `child_process` and LLM proxy to pass the scanner
 - [ ] Establish a cross-version compatibility test matrix (3.13 / 4.x / latest)
 
 **Goal**: Support 3.13 + latest stable simultaneously. Verify compatibility within 48 hours of a new OpenClaw release.
 
 ### 2. npm One-Click Install
 
-`openclaw plugins install agentshire` is currently blocked by the security scanner. Users must clone → build → link install.
+The plugin has not been published to npm or ClawHub yet. Users must clone → build → link install.
 
-- [ ] Refactor browser launch to eliminate `child_process` dependency (or push OpenClaw to provide a safe `api.runtime.openUrl()` API)
-- [ ] Refactor LLM proxy API key resolution to eliminate all `process.env` access
-- [ ] Pass OpenClaw security scanner — make `openclaw plugins install agentshire` work out of the box
+- [x] ~~Refactor browser launch to eliminate `child_process` dependency~~ — Done: uses `api.runtime.system.runCommandWithTimeout` with dynamic import fallback
+- [x] ~~Refactor LLM proxy API key resolution to eliminate all `process.env` access~~ — Done: reads from `rt.config.loadConfig()`
+- [ ] Publish to npm and/or ClawHub registry
 - [ ] Automated npm publish pipeline (GitHub Actions)
 
-**Goal**: One command to install. No `--dangerously-force-unsafe-install` required.
+**Goal**: `openclaw plugins install agentshire` works out of the box.
 
 ### 3. Plugin Stability
 
