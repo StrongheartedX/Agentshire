@@ -369,8 +369,7 @@ Without the asset pack: the game runs normally, editor has basic assets, and the
 
 **Fix**:
 1. Remove the entire `tools` section from `~/.openclaw/openclaw.json` if present
-2. Ensure the steward's workspace contains `AGENTS.md` and `TOOLS.md` (the plugin auto-copies these from `town-workspace/`)
-3. Restart the Gateway
+2. Restart the Gateway
 
 ### Channel does not start on OpenClaw 2026.4.x
 

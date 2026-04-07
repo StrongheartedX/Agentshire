@@ -367,8 +367,7 @@ agentshire/
 
 **解决**：
 1. 删除 `~/.openclaw/openclaw.json` 中的整个 `tools` 配置段（如果有）
-2. 确保管家工作区中包含 `AGENTS.md` 和 `TOOLS.md`（插件会从 `town-workspace/` 自动复制）
-3. 重启 Gateway
+2. 重启 Gateway
 
 ### OpenClaw 2026.4.x 上 Channel 不启动
 
