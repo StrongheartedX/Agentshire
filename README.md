@@ -2,11 +2,53 @@
 
 English | [中文](README.zh-CN.md)
 
-> **Your AI team, living in a 3D game town you built yourself, not a dashboard.**
+> **Agentshire — Let your OpenClaw agents live in a game town you built yourself， not a dashboard.**
 
 Agentshire is an [OpenClaw](https://github.com/openclaw/openclaw) plugin that turns AI agents into living NPCs inside a 3D town you can watch, chat with, and shape yourself. It combines a living simulation layer with UGC tools: weather, day/night cycles, social NPCs, a map editor, and a character workshop.
 
 **[Vision](VISION.md)** | **[Roadmap](ROADMAP.md)**
+
+> **⚠️ Compatibility Notice**
+>
+> | OpenClaw Version | Status | Notes |
+> |---|---|---|
+> | **2026.3.13** | ✅ Recommended | Fully tested and supported |
+> | 2026.3.7 – 3.12 | ⚠️ May work | Not actively tested |
+> | 2026.4.x+ | ❌ Not supported yet | Channel plugin initialization regression — [tracking issue](https://github.com/openclaw/openclaw/issues) |
+>
+> See [Troubleshooting](#troubleshooting) for version-specific issues.
+
+---
+
+## See It in Action
+
+**A town, not a dashboard.**
+
+<video src="https://github.com/Agentshire/Agentshire/releases/download/v0.1.0/agentshire_about.mp4" width="100%" autoplay muted loop playsinline></video>
+
+**Build your characters — pick a model, give them a soul, watch them come alive.**
+
+<video src="https://github.com/Agentshire/Agentshire/releases/download/v0.1.0/agentshire_ugc_character.mp4" width="100%" controls muted playsinline></video>
+
+**Build your town — drag, drop, preview.**
+
+<video src="https://github.com/Agentshire/Agentshire/releases/download/v0.1.0/agent_ugc_town.mp4" width="100%" controls muted playsinline></video>
+
+**Every citizen has a mind of their own.**
+
+<video src="https://github.com/Agentshire/Agentshire/releases/download/v0.1.0/agentshire_chatwith.mp4" width="100%" controls muted playsinline></video>
+
+**Give them a mission. Watch them rally.**
+
+<video src="https://github.com/Agentshire/Agentshire/releases/download/v0.1.0/agentshire_callcitizen.mp4" width="100%" controls muted playsinline></video>
+
+**Work too long? Banwei Boss appears. Pop it.**
+
+<video src="https://github.com/Agentshire/Agentshire/releases/download/v0.1.0/agentshire_workgame.mp4" width="100%" controls muted playsinline></video>
+
+**Mission complete. Fireworks. Playable game delivered.**
+
+<video src="https://github.com/Agentshire/Agentshire/releases/download/v0.1.0/agentshire_endwork.mp4" width="100%" controls muted playsinline></video>
 
 ---
 
@@ -57,46 +99,99 @@ Agentshire is an [OpenClaw](https://github.com/openclaw/openclaw) plugin that tu
 
 ## Requirements
 
-- [OpenClaw](https://github.com/openclaw/openclaw) >= 2026.3.7
+- [OpenClaw](https://github.com/openclaw/openclaw) **2026.3.13** (recommended)
 - Node.js >= 18
+- A configured LLM provider in `openclaw.json` (see [Manual Configuration](#manual-configuration-required))
 
 ---
 
 ## Quick Install
 
+> **⚠️ npm install is not currently supported.** `openclaw plugins install agentshire` may fail due to security scanner false positives on browser-launch and LLM proxy code. Use the **link install** method below.
+
+### Link Install (Recommended)
+
 ```bash
-openclaw plugins install agentshire
+# 1. Clone the repository
+git clone https://github.com/Agentshire/Agentshire.git
+cd Agentshire
+
+# 2. Build the frontend
+cd town-frontend && npm install && npm run build && cd ..
+
+# 3. Link-install into OpenClaw
+openclaw plugins install --link .
 ```
 
-> **If the Gateway is already running, restart it** so the plugin is loaded:
+> If the security scanner still blocks the install, append `--dangerously-force-unsafe-install`:
 > ```bash
-> openclaw gateway   # or restart your existing Gateway process
+> openclaw plugins install --link . --dangerously-force-unsafe-install
 > ```
 
-On first startup the plugin **automatically**:
+### What the plugin auto-configures on first start
 
-1. Creates a steward workspace at `~/.openclaw/agents/town-steward/`
+1. Creates the steward workspace at `~/.openclaw/workspace-town-steward/`
 2. Registers the `town-steward` Agent in `openclaw.json`
 3. Adds a routing rule to direct town channel messages to the steward
-4. Sets `subagents.runTimeoutSeconds: 600` in `openclaw.json` — 10-minute timeout to prevent premature subagent termination
+4. Sets `subagents.runTimeoutSeconds: 600` — 10-minute timeout to prevent premature subagent termination
 
-**No manual configuration needed.**
+### Manual Configuration (Required)
+
+The plugin **cannot** auto-configure your LLM provider. You must add a `models` section to `~/.openclaw/openclaw.json` before starting the Gateway. Example using MiniMax:
+
+```json
+{
+  "env": {
+    "MINIMAX_API_KEY": "sk-your-api-key"
+  },
+  "models": {
+    "mode": "merge",
+    "providers": {
+      "minimax": {
+        "baseUrl": "https://api.minimaxi.com/anthropic",
+        "apiKey": "${MINIMAX_API_KEY}",
+        "api": "anthropic-messages",
+        "models": [
+          {
+            "id": "MiniMax-M2.1",
+            "name": "MiniMax M2.1",
+            "reasoning": true,
+            "input": ["text"],
+            "contextWindow": 200000,
+            "maxTokens": 8192
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+You can use any provider supported by OpenClaw (OpenAI, Anthropic, MiniMax, etc.). Refer to [OpenClaw documentation](https://github.com/openclaw/openclaw) for provider configuration.
+
+> **Important**: Do **not** add a `tools` section to `openclaw.json`. The plugin registers its own tools via `api.registerTool()`. Adding a manual `tools.allow` list will override plugin-registered tools, causing them to be invisible to the agent.
 
 ### Update
 
 ```bash
-openclaw plugins install agentshire@latest
+cd Agentshire && git pull
+cd town-frontend && npm install && npm run build && cd ..
+openclaw plugins install --link .
 ```
 
-Then restart the Gateway. The frontend will be rebuilt automatically.
+Then restart the Gateway.
 
 ---
 
 ## Usage
 
-1. Install the plugin and **(re)start** the OpenClaw Gateway
-2. The town opens automatically in your browser
-3. Chat in the browser — all Agent activity is automatically mapped to the town
+1. Complete the [Quick Install](#quick-install) and [Manual Configuration](#manual-configuration-required) steps
+2. Start (or restart) the OpenClaw Gateway:
+   ```bash
+   openclaw gateway
+   ```
+3. The town opens automatically in your browser
+4. Chat in the browser — all Agent activity is automatically mapped to the town
 
 > **Tip**: If the browser didn't open automatically, visit:
 > `http://localhost:55210?ws=ws://localhost:55211`
@@ -219,7 +314,7 @@ You can:
        │ GameEvent (65)                 GameAction  │
        ▼                                (14)        ▲
 ┌──────────────────────────────────────────────────────────┐
-│  Frontend Layer (Three.js)             wn-frontend/src/  │
+│  Frontend Layer (Three.js)          town-frontend/src/   │
 │                                                          │
 │  ┌────────────────────────────────────────────────────┐  │
 │  │ MainScene ── EventDispatcher ── update() loop      │  │
@@ -301,6 +396,48 @@ agentshire/
 Without the asset pack: the game runs normally, editor has basic assets, and the Citizen Workshop shows only built-in and custom models.
 
 > Asset sources and licenses: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)
+
+---
+
+## Troubleshooting
+
+### Plugin install blocked by security scanner
+
+**Symptom**: `openclaw plugins install` fails with "dangerous code patterns detected".
+
+**Cause**: OpenClaw's static security scanner flags browser-launch code (`child_process`) and LLM proxy code (`env + network`). These are false positives — the plugin uses `child_process` only to open the browser, and reads API keys from `openclaw.json` config (not `process.env`).
+
+**Fix**: Use link install with the force flag:
+```bash
+openclaw plugins install --link . --dangerously-force-unsafe-install
+```
+
+### Plugin tools not recognized by the agent
+
+**Symptom**: Steward agent cannot find `create_project`, `create_plan`, or other plugin tools.
+
+**Cause**: On OpenClaw 2026.3.13, Rollup code-splitting can create separate module instances, causing `api.registerTool()` registrations to be invisible to the agent runtime. Additionally, a manual `tools` section in `openclaw.json` overrides plugin-registered tools.
+
+**Fix**:
+1. Remove the entire `tools` section from `~/.openclaw/openclaw.json` if present
+2. Ensure the steward's workspace contains `AGENTS.md` and `TOOLS.md` (the plugin auto-copies these from `town-workspace/`)
+3. Restart the Gateway
+
+### Channel does not start on OpenClaw 2026.4.x
+
+**Symptom**: Plugin loads successfully but no WebSocket connection is established; the town page shows "connecting…" indefinitely.
+
+**Cause**: OpenClaw 2026.4.x introduced a regression in external plugin channel initialization. The `defineChannelPluginEntry` lifecycle is not correctly invoked.
+
+**Fix**: Downgrade to OpenClaw 2026.3.13. This is a known upstream issue.
+
+### Citizen Workshop "AI Generate" returns error 500
+
+**Symptom**: Clicking "AI 生成" in the Citizen Workshop fails.
+
+**Cause**: The soul generation endpoint requires a working LLM provider configured in `openclaw.json`. If no provider is configured or the API key is invalid, the request fails.
+
+**Fix**: Ensure you have a valid `models` section in `~/.openclaw/openclaw.json` (see [Manual Configuration](#manual-configuration-required)).
 
 ---
 
