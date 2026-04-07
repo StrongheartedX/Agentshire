@@ -2,7 +2,9 @@
  * Watches a session transcript file for new entries and emits ChatItem deltas.
  *
  * Key design decisions:
- *   - Starts from file tail (no replay of old content — history handles that).
+ *   - Default: starts from file tail (no replay of old content — history handles that).
+ *   - Cold-start mode (fromBeginning=true): reads from offset 0 to catch the
+ *     first reply written before the watcher could start.
  *   - Reuses parseTranscriptEntry() so history and realtime are the same parser.
  *   - Does NOT touch Town's AgentEvent pipeline at all.
  */
@@ -30,16 +32,20 @@ export class ChatSessionWatcher {
     this.state = createParserState();
   }
 
-  start(): void {
+  start(fromBeginning = false): void {
     if (this.stopped) return;
     if (!existsSync(this.filePath)) return;
 
-    try {
-      const fd = openSync(this.filePath, "r");
-      this.offset = fstatSync(fd).size;
-      closeSync(fd);
-    } catch {
+    if (fromBeginning) {
       this.offset = 0;
+    } else {
+      try {
+        const fd = openSync(this.filePath, "r");
+        this.offset = fstatSync(fd).size;
+        closeSync(fd);
+      } catch {
+        this.offset = 0;
+      }
     }
 
     this.timer = setInterval(() => this.poll(), POLL_MS);

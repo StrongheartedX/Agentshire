@@ -428,7 +428,7 @@ export class MainScene implements GameScene {
       stewardConfig: {
         id: 'steward', name: stewardLabel, color: 0x4488CC,
         spawn: { x: 0, y: 0, z: 0 }, role: 'producer', label: stewardLabel,
-        characterKey: stewardNpc?.characterKey,
+        characterKey: stewardNpc?.characterKey ?? savedConfig?.steward.avatarId,
         avatarUrl: savedConfig?.steward.avatarUrl,
       },
       onSwitchToSteward: () => {

@@ -16,7 +16,7 @@ src/plugin/
 ├── citizen-chat-router.ts     # 用户↔居民Agent消息路由
 ├── citizen-workshop-manager.ts # 居民工坊配置持久化（citizen-config.json）
 ├── editor-serve.ts            # 编辑器HTTP API（1176行，资产/工坊/发布）
-├── llm-proxy.ts               # 轻量LLM代理（2并发+10队列，anthropic/openai双格式）
+├── llm-agent-proxy.ts         # LLM代理（走OpenClaw embedded agent runtime，2并发+10队列）
 ├── session-history.ts         # 跨会话聊天历史加载（管家+居民）
 ├── soul-prompt-template.ts    # 灵魂文件AI生成模板
 ├── outbound-adapter.ts        # 出站适配（text→AgentEvent, media→deliverable_card）
@@ -132,7 +132,7 @@ onAgentCompleted(label, success) → 标记完成 → isCurrentBatchDone()?
 
 | 操作 | 行为 |
 |------|------|
-| `create` | 创建 `~/.openclaw/agents/citizen-{id}/` + SOUL.md + 注册到openclaw.json |
+| `create` | 创建 `~/.openclaw/workspace-citizen-{id}/` + SOUL.md + 注册到openclaw.json |
 | `disable` | 从 openclaw.json agents.list 中移除 |
 | `update_soul` | 更新 SOUL.md 文件 |
 
@@ -148,7 +148,7 @@ onAgentCompleted(label, success) → 标记完成 → isCurrentBatchDone()?
 | `chat` | 用户消息 → onChat回调 → 管家Agent |
 | `multimodal` | 多模态消息（图片/视频/音频） |
 | `citizen_chat` | 居民聊天 → citizen-chat-router |
-| `implicit_chat_request` | 前端隐式LLM请求 → llm-proxy |
+| `implicit_chat_request` | 前端隐式LLM请求 → llm-agent-proxy |
 | `chat_history_request` | 请求历史消息 → session-history |
 | `command` | 命令消息（`/xxx`） |
 | `abort` | 中止当前请求 |
@@ -177,7 +177,7 @@ onAgentCompleted(label, success) → 标记完成 → isCurrentBatchDone()?
 | 修改编辑器API | `editor-serve.ts` |
 | 修改居民Agent创建/销毁 | `citizen-agent-manager.ts` |
 | 修改居民聊天路由 | `citizen-chat-router.ts` |
-| 修改隐式LLM调用格式 | `llm-proxy.ts` |
+| 修改隐式LLM调用格式 | `llm-agent-proxy.ts` |
 | 修改聊天历史解析 | `session-history.ts` |
 | 修改灵魂文件生成模板 | `soul-prompt-template.ts` |
 | 修改WS消息路由 | `ws-server.ts` |

@@ -72,7 +72,7 @@ idle → summoning → assigning → going_to_office → working → publishing 
 
 ## implicit-chat：NPC 隐式 LLM 调用
 
-通过 `setImplicitChatFn()` 依赖注入实际调用函数（浏览器端走 WebSocket → llm-proxy，Node端可直连）。
+通过 `setImplicitChatFn()` 依赖注入实际调用函数（浏览器端走 WebSocket → llm-agent-proxy → OpenClaw embedded agent，Node端可直连）。
 
 10 种场景及 maxTokens：
 

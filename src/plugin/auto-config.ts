@@ -24,7 +24,7 @@ function getConfigPath(): string {
 
 function getUserAgentDir(): string {
   const home = process.env.HOME ?? process.env.USERPROFILE ?? "~";
-  return join(home, ".openclaw", "agents", AGENT_ID);
+  return join(home, ".openclaw", `workspace-${AGENT_ID}`);
 }
 
 function ensureTownWorkspace(): string {
@@ -93,9 +93,9 @@ export async function ensureTownAgentConfig(): Promise<void> {
       cfg.agents.list = cfg.agents.list ?? [];
       cfg.agents.list.push({
         id: AGENT_ID,
-        name: "OpenClaw 管家",
+        name: "shire",
         workspace: workspaceDir,
-        identity: { name: "OpenClaw", emoji: "🏘️" },
+        identity: { name: "shire", emoji: "🏘️" },
       });
       dirty = true;
     }

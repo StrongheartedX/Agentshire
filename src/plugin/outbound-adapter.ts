@@ -32,7 +32,7 @@ export interface ResolvedFileData {
 
 function getStewardWorkspaceDir(): string {
   const home = process.env.HOME ?? process.env.USERPROFILE ?? "~";
-  return `${home}/.openclaw/agents/town-steward`;
+  return `${home}/.openclaw/workspace-town-steward`;
 }
 
 function toHttpUrl(filePath: string): string | undefined {

@@ -289,7 +289,8 @@ export class CharacterStage {
               if (mat.alphaMap) mat.alphaTest = Math.max(mat.alphaTest, 0.5)
               mat.depthWrite = true
               mat.side = THREE.FrontSide
-            } else if (source === 'builtin') {
+            }
+            if (source === 'custom' || source === 'builtin') {
               mat.onBeforeCompile = (shader) => {
                 shader.fragmentShader = shader.fragmentShader.replace(
                   '#include <dithering_fragment>',

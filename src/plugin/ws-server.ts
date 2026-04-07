@@ -40,6 +40,7 @@ const clientSessions = new Map<WebSocket, string>();
 const clientChatWatchers = new Map<WebSocket, ChatSessionWatcher>();
 const clientChatBindings = new Map<WebSocket, { townSessionId: string; agentId: string }>();
 const clientChatRetryTimers = new Map<WebSocket, ReturnType<typeof setTimeout>>();
+const coldStartBindings = new Set<WebSocket>();
 let activeTownSessionId: string | undefined;
 let customAssetMgr: CustomAssetManager | undefined;
 
@@ -312,10 +313,13 @@ function tryStartChatWatcher(ws: WebSocket, townSessionId: string, agentId: stri
   const transcriptPath = resolveChatTranscriptPath(townSessionId, agentId);
   if (!transcriptPath) {
     console.log(`${sessionLogPrefix(townSessionId)} Chat watcher: no transcript yet for ${agentId}`);
+    coldStartBindings.add(ws);
     scheduleChatWatcherRetry(ws);
     return false;
   }
   clearChatWatcherRetry(ws);
+  const isColdStart = coldStartBindings.has(ws);
+  coldStartBindings.delete(ws);
   const existing = clientChatWatchers.get(ws);
   if (existing) existing.stop();
   const watcher = new ChatSessionWatcher(transcriptPath, agentId, (items) => {
@@ -324,8 +328,8 @@ function tryStartChatWatcher(ws: WebSocket, townSessionId: string, agentId: stri
     }
   });
   clientChatWatchers.set(ws, watcher);
-  watcher.start();
-  console.log(`${sessionLogPrefix(townSessionId)} Chat watcher started for ${agentId}`);
+  watcher.start(isColdStart);
+  console.log(`${sessionLogPrefix(townSessionId)} Chat watcher started for ${agentId} (coldStart=${isColdStart})`);
   return true;
 }
 
@@ -503,6 +507,7 @@ export function startTownWsServer(opts: TownWsServerOptions): void {
       const watcher = clientChatWatchers.get(ws);
       if (watcher) { watcher.stop(); clientChatWatchers.delete(ws); }
       clearChatWatcherRetry(ws);
+      coldStartBindings.delete(ws);
       clientChatBindings.delete(ws);
       clientSessions.delete(ws);
       clients.delete(ws);

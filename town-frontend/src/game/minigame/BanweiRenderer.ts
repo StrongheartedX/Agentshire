@@ -253,7 +253,7 @@ export class BanweiRenderer {
 
     let step = boss.speed * dt
     if (isDashing && dist < 150) {
-      step = Math.max(800 * dt, dist * 8 * dt)
+      step = Math.min(Math.max(800 * dt, dist * 8 * dt), dist)
     } else {
       step = Math.min(step, dist)
     }

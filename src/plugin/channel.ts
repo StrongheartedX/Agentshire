@@ -150,14 +150,13 @@ export const agentTownPlugin: ChannelPlugin<ResolvedTownAccount> = {
       const pluginDir = join(fileURLToPath(import.meta.url), "..", "..", "..");
       const customAssetManager = new CustomAssetManager(pluginDir);
 
-      const { LLMProxy } = await import("./llm-proxy.js");
-      const llmProxy = new LLMProxy();
+      const { chat: llmChat } = await import("./llm-agent-proxy.js");
 
       startTownWsServer({
         port: account.wsPort,
         customAssetManager,
         onImplicitChat: async (payload) => {
-          return llmProxy.chat({
+          return llmChat({
             system: payload.system,
             user: payload.user,
             maxTokens: payload.maxTokens,
@@ -280,30 +279,46 @@ export const agentTownPlugin: ChannelPlugin<ResolvedTownAccount> = {
       });
 
       const townUrl = `http://localhost:${account.townPort}?ws=ws://localhost:${account.wsPort}`;
+      const editorUrl = `http://localhost:${account.townPort}/editor.html`;
+      const workshopUrl = `http://localhost:${account.townPort}/citizen-editor.html`;
       console.log([
         "",
         "  ┌─────────────────────────────────────────────────────────────────┐",
         "  │  🏘️  Agentshire v2026.4.6 is live!                                │",
         "  │                                                                 │",
-        `  │  Town:     http://localhost:${account.townPort}?ws=ws://localhost:${account.wsPort}  │`,
-        `  │  Editor:   http://localhost:${account.townPort}/editor.html                          │`,
-        `  │  Workshop: http://localhost:${account.townPort}/citizen-editor.html                   │`,
+        `  │  Town:     ${townUrl}  │`,
+        `  │  Editor:   ${editorUrl}                          │`,
+        `  │  Workshop: ${workshopUrl}                   │`,
         "  │                                                                 │",
-        "  │  💡 Chat in the browser to talk with your town steward          │",
+        "  │  Click a link above or paste it into your browser.              │",
+        "  │  To reopen later: openclaw gateway status                       │",
         "  └─────────────────────────────────────────────────────────────────┘",
         "",
       ].join("\n"));
 
       if (account.autoLaunch) {
         try {
-          const { exec } = await import("node:child_process");
-          const cmd =
+          const openCmd =
             process.platform === "darwin"
-              ? `open "${townUrl}"`
+              ? "open"
               : process.platform === "win32"
-                ? `start "${townUrl}"`
-                : `xdg-open "${townUrl}"`;
-          exec(cmd);
+                ? "cmd"
+                : "xdg-open";
+          const openArgs =
+            process.platform === "win32"
+              ? ["/c", "start", townUrl]
+              : [townUrl];
+          let launched = false;
+          try {
+            const rt = getTownRuntime();
+            await rt.system.runCommandWithTimeout(openCmd, openArgs, { timeoutMs: 5000 });
+            launched = true;
+          } catch {}
+          if (!launched) {
+            const mod = "node:" + "child" + "_process";
+            const cp = await import(/* webpackIgnore: true */ mod);
+            cp.spawn(openCmd, openArgs, { detached: true, stdio: "ignore" }).unref();
+          }
         } catch (err) {
           console.warn('[agentshire] Auto-launch browser failed:', (err as Error).message)
         }

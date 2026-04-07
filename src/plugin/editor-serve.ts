@@ -16,6 +16,18 @@ import {
 } from "node:fs";
 import { randomUUID } from "node:crypto";
 
+function getStewardWorkspaceDir(): string {
+  try {
+    const { getTownRuntime } = require("./runtime.js") as typeof import("./runtime.js");
+    const rt = getTownRuntime();
+    const cfg = rt.config as any;
+    const entry = (cfg?.agents?.list ?? []).find((a: any) => a.id === "town-steward");
+    if (entry?.workspace) return entry.workspace;
+  } catch {}
+  const home = require("node:os").homedir();
+  return join(home, ".openclaw", "workspace-town-steward");
+}
+
 const MIME_TYPES: Record<string, string> = {
   ".html": "text/html",
   ".js": "application/javascript",
@@ -162,11 +174,10 @@ function migrateCatalogThumbnails(customAssetsDir: string, catalogPath: string):
 
 function loadAgentList(): { id: string; name: string }[] {
   try {
-    const homeDir = process.env.HOME || process.env.USERPROFILE || "";
-    const openclawConfigPath = join(homeDir, ".openclaw", "openclaw.json");
-    if (!existsSync(openclawConfigPath)) return [];
-    const cfg = JSON.parse(readFileSync(openclawConfigPath, "utf-8"));
-    return (cfg.agents?.list ?? []).map((a: any) => ({
+    const { getTownRuntime } = require("./runtime.js") as typeof import("./runtime.js");
+    const rt = getTownRuntime();
+    const cfg = rt.config as any;
+    return (cfg?.agents?.list ?? []).map((a: any) => ({
       id: a.id,
       name: a.identity?.name || a.name || a.id,
     }));
@@ -734,8 +745,7 @@ function syncTownDefaults(published: any, pluginDir: string): void {
     const frontendPath = join(pluginDir, "town-frontend", "src", "data", "town-defaults.json");
     writeFileSync(frontendPath, content, "utf-8");
 
-    const home = process.env.HOME ?? process.env.USERPROFILE ?? "~";
-    const stewardWorkspace = join(home, ".openclaw", "agents", "town-steward");
+    const stewardWorkspace = getStewardWorkspaceDir();
     if (existsSync(stewardWorkspace)) {
       const resolvePersonaFile = (p: string) =>
         p && !p.startsWith("/") ? join(pluginDir, p) : p;
@@ -823,8 +833,7 @@ function computeChangeset(
       const stewardSoulContent = resolveSoulFromFile(newSteward);
       if (stewardSoulContent) {
         try {
-          const home = process.env.HOME ?? process.env.USERPROFILE ?? "~";
-          const stewardWorkspace = join(home, ".openclaw", "agents", "town-steward");
+          const stewardWorkspace = getStewardWorkspaceDir();
           if (existsSync(stewardWorkspace)) {
             writeFileSync(join(stewardWorkspace, "SOUL.md"), stewardSoulContent, "utf-8");
             const identityLines = [
@@ -1117,15 +1126,14 @@ async function handleCitizenWorkshopApi(
       return true;
     }
     try {
-      const { LLMProxy } = await import("./llm-proxy.js");
+      const { chat, isAvailable } = await import("./llm-agent-proxy.js");
       const { buildPersonaPrompt } = await import("./soul-prompt-template.js");
-      const proxy = new LLMProxy();
-      if (!proxy.isAvailable()) {
-        jsonRes(res, { error: "LLM 不可用，请检查 openclaw.json 的 models.providers 配置" }, 503);
+      if (!isAvailable()) {
+        jsonRes(res, { error: "LLM 不可用，请检查 OpenClaw 是否已正确初始化" }, 503);
         return true;
       }
       const prompt = buildPersonaPrompt({ name, bio, specialty: specialty || "通用助手" });
-      const result = await proxy.chat({
+      const result = await chat({
         system: prompt.system,
         user: prompt.user,
         maxTokens: 2000,

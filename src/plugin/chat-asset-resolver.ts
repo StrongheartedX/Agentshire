@@ -30,7 +30,7 @@ export interface ResolvedAsset {
 
 function getStewardWorkspaceDir(): string {
   const home = process.env.HOME ?? process.env.USERPROFILE ?? "~";
-  return `${home}/.openclaw/agents/town-steward`;
+  return `${home}/.openclaw/workspace-town-steward`;
 }
 
 function ext(filePath: string): string {

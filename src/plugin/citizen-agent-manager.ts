@@ -32,7 +32,7 @@ function getOpenClawConfigPath(): string {
 
 function getAgentWorkspacePath(agentId: string): string {
   const home = process.env.HOME ?? process.env.USERPROFILE ?? "~";
-  return join(home, ".openclaw", "agents", agentId);
+  return join(home, ".openclaw", `workspace-${agentId}`);
 }
 
 function loadOpenClawConfig(): any {
@@ -52,7 +52,7 @@ function getPluginDir(): string {
 
 function getStewardWorkspaceDir(): string {
   const home = process.env.HOME ?? process.env.USERPROFILE ?? "~";
-  return join(home, ".openclaw", "agents", "town-steward");
+  return join(home, ".openclaw", "workspace-town-steward");
 }
 
 function syncSharedFiles(workspace: string): void {

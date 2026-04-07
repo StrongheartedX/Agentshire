@@ -42,7 +42,13 @@ export class GameClock {
 
   setStorageKey(sessionScoped: string): void {
     this.storageKey = sessionScoped
-    this.restoreFromStorage()
+    const raw = localStorage.getItem(this.storageKey)
+    if (raw) {
+      this.restoreFromStorage()
+    } else {
+      this.gameSeconds = this.config.startHour * 3600
+      this.dayCount = 0
+    }
     this.lastPeriod = this.getPeriod()
   }
 
