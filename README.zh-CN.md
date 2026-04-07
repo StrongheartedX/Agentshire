@@ -101,7 +101,6 @@ https://github.com/user-attachments/assets/fa6563ae-e78b-49b1-ae7b-8a8a96738341
 
 - [OpenClaw](https://github.com/openclaw/openclaw) **2026.3.13**（推荐）
 - Node.js >= 18
-- 在 `openclaw.json` 中配置好 LLM 提供商（见[手动配置](#手动配置必须)）
 
 ---
 
@@ -135,41 +134,7 @@ openclaw plugins install --link .
 3. 添加路由规则，将小镇频道的消息路由到管家
 4. 设置 `subagents.runTimeoutSeconds: 600` — 子 Agent 运行超时 10 分钟，防止提前终止
 
-### 手动配置（必须）
-
-插件**无法**自动配置 LLM 提供商。启动 Gateway 前，你需要在 `~/.openclaw/openclaw.json` 中添加 `models` 配置。以 MiniMax 为例：
-
-```json
-{
-  "env": {
-    "MINIMAX_API_KEY": "sk-your-api-key"
-  },
-  "models": {
-    "mode": "merge",
-    "providers": {
-      "minimax": {
-        "baseUrl": "https://api.minimaxi.com/anthropic",
-        "apiKey": "${MINIMAX_API_KEY}",
-        "api": "anthropic-messages",
-        "models": [
-          {
-            "id": "MiniMax-M2.1",
-            "name": "MiniMax M2.1",
-            "reasoning": true,
-            "input": ["text"],
-            "contextWindow": 200000,
-            "maxTokens": 8192
-          }
-        ]
-      }
-    }
-  }
-}
-```
-
-支持 OpenClaw 兼容的任何提供商（OpenAI、Anthropic、MiniMax 等），详见 [OpenClaw 文档](https://github.com/openclaw/openclaw)。
-
-> **重要**：请勿在 `openclaw.json` 中手动添加 `tools` 配置段。插件通过 `api.registerTool()` 注册工具。如果手动添加了 `tools.allow` 列表，会覆盖插件注册的工具，导致 Agent 无法使用插件工具。
+> **重要**：请勿在 `openclaw.json` 中手动添加 `tools` 配置段。插件通过 `api.registerTool()` 注册工具。手动添加 `tools.allow` 列表会覆盖插件注册的工具，导致 Agent 无法使用。
 
 ### 更新
 
@@ -185,7 +150,7 @@ openclaw plugins install --link .
 
 ## 使用方式
 
-1. 完成[快速安装](#快速安装)和[手动配置](#手动配置必须)
+1. 完成[快速安装](#快速安装)
 2. 启动（或重启）OpenClaw Gateway：
    ```bash
    openclaw gateway
@@ -435,7 +400,7 @@ openclaw plugins install --link . --dangerously-force-unsafe-install
 
 **原因**：灵魂生成接口需要 `openclaw.json` 中配置有效的 LLM 提供商。如果未配置或 API Key 无效，请求会失败。
 
-**解决**：确保 `~/.openclaw/openclaw.json` 中有有效的 `models` 配置（见[手动配置](#手动配置必须)）。
+**解决**：确保 `~/.openclaw/openclaw.json` 中有有效的 `models` 配置，详见 [OpenClaw 文档](https://github.com/openclaw/openclaw)。
 
 ---
 

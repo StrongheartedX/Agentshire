@@ -101,7 +101,6 @@ https://github.com/user-attachments/assets/fa6563ae-e78b-49b1-ae7b-8a8a96738341
 
 - [OpenClaw](https://github.com/openclaw/openclaw) **2026.3.13** (recommended)
 - Node.js >= 18
-- A configured LLM provider in `openclaw.json` (see [Manual Configuration](#manual-configuration-required))
 
 ---
 
@@ -135,41 +134,7 @@ openclaw plugins install --link .
 3. Adds a routing rule to direct town channel messages to the steward
 4. Sets `subagents.runTimeoutSeconds: 600` — 10-minute timeout to prevent premature subagent termination
 
-### Manual Configuration (Required)
-
-The plugin **cannot** auto-configure your LLM provider. You must add a `models` section to `~/.openclaw/openclaw.json` before starting the Gateway. Example using MiniMax:
-
-```json
-{
-  "env": {
-    "MINIMAX_API_KEY": "sk-your-api-key"
-  },
-  "models": {
-    "mode": "merge",
-    "providers": {
-      "minimax": {
-        "baseUrl": "https://api.minimaxi.com/anthropic",
-        "apiKey": "${MINIMAX_API_KEY}",
-        "api": "anthropic-messages",
-        "models": [
-          {
-            "id": "MiniMax-M2.1",
-            "name": "MiniMax M2.1",
-            "reasoning": true,
-            "input": ["text"],
-            "contextWindow": 200000,
-            "maxTokens": 8192
-          }
-        ]
-      }
-    }
-  }
-}
-```
-
-You can use any provider supported by OpenClaw (OpenAI, Anthropic, MiniMax, etc.). Refer to [OpenClaw documentation](https://github.com/openclaw/openclaw) for provider configuration.
-
-> **Important**: Do **not** add a `tools` section to `openclaw.json`. The plugin registers its own tools via `api.registerTool()`. Adding a manual `tools.allow` list will override plugin-registered tools, causing them to be invisible to the agent.
+> **Important**: Do **not** add a `tools` section to `openclaw.json`. The plugin registers its own tools via `api.registerTool()`. A manual `tools.allow` list will override plugin-registered tools, making them invisible to the agent.
 
 ### Update
 
@@ -185,7 +150,7 @@ Then restart the Gateway.
 
 ## Usage
 
-1. Complete the [Quick Install](#quick-install) and [Manual Configuration](#manual-configuration-required) steps
+1. Complete the [Quick Install](#quick-install) steps
 2. Start (or restart) the OpenClaw Gateway:
    ```bash
    openclaw gateway
@@ -437,7 +402,7 @@ openclaw plugins install --link . --dangerously-force-unsafe-install
 
 **Cause**: The soul generation endpoint requires a working LLM provider configured in `openclaw.json`. If no provider is configured or the API key is invalid, the request fails.
 
-**Fix**: Ensure you have a valid `models` section in `~/.openclaw/openclaw.json` (see [Manual Configuration](#manual-configuration-required)).
+**Fix**: Ensure you have a valid `models` section in `~/.openclaw/openclaw.json`. Refer to [OpenClaw documentation](https://github.com/openclaw/openclaw) for LLM provider configuration.
 
 ---
 
