@@ -409,7 +409,8 @@ We imagine a different future. A quieter one. A gentler interface. A place where
 | Phase | Direction | Status |
 |-------|-----------|--------|
 | **A Town** | 3D visualization, workflow orchestration, soul system, citizen workshop, dual-mode UI | ✅ Implemented |
-| **A Living Town** | Editor ↔ runtime integration, mobile experience, soul mode completion, game loop (life simulation), growth systems | 🔥 Current Focus |
+| **A Stable Town** | OpenClaw version compatibility, npm publish, plugin stability, soul mode improvements | 🔥 Current Focus |
+| **A Living Town** | Editor ↔ runtime integration, life simulation (clothing/food/shelter/travel/play), growth systems, mobile | 📋 Next |
 | **A World** | Town federation protocol, cross-town NPC visits, skill exchange, world events | 🌍 Long-term |
 
 See **[VISION.md](VISION.md)** and **[ROADMAP.md](ROADMAP.md)** for details.
