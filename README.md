@@ -24,31 +24,31 @@ Agentshire is an [OpenClaw](https://github.com/openclaw/openclaw) plugin that tu
 
 **A town, not a dashboard.**
 
-<video src="https://github.com/Agentshire/Agentshire/releases/download/v0.1.0/agentshire_about.mp4" width="100%" autoplay muted loop playsinline></video>
+https://github.com/user-attachments/assets/c888d2ef-dcba-4caa-b0af-9b5f3e3b1365
 
 **Build your characters — pick a model, give them a soul, watch them come alive.**
 
-<video src="https://github.com/Agentshire/Agentshire/releases/download/v0.1.0/agentshire_ugc_character.mp4" width="100%" controls muted playsinline></video>
+https://github.com/user-attachments/assets/b9697432-b3ba-4e23-85fe-4c0b5c35a1b9
 
 **Build your town — drag, drop, preview.**
 
-<video src="https://github.com/Agentshire/Agentshire/releases/download/v0.1.0/agent_ugc_town.mp4" width="100%" controls muted playsinline></video>
+https://github.com/user-attachments/assets/3328aa6c-3432-4f71-abfd-91aea4db15df
 
 **Every citizen has a mind of their own.**
 
-<video src="https://github.com/Agentshire/Agentshire/releases/download/v0.1.0/agentshire_chatwith.mp4" width="100%" controls muted playsinline></video>
+https://github.com/user-attachments/assets/720a63fc-863c-483c-bfdf-5e07e82c6f0e
 
 **Give them a mission. Watch them rally.**
 
-<video src="https://github.com/Agentshire/Agentshire/releases/download/v0.1.0/agentshire_callcitizen.mp4" width="100%" controls muted playsinline></video>
+https://github.com/user-attachments/assets/1983f60b-aaf6-4adc-b46c-5612e4ba4c83
 
 **Work too long? Banwei Boss appears. Pop it.**
 
-<video src="https://github.com/Agentshire/Agentshire/releases/download/v0.1.0/agentshire_workgame.mp4" width="100%" controls muted playsinline></video>
+https://github.com/user-attachments/assets/9be946e0-9ecf-42de-b793-a5d7ebe55612
 
 **Mission complete. Fireworks. Playable game delivered.**
 
-<video src="https://github.com/Agentshire/Agentshire/releases/download/v0.1.0/agentshire_endwork.mp4" width="100%" controls muted playsinline></video>
+https://github.com/user-attachments/assets/fa6563ae-e78b-49b1-ae7b-8a8a96738341
 
 ---
 
