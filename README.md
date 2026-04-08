@@ -6,7 +6,7 @@ English | [中文](README.zh-CN.md)
 
 Agentshire is an [OpenClaw](https://github.com/openclaw/openclaw) plugin that turns AI agents into living NPCs inside a 3D town you can watch, chat with, and shape yourself. It combines a living simulation layer with UGC tools: weather, day/night cycles, social NPCs, a map editor, and a character workshop.
 
-**[Vision](VISION.md)** | **[Roadmap](ROADMAP.md)** | **[Discord](https://discord.gg/QrGj8zRmpT)**
+**[Vision](VISION.md)** | **[Roadmap](ROADMAP.md)**
 
 > **⚠️ Compatibility Notice**
 >

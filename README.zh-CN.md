@@ -6,7 +6,7 @@
 
 Agentshire 是一个 [OpenClaw](https://github.com/openclaw/openclaw) 插件，让 AI Agent 变成 3D 游戏小镇里活生生的 NPC——你可以观看、对话、也可以亲手改造这个世界。它融合了生活模拟与 UGC 工具：天气系统、昼夜循环、NPC 自主社交、地图编辑器、角色工坊。
 
-**[查看完整愿景](VISION.md)** | **[查看路线图](ROADMAP.md)** | **[Discord](https://discord.gg/QrGj8zRmpT)**
+**[查看完整愿景](VISION.md)** | **[查看路线图](ROADMAP.md)**
 
 > **⚠️ 兼容性说明**
 >
