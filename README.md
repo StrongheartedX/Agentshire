@@ -22,6 +22,8 @@ Agentshire is an [OpenClaw](https://github.com/openclaw/openclaw) plugin that tu
 
 ## See It in Action
 
+> **📺 [Watch the full demo on YouTube](https://www.youtube.com/watch?v=R6YXvkkwo9I)**
+
 **A town, not a dashboard.**
 
 https://github.com/user-attachments/assets/c888d2ef-dcba-4caa-b0af-9b5f3e3b1365
