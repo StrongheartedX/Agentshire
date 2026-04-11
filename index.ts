@@ -319,7 +319,7 @@ export default {
             if (urlPath.startsWith(stewardPrefix)) {
               const { stateDir } = await import("./src/plugin/paths.js");
               const relPath = decodeURIComponent(urlPath.slice(stewardPrefix.length));
-              const wsFile = join(stateDir(), "agents", "town-steward", relPath);
+              const wsFile = join(stateDir(), "workspace-town-steward", relPath);
               if (existsSync(wsFile) && statSync(wsFile).isFile()) {
                 const ext = wsFile.substring(wsFile.lastIndexOf("."));
                 res.writeHead(200, {
