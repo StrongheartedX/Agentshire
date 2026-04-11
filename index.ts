@@ -1,6 +1,7 @@
 import type { OpenClawPluginApi } from "openclaw/plugin-sdk";
 import { agentTownPlugin } from "./src/plugin/channel.js";
 import { setTownRuntime } from "./src/plugin/runtime.js";
+import { initStateDir } from "./src/plugin/paths.js";
 import { hookToAgentEvent } from "./src/plugin/hook-translator.js";
 import { broadcastAgentEvent, clearEventBuffer, getActiveTownSessionId, findCitizenNpcId, retryChatWatchersForBinding } from "./src/plugin/ws-server.js";
 import { extractTownSessionId } from "./src/plugin/town-session.js";
@@ -49,6 +50,19 @@ const TOWN_AGENT_ID = "town-steward";
 
 const pendingSpawnTasks = new Map<string, string>();
 
+function notifyGroupDiscussion(hookName: string, agentId: string, payload: Record<string, unknown>): void {
+  import("./src/plugin/group-discussion.js").then(({ hasActiveDiscussion, onCitizenResponse, onCitizenTurnEnd }) => {
+    if (!hasActiveDiscussion()) return;
+    if (hookName === "llm_output") {
+      const texts: string[] = (payload as any).assistantTexts ?? [];
+      const text = texts.length > 0 ? texts[texts.length - 1] : String((payload as any).output ?? "");
+      if (text) onCitizenResponse(agentId, text);
+    } else if (hookName === "agent_end") {
+      onCitizenTurnEnd(agentId);
+    }
+  }).catch(() => {});
+}
+
 function resolveSessionId(ctx: unknown, payload: Record<string, unknown>): string | undefined {
   const c = (ctx ?? {}) as Record<string, unknown>;
   return (
@@ -84,7 +98,8 @@ function dispatchCitizen(hookName: string, payload: Record<string, unknown>, ctx
   if (!sk) return;
   const agentIdMatch = sk.match(/^agent:([^:]+):/);
   if (!agentIdMatch) return;
-  const npcId = findCitizenNpcId(agentIdMatch[1]);
+  const agentId = agentIdMatch[1];
+  const npcId = findCitizenNpcId(agentId);
   if (!npcId) return;
   const result = hookToAgentEvent(hookName, payload);
   if (!result) return;
@@ -94,6 +109,8 @@ function dispatchCitizen(hookName: string, payload: Record<string, unknown>, ctx
     (event as any).npcId = npcId;
     broadcastAgentEvent(event, sid);
   }
+
+  notifyGroupDiscussion(hookName, agentId, payload);
 }
 
 function extractAgentIdForChatBinding(ctx: any): string | undefined {
@@ -247,6 +264,7 @@ export default {
   description: "OpenClaw plugin for building a living 3D town with social NPCs, a map editor, and a character workshop.",
   register(api: any) {
     setTownRuntime(api.runtime);
+    initStateDir(api.runtime.config);
     api.registerChannel(agentTownPlugin);
     registerHooks(api);
     api.registerTool(createTownTools());
@@ -299,9 +317,9 @@ export default {
             // Steward workspace: projects & tasks
             const stewardPrefix = "/steward-workspace/";
             if (urlPath.startsWith(stewardPrefix)) {
-              const home = process.env.HOME ?? process.env.USERPROFILE ?? "~";
+              const { stateDir } = await import("./src/plugin/paths.js");
               const relPath = decodeURIComponent(urlPath.slice(stewardPrefix.length));
-              const wsFile = join(home, ".openclaw", "agents", "town-steward", relPath);
+              const wsFile = join(stateDir(), "agents", "town-steward", relPath);
               if (existsSync(wsFile) && statSync(wsFile).isFile()) {
                 const ext = wsFile.substring(wsFile.lastIndexOf("."));
                 res.writeHead(200, {

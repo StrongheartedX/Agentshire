@@ -8,6 +8,7 @@ import { createPlan, getNextStepInstruction, getActivePlan, isPlanFullyComplete,
 import type { CitizenRosterEntry } from "./plan-manager.js";
 import { hasRunningSubagents } from "./subagent-tracker.js";
 import { resolveFileData } from "./outbound-adapter.js";
+import { stateDir } from "./paths.js";
 
 function repairJson(s: string): string {
   let trimmed = s.trim()
@@ -34,8 +35,7 @@ function getPluginDir(): string {
 }
 
 function getStewardWorkspaceDir(): string {
-  const home = process.env.HOME ?? process.env.USERPROFILE ?? "~";
-  return join(home, ".openclaw", "workspace-town-steward");
+  return join(stateDir(), "workspace-town-steward");
 }
 
 function loadCitizenRoster(): Map<string, CitizenRosterEntry> {

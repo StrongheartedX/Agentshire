@@ -7,6 +7,7 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync, copyFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { stateDir } from "./paths.js";
 
 export interface AgentChange {
   action: "create" | "disable" | "update_soul";
@@ -26,13 +27,11 @@ export interface AgentChangeResult {
 }
 
 function getOpenClawConfigPath(): string {
-  const home = process.env.HOME ?? process.env.USERPROFILE ?? "~";
-  return join(home, ".openclaw", "openclaw.json");
+  return join(stateDir(), "openclaw.json");
 }
 
 function getAgentWorkspacePath(agentId: string): string {
-  const home = process.env.HOME ?? process.env.USERPROFILE ?? "~";
-  return join(home, ".openclaw", `workspace-${agentId}`);
+  return join(stateDir(), `workspace-${agentId}`);
 }
 
 function loadOpenClawConfig(): any {
@@ -51,8 +50,7 @@ function getPluginDir(): string {
 }
 
 function getStewardWorkspaceDir(): string {
-  const home = process.env.HOME ?? process.env.USERPROFILE ?? "~";
-  return join(home, ".openclaw", "workspace-town-steward");
+  return join(stateDir(), "workspace-town-steward");
 }
 
 function syncSharedFiles(workspace: string): void {

@@ -15,6 +15,7 @@ import {
   statSync,
 } from "node:fs";
 import { randomUUID } from "node:crypto";
+import { stateDir } from "./paths.js";
 
 function getStewardWorkspaceDir(): string {
   try {
@@ -24,8 +25,7 @@ function getStewardWorkspaceDir(): string {
     const entry = (cfg?.agents?.list ?? []).find((a: any) => a.id === "town-steward");
     if (entry?.workspace) return entry.workspace;
   } catch {}
-  const home = require("node:os").homedir();
-  return join(home, ".openclaw", "workspace-town-steward");
+  return join(stateDir(), "workspace-town-steward");
 }
 
 const MIME_TYPES: Record<string, string> = {

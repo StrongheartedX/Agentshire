@@ -8,6 +8,7 @@ import { ChatSessionWatcher } from "./chat-session-watcher.js";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { stateDir } from "./paths.js";
 
 export interface TownWsServerOptions {
   port: number;
@@ -32,6 +33,9 @@ export interface TownWsServerOptions {
     stop: string[];
   }) => Promise<{ text: string; usage?: { input: number; output: number } }>;
   onCitizenChat?: (payload: { npcId: string; message: string; townSessionId: string }) => void;
+  onTopicStart?: (payload: { npcIds: string[]; townSessionId: string }) => void;
+  onTopicMessage?: (payload: { npcIds: string[]; message: string; townSessionId: string }) => void;
+  onTopicEnd?: (payload: { townSessionId: string }) => void;
 }
 
 let wss: WebSocketServer | null = null;
@@ -259,20 +263,20 @@ function handleCustomAssetMessage(ws: WebSocket, msg: any): boolean {
 }
 
 function resolveChatTranscriptPath(townSessionId: string, agentId: string): string | null {
-  const home = process.env.HOME ?? process.env.USERPROFILE ?? "~";
   try {
     if (agentId === "steward") {
-      const storeDir = join(home, ".openclaw", "agents", "town-steward", "sessions");
+      const storeDir = join(stateDir(), "agents", "town-steward", "sessions");
       const indexPath = join(storeDir, "sessions.json");
       if (!existsSync(indexPath)) return null;
       const index = JSON.parse(readFileSync(indexPath, "utf-8"));
-      const sessionKey = `town:default:${townSessionId}`;
-      const entry = index[sessionKey] as any;
+      const newKey = `agent:town-steward:town:default:${townSessionId}`;
+      const legacyKey = `town:default:${townSessionId}`;
+      const entry = (index[newKey] ?? index[legacyKey]) as any;
       if (!entry?.sessionId) return null;
       const fp = join(storeDir, `${entry.sessionId}.jsonl`);
       return existsSync(fp) ? fp : null;
     }
-    const storeDir = join(home, ".openclaw", "agents", agentId, "sessions");
+    const storeDir = join(stateDir(), "agents", agentId, "sessions");
     const indexPath = join(storeDir, "sessions.json");
     if (!existsSync(indexPath)) return null;
     const index = JSON.parse(readFileSync(indexPath, "utf-8"));
@@ -373,7 +377,14 @@ export function startTownWsServer(opts: TownWsServerOptions): void {
           activeTownSessionId = townSessionId;
           console.log(`${sessionLogPrefix(townSessionId)} WS bound to frontend connection`);
           if (ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({ type: "town_session_bound", townSessionId }));
+            let modelName: string | undefined;
+            try {
+              const { getTownRuntime } = require("./runtime.js") as typeof import("./runtime.js");
+              const rt = getTownRuntime();
+              const cfg = typeof (rt.config as any)?.loadConfig === "function" ? (rt.config as any).loadConfig() : rt.config;
+              modelName = cfg?.agents?.defaults?.model?.primary;
+            } catch {}
+            ws.send(JSON.stringify({ type: "town_session_bound", townSessionId, ...(modelName ? { model: modelName } : {}) }));
           }
           sendWorkSnapshot(ws, townSessionId);
         } else if (msg.type === "chat_agent_bind" && typeof msg.agentId === "string") {
@@ -424,6 +435,18 @@ export function startTownWsServer(opts: TownWsServerOptions): void {
             `${sessionLogPrefix(townSessionId)} WS ← citizen_chat npc=${msg.npcId} len=${String(msg.message).length}${_debug ? ` "${String(msg.message).slice(0, 80)}"` : ""}`,
           );
           opts.onCitizenChat?.({ npcId: msg.npcId, message: msg.message, townSessionId });
+        } else if (msg.type === "topic_start" && Array.isArray(msg.npcIds)) {
+          const townSessionId = getClientSessionId(ws);
+          console.log(`${sessionLogPrefix(townSessionId)} WS ← topic_start npcIds=[${msg.npcIds.join(",")}]`);
+          opts.onTopicStart?.({ npcIds: msg.npcIds, townSessionId });
+        } else if (msg.type === "topic_message" && Array.isArray(msg.npcIds) && typeof msg.message === "string") {
+          const townSessionId = getClientSessionId(ws);
+          console.log(`${sessionLogPrefix(townSessionId)} WS ← topic_message npcIds=[${msg.npcIds.join(",")}] len=${msg.message.length}`);
+          opts.onTopicMessage?.({ npcIds: msg.npcIds, message: msg.message, townSessionId });
+        } else if (msg.type === "topic_end") {
+          const townSessionId = getClientSessionId(ws);
+          console.log(`${sessionLogPrefix(townSessionId)} WS ← topic_end`);
+          opts.onTopicEnd?.({ townSessionId });
         } else if (msg.type === "implicit_chat_request" && typeof msg.id === "string" && opts.onImplicitChat) {
           const townSessionId = getClientSessionId(ws);
           opts.onImplicitChat({

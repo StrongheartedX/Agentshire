@@ -3,12 +3,12 @@ import { readFileSync, existsSync } from "node:fs";
 import { SessionLogWatcher } from "./session-log-watcher.js";
 import { broadcastAgentEvent } from "./ws-server.js";
 import type { AgentEvent } from "../contracts/events.js";
+import { stateDir } from "./paths.js";
 
 const TOWN_AGENT_ID = "town-steward";
 
 function getSessionsDir(): string {
-  const home = process.env.HOME ?? process.env.USERPROFILE ?? "~";
-  return join(home, ".openclaw", "agents", TOWN_AGENT_ID, "sessions");
+  return join(stateDir(), "agents", TOWN_AGENT_ID, "sessions");
 }
 
 function resolveSessionFileId(childSessionKey: string): string | null {

@@ -7,6 +7,8 @@
 
 import type { ChatMediaType } from "../contracts/chat.js";
 import { existsSync, statSync } from "node:fs";
+import { join } from "node:path";
+import { stateDir } from "./paths.js";
 
 const IMAGE_EXTS = new Set(["png", "jpg", "jpeg", "gif", "webp", "svg", "bmp"]);
 const VIDEO_EXTS = new Set(["mp4", "webm", "mov", "avi", "mkv"]);
@@ -29,8 +31,7 @@ export interface ResolvedAsset {
 }
 
 function getStewardWorkspaceDir(): string {
-  const home = process.env.HOME ?? process.env.USERPROFILE ?? "~";
-  return `${home}/.openclaw/workspace-town-steward`;
+  return join(stateDir(), "workspace-town-steward");
 }
 
 function ext(filePath: string): string {

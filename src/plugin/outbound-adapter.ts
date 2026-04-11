@@ -1,6 +1,8 @@
 import { broadcastAgentEvent, getActiveTownSessionId } from "./ws-server.js";
 import { extractTownSessionId } from "./town-session.js";
 import { readFileSync, existsSync } from "node:fs";
+import { join } from "node:path";
+import { stateDir } from "./paths.js";
 
 const CHANNEL_ID = "agentshire";
 
@@ -31,8 +33,7 @@ export interface ResolvedFileData {
 }
 
 function getStewardWorkspaceDir(): string {
-  const home = process.env.HOME ?? process.env.USERPROFILE ?? "~";
-  return `${home}/.openclaw/workspace-town-steward`;
+  return join(stateDir(), "workspace-town-steward");
 }
 
 function toHttpUrl(filePath: string): string | undefined {

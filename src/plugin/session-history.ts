@@ -4,6 +4,7 @@
  */
 import { readFileSync, readdirSync, existsSync, statSync, openSync, closeSync, fstatSync, readSync } from "node:fs";
 import { join } from "node:path";
+import { stateDir } from "./paths.js";
 
 const TOWN_AGENT_ID = "town-steward";
 const MAX_SESSIONS = 100;
@@ -38,24 +39,23 @@ interface SessionEntry {
   filePath: string;
 }
 
-function getSessionsDir(): string {
-  const home = process.env.HOME ?? process.env.USERPROFILE ?? "~";
-  return join(home, ".openclaw", "agents", TOWN_AGENT_ID, "sessions");
+function sessionsDir(agentId: string = TOWN_AGENT_ID): string {
+  return join(stateDir(), "agents", agentId, "sessions");
 }
 
 function listArchivedSessions(
-  sessionsDir: string,
+  dirPath: string,
   excludeSessionIds: Set<string>,
   maxFiles: number = MAX_ARCHIVED_SESSIONS,
 ): SessionEntry[] {
   try {
-    const files = readdirSync(sessionsDir);
+    const files = readdirSync(dirPath);
     return files
       .filter(f => f.includes(".jsonl.reset."))
       .map(f => {
         const sessionId = f.split(".jsonl.reset.")[0];
         const resetTs = f.split(".reset.")[1] ?? "";
-        return { sessionId, resetTs, path: join(sessionsDir, f) };
+        return { sessionId, resetTs, path: join(dirPath, f) };
       })
       .filter(f => f.sessionId && !excludeSessionIds.has(f.sessionId))
       .sort((a, b) => b.resetTs.localeCompare(a.resetTs))
@@ -82,18 +82,18 @@ function parseResetTimestamp(ts: string): number {
 
 function listTownSessions(): SessionEntry[] {
   try {
-    const sessionsDir = getSessionsDir();
-    const indexPath = join(sessionsDir, "sessions.json");
+    const dir = sessionsDir();
+    const indexPath = join(dir, "sessions.json");
     if (!existsSync(indexPath)) return [];
     const index = JSON.parse(readFileSync(indexPath, "utf-8"));
 
     const sessions: SessionEntry[] = [];
     const indexedIds = new Set<string>();
     for (const [key, value] of Object.entries(index)) {
-      if (!key.startsWith("town:")) continue;
+      if (!key.startsWith("town:") && !key.startsWith("agent:town-steward:town:")) continue;
       const entry = value as any;
       if (!entry?.sessionId) continue;
-      const filePath = join(sessionsDir, `${entry.sessionId}.jsonl`);
+      const filePath = join(dir, `${entry.sessionId}.jsonl`);
       if (!existsSync(filePath)) continue;
       indexedIds.add(entry.sessionId);
       sessions.push({
@@ -103,7 +103,7 @@ function listTownSessions(): SessionEntry[] {
       });
     }
 
-    sessions.push(...listArchivedSessions(sessionsDir, indexedIds));
+    sessions.push(...listArchivedSessions(dir, indexedIds));
     sessions.sort((a, b) => b.updatedAt - a.updatedAt);
     return sessions.slice(0, MAX_SESSIONS);
   } catch {
@@ -170,15 +170,15 @@ function resolveSubagentMessages(childSessionKeys: string[]): ChatHistoryMessage
   if (childSessionKeys.length === 0) return [];
   const results: ChatHistoryMessage[] = [];
   try {
-    const sessionsDir = getSessionsDir();
-    const indexPath = join(sessionsDir, "sessions.json");
+    const dir = sessionsDir();
+    const indexPath = join(dir, "sessions.json");
     if (!existsSync(indexPath)) return [];
     const index = JSON.parse(readFileSync(indexPath, "utf-8"));
 
     for (const childKey of childSessionKeys) {
       const entry = (index as Record<string, any>)[childKey];
       if (!entry?.sessionId) continue;
-      const childPath = join(sessionsDir, `${entry.sessionId}.jsonl`);
+      const childPath = join(dir, `${entry.sessionId}.jsonl`);
       if (!existsSync(childPath)) continue;
       const msg = readSubagentFinalMessage(childPath);
       if (msg) results.push(msg);
@@ -348,13 +348,13 @@ function readSessionMessages(filePath: string): ChatHistoryMessage[] {
 
 export function loadSubagentFinalMessage(childSessionKey: string): ChatHistoryMessage | null {
   try {
-    const sessionsDir = getSessionsDir();
-    const indexPath = join(sessionsDir, "sessions.json");
+    const dir = sessionsDir();
+    const indexPath = join(dir, "sessions.json");
     if (!existsSync(indexPath)) return null;
     const index = JSON.parse(readFileSync(indexPath, "utf-8"));
     const entry = (index as Record<string, any>)[childSessionKey];
     if (!entry?.sessionId) return null;
-    const filePath = join(sessionsDir, `${entry.sessionId}.jsonl`);
+    const filePath = join(dir, `${entry.sessionId}.jsonl`);
     if (!existsSync(filePath)) return null;
     return readSubagentFinalMessage(filePath);
   } catch {
@@ -442,10 +442,9 @@ export function loadCitizenHistory(
   agentId: string,
   limit: number = 50,
 ): ChatHistoryResult {
-  const home = process.env.HOME ?? process.env.USERPROFILE ?? "~";
-  const sessionsDir = join(home, ".openclaw", "agents", agentId, "sessions");
+  const sessDir = sessionsDir(agentId);
 
-  if (!existsSync(sessionsDir)) {
+  if (!existsSync(sessDir)) {
     return { messages: [], hasMore: false, cursor: "" };
   }
 
@@ -454,21 +453,21 @@ export function loadCitizenHistory(
     const indexedIds = new Set<string>();
     const prefix = `agent:${agentId}:`;
 
-    const indexPath = join(sessionsDir, "sessions.json");
+    const indexPath = join(sessDir, "sessions.json");
     if (existsSync(indexPath)) {
       const index = JSON.parse(readFileSync(indexPath, "utf-8"));
       for (const [key, value] of Object.entries(index)) {
         if (!key.startsWith(prefix)) continue;
         const entry = value as any;
         if (!entry?.sessionId) continue;
-        const filePath = join(sessionsDir, `${entry.sessionId}.jsonl`);
+        const filePath = join(sessDir, `${entry.sessionId}.jsonl`);
         if (!existsSync(filePath)) continue;
         indexedIds.add(entry.sessionId);
         allMessages.push(...readSessionMessages(filePath));
       }
     }
 
-    const archived = listArchivedSessions(sessionsDir, indexedIds);
+    const archived = listArchivedSessions(sessDir, indexedIds);
     for (const arc of archived) {
       allMessages.push(...readSessionMessages(arc.filePath));
     }
@@ -770,31 +769,30 @@ export function loadCitizenItemHistory(
   agentId: string,
   limit: number = 50,
 ): ChatItemHistoryResult {
-  const home = process.env.HOME ?? process.env.USERPROFILE ?? "~";
-  const sessionsDir = join(home, ".openclaw", "agents", agentId, "sessions");
+  const sessDir = sessionsDir(agentId);
 
-  if (!existsSync(sessionsDir)) return { items: [], hasMore: false, cursor: "" };
+  if (!existsSync(sessDir)) return { items: [], hasMore: false, cursor: "" };
 
   try {
     const allItems: ChatItem[] = [];
     const indexedIds = new Set<string>();
     const prefix = `agent:${agentId}:`;
 
-    const indexPath = join(sessionsDir, "sessions.json");
+    const indexPath = join(sessDir, "sessions.json");
     if (existsSync(indexPath)) {
       const index = JSON.parse(readFileSync(indexPath, "utf-8"));
       for (const [key, value] of Object.entries(index)) {
         if (!key.startsWith(prefix)) continue;
         const entry = value as any;
         if (!entry?.sessionId) continue;
-        const fp = join(sessionsDir, `${entry.sessionId}.jsonl`);
+        const fp = join(sessDir, `${entry.sessionId}.jsonl`);
         if (!existsSync(fp)) continue;
         indexedIds.add(entry.sessionId);
         allItems.push(...readSessionItems(fp, agentId));
       }
     }
 
-    const archived = listArchivedSessions(sessionsDir, indexedIds);
+    const archived = listArchivedSessions(sessDir, indexedIds);
     for (const arc of archived) {
       allItems.push(...readSessionItems(arc.filePath, agentId));
     }
@@ -813,9 +811,8 @@ export function loadCitizenItemHistory(
 // ────────────────────────────────────────────────────────────────
 
 export function loadCitizenNewMessages(agentId: string): ChatHistoryMessage[] {
-  const home = process.env.HOME ?? process.env.USERPROFILE ?? "~";
-  const sessionsDir = join(home, ".openclaw", "agents", agentId, "sessions");
-  const indexPath = join(sessionsDir, "sessions.json");
+  const sessDir = sessionsDir(agentId);
+  const indexPath = join(sessDir, "sessions.json");
 
   if (!existsSync(indexPath)) return [];
 
@@ -832,7 +829,7 @@ export function loadCitizenNewMessages(agentId: string): ChatHistoryMessage[] {
       }
     }
     if (!latest) return [];
-    const filePath = join(sessionsDir, `${latest.sessionId}.jsonl`);
+    const filePath = join(sessDir, `${latest.sessionId}.jsonl`);
     if (!existsSync(filePath)) return [];
     return readSessionMessages(filePath);
   } catch {

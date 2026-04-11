@@ -1,8 +1,9 @@
 // @desc Town soul loader: reads town-souls/*.md to extract agent name and identity for system prompt
-// Search order (later wins): package town-souls/ → cwd town-souls/ → .openclaw/town-souls/ → town-data/souls/
+// Search order (later wins): package town-souls/ → cwd town-souls/ → {stateDir}/town-souls/ → town-data/souls/
 import { readFileSync, existsSync, readdirSync, mkdirSync } from 'node:fs';
 import { resolve, dirname, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { stateDir } from './plugin/paths.js';
 
 export interface TownSoul {
   name: string;
@@ -41,7 +42,11 @@ function getSoulDirs(cwd?: string): SoulDir[] {
     dirs.push({ path: resolve(thisDir, '../town-souls'), source: 'system' });
   } catch (err) { console.warn('[town-souls] Failed to resolve plugin dir:', (err as Error).message) }
   dirs.push({ path: resolve(base, 'town-souls'), source: 'system' });
-  dirs.push({ path: resolve(base, '.openclaw', 'town-souls'), source: 'user' });
+  try {
+    dirs.push({ path: resolve(stateDir(), 'town-souls'), source: 'user' });
+  } catch {
+    dirs.push({ path: resolve(base, '.openclaw', 'town-souls'), source: 'user' });
+  }
   dirs.push({ path: getTownDataSoulsDir(), source: 'user' });
   return dirs;
 }

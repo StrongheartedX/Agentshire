@@ -8,6 +8,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { stateDir } from "./paths.js";
 
 const AGENT_ID = "town-steward";
 const CHANNEL_ID = "agentshire";
@@ -17,18 +18,8 @@ function getPluginDir(): string {
   return join(fileURLToPath(import.meta.url), "../../..");
 }
 
-function getConfigPath(): string {
-  const home = process.env.HOME ?? process.env.USERPROFILE ?? "~";
-  return join(home, ".openclaw", "openclaw.json");
-}
-
-function getUserAgentDir(): string {
-  const home = process.env.HOME ?? process.env.USERPROFILE ?? "~";
-  return join(home, ".openclaw", `workspace-${AGENT_ID}`);
-}
-
 function ensureTownWorkspace(): string {
-  const agentDir = getUserAgentDir();
+  const agentDir = join(stateDir(), `workspace-${AGENT_ID}`);
   const templateDir = join(getPluginDir(), TEMPLATE_DIR);
   if (!existsSync(templateDir)) {
     console.warn(
@@ -67,7 +58,7 @@ function ensureTownWorkspace(): string {
 
 export async function ensureTownAgentConfig(): Promise<void> {
   try {
-    const configPath = getConfigPath();
+    const configPath = join(stateDir(), "openclaw.json");
     if (!existsSync(configPath)) return;
 
     const raw = readFileSync(configPath, "utf-8");
