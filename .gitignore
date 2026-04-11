@@ -30,3 +30,8 @@ town-frontend/design-system/
 *.tsbuildinfo
 coverage/
 *.log
+
+# local user data
+town-data/custom-assets/characters/
+town-data/custom-assets/thumbnails/
+town-data/souls/

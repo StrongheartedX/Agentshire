@@ -1,7 +1,7 @@
 # ROADMAP
 
 > This roadmap tracks where Agentshire is and where it's going.  
-> Agentshire is an OpenClaw plugin that turns AI agents into living NPCs in a 3D town with UGC tools.  
+> Agentshire is an OpenClaw/QClaw plugin that turns AI agents into living NPCs in a 3D town with UGC tools.  
 > See [README](./README.md) for full feature list, [VISION](./VISION.md) for why we're building this.
 
 > Agentshire doesn't lack a vision.  
@@ -13,13 +13,15 @@
 
 Agentshire is not a slide deck. It's a working system with:
 
-- **3D Town + IM Chat** dual-mode interface, real-time dialog bubbles, multimodal support
+- **3D Town + IM Chat** dual-mode interface, real-time dialog bubbles, multimodal support, **bilingual UI (Chinese + English)**
 - **Agent = NPC** real-time mapping, cinematic workflow choreography (summon → assign → code → celebrate → return)
 - **Day/night cycle + 12 weather types + procedural ambient sound (zero audio files) + 4-track dynamic BGM**
 - **Citizen Workshop**: three-source character models (12 built-in + 300+ library + custom upload), AI soul generation, 8-slot animation mapping, publish as independent Agents
 - **Town Editor**: drag-and-drop buildings/roads/lights, grouping/alignment/undo, JSON export + game-level preview
 - **Soul Mode (basic)**: AgentBrain 3-tier AI decisions + LLM deep conversations + relationship graph
 - **Zero-LLM daily social interactions** + Banwei Buster mini-game
+- **Topic Discussions**: multi-citizen group discussions with structured turn-taking
+- **QClaw + OpenClaw compatibility**: auto-detects state directory, works on both platforms
 
 The focus of this roadmap is not "0 to 1" — it's **stabilizing the foundation before building higher**.
 
@@ -31,26 +33,29 @@ The focus of this roadmap is not "0 to 1" — it's **stabilizing the foundation 
 
 | # | Direction | Status | Needs |
 |---|-----------|--------|-------|
-| 1 | **OpenClaw Version Compatibility** | 🚨 Highest Priority | Architect · Systems Engineer |
+| 1 | **Platform Compatibility** | ✅ QClaw done, CLI 4.x pending | Architect · Systems Engineer |
 | 2 | **npm One-Click Install** | Blocked | Systems Engineer |
 | 3 | **Plugin Stability** | In Progress | Full-Stack Engineer |
 | 4 | Soul Mode Improvements | In Progress | AI Engineer · Frontend |
 | 5 | Editor ↔ Town Integration | In Progress | Three.js Frontend · Systems |
 | 6 | Open Source & Community | In Progress | Everyone willing to help |
 
-### 1. OpenClaw Version Compatibility (Highest Priority)
+### 1. Platform Compatibility
 
-No matter how many features we add, if users can't install it or upgrading breaks everything, none of it matters. This is the biggest bottleneck right now.
+No matter how many features we add, if users can't install it or upgrading breaks everything, none of it matters.
 
-**Current state**: Only OpenClaw 2026.3.13 is fully supported. 4.x is broken. npm install is blocked by the security scanner.
+**Current state**: OpenClaw CLI 2026.3.13 and QClaw 0.2.x are fully supported. CLI 4.x is broken.
 
+- [x] ~~**QClaw compatibility**: Auto-detect state directory (`~/.qclaw/` vs `~/.openclaw/`), centralized path resolution~~
+- [x] ~~**Agent routing fix**: SessionKey format updated to ensure correct routing to `town-steward` regardless of `agents.list` order~~
+- [x] ~~**Dynamic model display**: Show actual model name from runtime config instead of hardcoded value~~
 - [ ] **4.x Channel initialization regression**: External plugin `defineChannelPluginEntry` lifecycle is not correctly invoked — needs upstream fix or a compatibility workaround
-- [ ] **Rollup code-splitting breaks tool registration**: `api.registerTool()` state is isolated across JS chunks, making tools invisible to the agent runtime — needs upstream fix or workaround
-- [ ] **Plugin SDK API availability varies by version**: `runEmbeddedPiAgent` (unavailable on 3.13) / `subagent.run()` (only works in gateway request context) / `prepareSimpleCompletionModel()` (direct LLM call) — needs a unified compatibility layer
-- [x] ~~**Security scanner false positives**~~: Resolved — refactored `child_process` and LLM proxy to pass the scanner
+- [ ] **Rollup code-splitting breaks tool registration**: `api.registerTool()` state is isolated across JS chunks — needs upstream fix or workaround
+- [ ] **Plugin SDK API availability varies by version**: needs a unified compatibility layer
+- [x] ~~**Security scanner false positives**~~: Resolved
 - [ ] Establish a cross-version compatibility test matrix (3.13 / 4.x / latest)
 
-**Goal**: Support 3.13 + latest stable simultaneously. Verify compatibility within 48 hours of a new OpenClaw release.
+**Goal**: Support 3.13 + QClaw 0.2.x + latest CLI stable simultaneously.
 
 ### 2. npm One-Click Install
 
@@ -106,7 +111,7 @@ Abstract a unified compat shim to hide OpenClaw version differences:
 
 - **LLM calls**: Auto-select from `prepareSimpleCompletionModel` → `runEmbeddedPiAgent` → direct fetch fallback chain
 - **Tool registration**: Detect if `registerTool` is effective, auto-supplement with workspace `TOOLS.md` as fallback
-- **Workspace paths**: Unified resolution logic compatible with different version defaults
+- **Workspace paths**: ~~Unified resolution logic compatible with different version defaults~~ ✅ Done (centralized `stateDir()`)
 - **Sub-agent management**: Wrap `subagent.run()` context limitations behind a unified async task interface
 
 ### Developer Experience

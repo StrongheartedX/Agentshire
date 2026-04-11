@@ -1,6 +1,6 @@
 {
   "name": "agentshire",
-  "version": "2026.4.8",
+  "version": "2026.4.12",
   "description": "OpenClaw plugin for building a living 3D town with social NPCs, a map editor, and a character workshop.",
   "main": "./index.ts",
   "exports": {
@@ -20,13 +20,19 @@
   "keywords": [
     "openclaw",
     "ai-agents",
-    "3d-town",
-    "npc",
-    "three-js",
     "multi-agent",
-    "visualization",
+    "generative-agents",
+    "npc",
+    "threejs",
+    "3d",
+    "simulation",
     "game",
-    "ugc"
+    "visualization",
+    "low-poly",
+    "typescript",
+    "open-source",
+    "level-editor",
+    "character-creator"
   ],
   "scripts": {
     "build:town": "cd town-frontend && npm install && npm run build",

@@ -295,6 +295,7 @@ agentshire/
 |--------|------|-------------|
 | Plugin Layer | [src/plugin/AGENTS.md](src/plugin/AGENTS.md) | Modifying hooks / tools / plans / citizen agents / editor API |
 | Bridge Layer | [src/bridge/AGENTS.md](src/bridge/AGENTS.md) | Modifying Phase state machine / event translation / pathfinding / citizen spawn |
+| Town Frontend | [town-frontend/AGENTS.md](town-frontend/AGENTS.md) | Modifying any frontend UI / styles / text — **brand colors & i18n rules** |
 | Frontend Game | [town-frontend/src/game/AGENTS.md](town-frontend/src/game/AGENTS.md) | Modifying scenes / workflow / mini-game / VFX / weather |
 
 ## Core Architecture Constraints

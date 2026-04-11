@@ -2,19 +2,22 @@
 
 English | [中文](README.zh-CN.md)
 
-> **Agentshire — Let your OpenClaw agents live in a game town you built yourself， not a dashboard.**
+> **Agentshire — Let your OpenClaw/QClaw agents live in a game town you built yourself， not a dashboard.**
 
 Agentshire is an [OpenClaw](https://github.com/openclaw/openclaw) plugin that turns AI agents into living NPCs inside a 3D town you can watch, chat with, and shape yourself. It combines a living simulation layer with UGC tools: weather, day/night cycles, social NPCs, a map editor, and a character workshop.
 
+**Works with both OpenClaw CLI and [QClaw](https://qclaw.cn) desktop app.**
+
 **[Vision](VISION.md)** | **[Roadmap](ROADMAP.md)**
 
-> **⚠️ Compatibility Notice**
+> **Compatibility**
 >
-> | OpenClaw Version | Status | Notes |
+> | Platform | Version | Status |
 > |---|---|---|
-> | **2026.3.13** | ✅ Recommended | Fully tested and supported |
-> | 2026.3.7 – 3.12 | ⚠️ May work | Not actively tested |
-> | 2026.4.x+ | ❌ Not supported yet | Channel plugin initialization regression — [tracking issue](https://github.com/openclaw/openclaw/issues) |
+> | **OpenClaw CLI** | 2026.3.13 | ✅ Recommended |
+> | **QClaw Desktop** | 0.2.x | ✅ Supported |
+> | OpenClaw CLI | 2026.3.7 – 3.12 | ⚠️ May work |
+> | OpenClaw CLI | 2026.4.x+ | ❌ Not yet — channel init regression |
 >
 > See [Troubleshooting](#troubleshooting) for version-specific issues.
 
@@ -61,6 +64,7 @@ https://github.com/user-attachments/assets/fa6563ae-e78b-49b1-ae7b-8a8a96738341
 - **Town Mode** — Low-poly 3D town where you watch NPCs live, work, collaborate, and celebrate in real time
 - **Chat Mode** — IM-style chat interface with an agent list (steward + citizens, online status), message history, multimodal support (text/image), and commands (`/new` `/help` `/stop`)
 - **Top Navigation** — One-click switch between Town and Chat, with a quick menu (Citizen Workshop / Town Editor / Skill Store / Settings)
+- **Bilingual UI** — Full Chinese and English interface, auto-detected or manually switchable
 
 ### Core
 
@@ -78,6 +82,7 @@ https://github.com/user-attachments/assets/fa6563ae-e78b-49b1-ae7b-8a8a96738341
 - **4-Track BGM** — Day / dusk / night / work tracks, auto-switching by weather, time period, and scene with 3.5s crossfade
 - **NPC Daily Behavior (Dual Mode)** — Algorithm-driven by default: state machine + 5 behavior templates + 400+ preset dialog lines, zero LLM cost. Enable Soul Mode to switch to AI-driven: AgentBrain 3-tier decisions (L1 daily plan / L2 tactical / L3 dialogue) + deep multi-turn LLM conversations + relationship graph + daily narrative summaries
 - **Citizen Chat** — Click any citizen NPC to start a conversation, routed to that citizen's independent Agent session
+- **Topic Discussion** — Start a group discussion with multiple citizens on a topic, with structured turn-taking and AI-moderated dialogue
 - **Banwei Buster Mini-Game** — NPCs generate "banwei orbs" while working; click to pop them! Includes combo system, boss battles, and NPC stress mechanics
 
 ### UGC Tools
@@ -126,14 +131,20 @@ openclaw plugins install --link .
 
 ### What the plugin auto-configures on first start
 
-1. Creates the steward workspace at `~/.openclaw/workspace-town-steward/`
+1. Creates the steward workspace (`workspace-town-steward/` in your state directory)
 2. Registers the `town-steward` Agent in `openclaw.json`
 3. Adds a routing rule to direct town channel messages to the steward
 4. Sets `subagents.runTimeoutSeconds: 600` — 10-minute timeout to prevent premature subagent termination
 
+> The state directory is auto-detected: `~/.openclaw/` for OpenClaw CLI, `~/.qclaw/` for QClaw.
+
 > **Important**: Do **not** add a `tools` section to `openclaw.json`. The plugin registers its own tools via `api.registerTool()`. A manual `tools.allow` list will override plugin-registered tools, making them invisible to the agent.
 
 ### Update
+
+**QClaw users**: Uninstall and reinstall the plugin, then restart QClaw.
+
+**OpenClaw CLI users**:
 
 ```bash
 cd Agentshire && git pull
@@ -171,7 +182,7 @@ Visit `http://localhost:55210/editor.html` to open the visual map editor.
 
 ### Configuration (Optional)
 
-Customize ports and behavior in `~/.openclaw/openclaw.json`:
+Customize ports and behavior in your `openclaw.json` (`~/.openclaw/openclaw.json` for OpenClaw CLI, `~/.qclaw/openclaw.json` for QClaw):
 
 ```json
 {
@@ -225,13 +236,13 @@ Format: a Markdown file starting with `# Character Name`, optionally containing 
 
 1. `plugin-builtin/town-souls/` — Preset souls (8 citizens + steward)
 2. `cwd/town-souls/` — Project-level souls
-3. `~/.openclaw/town-souls/` — User custom souls
+3. `{stateDir}/town-souls/` — User custom souls (`~/.openclaw/` or `~/.qclaw/`)
 4. `town-data/souls/` — Souls published from Citizen Workshop
 
 You can:
 - **AI-generate** soul files in the Citizen Workshop
 - Modify built-in soul files to adjust personalities
-- Place custom souls in `~/.openclaw/town-souls/` to override presets
+- Place custom souls in your state directory's `town-souls/` folder to override presets
 - Create entirely new soul files for new characters
 
 ---
@@ -370,8 +381,14 @@ Without the asset pack: the game runs normally, editor has basic assets, and the
 **Cause**: On OpenClaw 2026.3.13, Rollup code-splitting can create separate module instances, causing `api.registerTool()` registrations to be invisible to the agent runtime. Additionally, a manual `tools` section in `openclaw.json` overrides plugin-registered tools.
 
 **Fix**:
-1. Remove the entire `tools` section from `~/.openclaw/openclaw.json` if present
+1. Remove the entire `tools` section from your `openclaw.json` if present
 2. Restart the Gateway
+
+### QClaw: Plugin still runs old code after restart
+
+**Cause**: Closing the QClaw window does not stop the background `openclaw-gateway` process.
+
+**Fix**: Kill the gateway process before restarting QClaw: `ps aux | grep openclaw-gateway | grep -v grep | awk '{print $2}' | xargs kill`
 
 ### Channel does not start on OpenClaw 2026.4.x
 
@@ -411,7 +428,7 @@ We imagine a different future. A quieter one. A gentler interface. A place where
 | Phase | Direction | Status |
 |-------|-----------|--------|
 | **A Town** | 3D visualization, workflow orchestration, soul system, citizen workshop, dual-mode UI | ✅ Implemented |
-| **A Stable Town** | OpenClaw version compatibility, npm publish, plugin stability, soul mode improvements | 🔥 Current Focus |
+| **A Stable Town** | QClaw + OpenClaw compatibility, bilingual i18n, topic discussions, npm publish | 🔥 Current Focus |
 | **A Living Town** | Editor ↔ runtime integration, life simulation (clothing/food/shelter/travel/play), growth systems, mobile | 📋 Next |
 | **A World** | Town federation protocol, cross-town NPC visits, skill exchange, world events | 🌍 Long-term |
 
