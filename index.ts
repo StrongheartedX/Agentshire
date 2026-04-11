@@ -275,7 +275,7 @@ export default {
 
     api.on("subagent_spawning", async (event: any) => {
       try {
-        const soulId = event.soul ?? event.persona ?? event.label;
+        const soulId = event.soul || event.persona || event.label;
         if (soulId) {
           const { loadTownSoul } = await import("./src/town-souls.js");
           const { join } = await import("node:path");
