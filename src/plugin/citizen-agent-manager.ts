@@ -75,6 +75,7 @@ function writeIdentity(workspace: string, name: string, specialty?: string): voi
     `- **Name:** ${name}`,
   ];
   if (specialty) lines.push(`- **Role:** ${specialty}`);
+  if (specialty) lines.push(`- Vibe: ${specialty}`);
   writeFileSync(join(workspace, "IDENTITY.md"), lines.join("\n") + "\n", "utf-8");
 }
 
