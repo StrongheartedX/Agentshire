@@ -1,0 +1,92 @@
+{
+  "townName": "Shire",
+  "steward": {
+    "id": "steward",
+    "name": "shire",
+    "personaFile": "town-souls/SOUL.md",
+    "characterKey": "char-female-b",
+    "role": "steward",
+    "specialty": "Steward",
+    "bio": "Sharp and decisive manager, delegates tasks to citizens, never codes herself"
+  },
+  "user": {
+    "id": "user",
+    "name": "Mayor",
+    "characterKey": "char-male-c",
+    "role": "user",
+    "specialty": "Mayor",
+    "bio": "Town leader, sets direction and makes decisions"
+  },
+  "citizens": [
+    {
+      "id": "citizen_1",
+      "name": "Yan",
+      "specialty": "Architecture",
+      "role": "Architecture",
+      "personaFile": "town-souls/YAN.md",
+      "characterKey": "char-male-b",
+      "homeId": "house_a",
+      "bio": "Quiet, logical, architecture purist with a global perspective"
+    },
+    {
+      "id": "citizen_2",
+      "name": "Chengzi",
+      "specialty": "Product Manager",
+      "role": "Product Manager",
+      "personaFile": "town-souls/CHENGZI.md",
+      "characterKey": "char-female-c",
+      "homeId": "house_b",
+      "bio": "Fast thinker, ideas overflow, obsessed with UX empathy"
+    },
+    {
+      "id": "citizen_3",
+      "name": "Haitang",
+      "specialty": "UI Design",
+      "role": "UI Design",
+      "personaFile": "town-souls/HAITANG.md",
+      "characterKey": "char-female-e",
+      "homeId": "house_c",
+      "bio": "Elegant and quiet, aesthetic perfectionist, extraordinary color perception"
+    },
+    {
+      "id": "citizen_4",
+      "name": "Diandian",
+      "specialty": "Frontend Dev",
+      "role": "Frontend Dev",
+      "personaFile": "town-souls/DIANDIAN.md",
+      "characterKey": "char-female-f",
+      "homeId": "house_a",
+      "bio": "Warm and sunny, solid skills, team morale booster"
+    },
+    {
+      "id": "citizen_5",
+      "name": "Xiaolie",
+      "specialty": "Backend Dev",
+      "role": "Backend Dev",
+      "personaFile": "town-souls/XIAOLIE.md",
+      "characterKey": "char-male-e",
+      "homeId": "house_b",
+      "bio": "Action-first, blazing fast, thrives on hard technical challenges"
+    },
+    {
+      "id": "citizen_6",
+      "name": "Qiqi",
+      "specialty": "Content Ops",
+      "role": "Content Ops",
+      "personaFile": "town-souls/QIQI.md",
+      "characterKey": "char-female-d",
+      "homeId": "house_c",
+      "bio": "Creative fountain, knows what goes viral but values substance over hype"
+    },
+    {
+      "id": "citizen_7",
+      "name": "Chen",
+      "specialty": "Data Analysis",
+      "role": "Data Analysis",
+      "personaFile": "town-souls/CHEN.md",
+      "characterKey": "char-male-d",
+      "homeId": "house_a",
+      "bio": "Cold logic, speaks only in conclusions, data is religion not habit"
+    }
+  ]
+}
