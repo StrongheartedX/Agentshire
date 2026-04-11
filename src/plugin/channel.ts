@@ -276,6 +276,59 @@ export const agentTownPlugin: ChannelPlugin<ResolvedTownAccount> = {
             console.error("[agentshire] onCitizenChat dispatch error:", err);
           }
         },
+        onTopicStart: async ({ npcIds, townSessionId }) => {
+          try {
+            const { startDiscussion } = await import("./group-discussion.js");
+            const { readFileSync, existsSync } = await import("node:fs");
+            const { join } = await import("node:path");
+            const { fileURLToPath } = await import("node:url");
+            const pluginDir = join(fileURLToPath(import.meta.url), "..", "..", "..");
+            const configPath = join(pluginDir, "town-data", "citizen-config.json");
+            let participants: Array<{ npcId: string; name: string }> = [];
+            if (existsSync(configPath)) {
+              const config = JSON.parse(readFileSync(configPath, "utf-8"));
+              const chars: any[] = config.characters ?? [];
+              participants = npcIds
+                .map(id => {
+                  const c = chars.find((ch: any) => ch.id === id && ch.agentEnabled);
+                  return c ? { npcId: id, name: c.name ?? id } : null;
+                })
+                .filter(Boolean) as Array<{ npcId: string; name: string }>;
+            }
+            if (participants.length < 2) {
+              console.warn(`[agentshire] topic_start: not enough valid participants (${participants.length})`);
+              return;
+            }
+            startDiscussion({
+              participants,
+              townSessionId: sanitizeTownSessionId(townSessionId),
+              accountId: account.accountId,
+              cfg: ctx.cfg,
+            });
+          } catch (err) {
+            console.error("[agentshire] onTopicStart error:", err);
+          }
+        },
+        onTopicMessage: async ({ npcIds: _npcIds, message, townSessionId: _townSessionId }) => {
+          try {
+            const { onUserMessage, hasActiveDiscussion } = await import("./group-discussion.js");
+            if (!hasActiveDiscussion()) {
+              console.warn("[agentshire] topic_message received but no active discussion");
+              return;
+            }
+            onUserMessage(message);
+          } catch (err) {
+            console.error("[agentshire] onTopicMessage error:", err);
+          }
+        },
+        onTopicEnd: async () => {
+          try {
+            const { endDiscussion } = await import("./group-discussion.js");
+            endDiscussion();
+          } catch (err) {
+            console.error("[agentshire] onTopicEnd error:", err);
+          }
+        },
       });
 
       const townUrl = `http://localhost:${account.townPort}?ws=ws://localhost:${account.wsPort}`;
