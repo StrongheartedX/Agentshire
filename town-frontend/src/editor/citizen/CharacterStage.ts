@@ -172,8 +172,10 @@ export class CharacterStage {
     base.castShadow = true
     this.scene.add(base)
 
+    const DECO = 'assets/models/stage-deco'
+
     try {
-      const gltf = await this.loader.loadAsync(`${EXT_BASE}/Map_1/Nature and Park/Park_GrassHill_A.glb`)
+      const gltf = await this.loader.loadAsync(`${DECO}/Park_GrassHill_A.glb`)
       const grassHill = gltf.scene
       grassHill.scale.setScalar(1)
       grassHill.updateMatrixWorld(true)
@@ -192,18 +194,15 @@ export class CharacterStage {
       this.scene.add(grassHill)
     } catch { /* not critical */ }
 
-    const NP = `${EXT_BASE}/Map_1/Nature and Park`
-    const Y = 0.5
+    this.loadDeco(`${DECO}/Grass_A_1.glb`, 0.35, 0, 0.54, -0.6, 0.2)
+    this.loadDeco(`${DECO}/Grass_A_1.glb`, 0.30, 1.8, 0.54, 0.3, -0.7)
+    this.loadDeco(`${DECO}/Grass_A_1.glb`, 0.28, 3.0, 0.52, 0.9, 0.5)
+    this.loadDeco(`${DECO}/Grass_A_1.glb`, 0.35, 3.0, 0.48, -0.4, 1.2)
+    this.loadDeco(`${DECO}/Flowers_2_B.glb`, 0.60, 0.5, 0.5, -1.0, -0.5)
 
-    this.loadDeco(`${NP}/Grass_A_1.glb`, 0.35, 0, 0.54, -0.6, 0.2)
-    this.loadDeco(`${NP}/Grass_A_1.glb`, 0.30, 1.8, 0.54, 0.3, -0.7)
-    this.loadDeco(`${NP}/Grass_A_1.glb`, 0.28, 3.0, 0.52, 0.9, 0.5)
-    this.loadDeco(`${NP}/Grass_A_1.glb`, 0.35, 3.0, 0.48, -0.4, 1.2)
-    this.loadDeco(`${NP}/Flowers_2_B.glb`, 0.60, 0.5, 0.5, -1.0, -0.5)
+    this.loadDeco(`${DECO}/Flowers_1_D.glb`, 0.6, 0, 0.49, 0.45,1.2)
 
-    this.loadDeco(`${NP}/Flowers_1_D.glb`, 0.6, 0, 0.49, 0.45,1.2)
-
-    this.loadDeco(`${NP}/Pebles_1_A_2.glb`, 0.35, 0, 0.53, 0.1, 0.7)
+    this.loadDeco(`${DECO}/Pebles_1_A_2.glb`, 0.35, 0, 0.53, 0.1, 0.7)
   }
 
   private async loadDeco(url: string, scale: number, rotY: number, y: number, x: number, z: number): Promise<void> {
