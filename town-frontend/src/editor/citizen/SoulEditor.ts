@@ -1,3 +1,5 @@
+import { getLocale } from '../../i18n'
+
 export interface SoulContext {
   name: string
   bio: string
@@ -31,7 +33,7 @@ export class SoulEditor {
     toggle.className = 'cw-soul-toggle'
     toggle.innerHTML = `
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-      <span>编辑完整 Soul</span>
+      <span>${getLocale() === 'en' ? 'Edit Full Soul' : '编辑完整 Soul'}</span>
     `
 
     const editorWrap = document.createElement('div')
@@ -40,7 +42,7 @@ export class SoulEditor {
     const ta = document.createElement('textarea')
     ta.className = 'cw-textarea cw-soul-textarea'
     ta.value = soulContent
-    ta.placeholder = '在此编辑完整的 Soul Markdown 文件...\n\n点击「AI 生成」可自动创建'
+    ta.placeholder = getLocale() === 'en' ? 'Edit full Soul Markdown here...\n\nClick "AI Generate" to auto-create' : '在此编辑完整的 Soul Markdown 文件...\n\n点击「AI 生成」可自动创建'
     ta.style.minHeight = '200px'
     this.textarea = ta
 
@@ -51,7 +53,7 @@ export class SoulEditor {
 
     const aiBtn = document.createElement('button')
     aiBtn.className = 'cw-ai-gen-btn'
-    aiBtn.textContent = '✦ AI 生成'
+    aiBtn.textContent = getLocale() === 'en' ? '✦ AI Generate' : '✦ AI 生成'
     aiBtn.addEventListener('click', () => this.triggerAIGeneration(aiBtn))
 
     editorWrap.appendChild(ta)
@@ -72,7 +74,7 @@ export class SoulEditor {
     const { name, bio, industry, specialty } = this.context
     if (!name || !bio) return
 
-    btn.textContent = '⏳ 生成中...'
+    btn.textContent = getLocale() === 'en' ? '⏳ Generating...' : '⏳ 生成中...'
     btn.classList.add('disabled')
 
     try {
@@ -97,7 +99,7 @@ export class SoulEditor {
       console.warn('AI Soul generation request failed:', e)
     }
 
-    btn.textContent = '✦ AI 生成'
+    btn.textContent = getLocale() === 'en' ? '✦ AI Generate' : '✦ AI 生成'
     btn.classList.remove('disabled')
   }
 

@@ -1,3 +1,4 @@
+import { getLocale } from '../../i18n'
 import { CitizenRoster, type RosterSelection } from './CitizenRoster'
 import { CharacterStage } from './CharacterStage'
 import { ModelPicker } from './ModelPicker'
@@ -149,7 +150,7 @@ export class CitizenWorkshop {
       this.openAnimDialogForGroup(group)
     })
     this.picker.onDelete(async (group) => {
-      const ok = await this.showConfirm('删除模型', `确定要删除「${group.displayName}」吗？此操作不可撤销。`)
+      const ok = await this.showConfirm(getLocale() === 'en' ? 'Delete Model' : '删除模型', getLocale() === 'en' ? `Delete "${group.displayName}"? This cannot be undone.` : `确定要删除「${group.displayName}」吗？此操作不可撤销。`)
       if (!ok) return
       const assetId = group.id.replace('custom-', '')
       try {
@@ -268,13 +269,13 @@ export class CitizenWorkshop {
     const currentGroup = this.picker.getGroupById(this.getCurrentAvatarId())
     const currentName = currentGroup?.displayName || '--'
 
-    if (currentEl) currentEl.textContent = `已选角色：${currentName}`
+    if (currentEl) currentEl.textContent = `${getLocale() === 'en' ? 'Current: ' : '已选角色：'}${currentName}`
 
     const hasCandidate = !!candidateName
     if (arrowEl) arrowEl.style.display = hasCandidate ? '' : 'none'
     if (candidateEl) {
       candidateEl.style.display = hasCandidate ? '' : 'none'
-      candidateEl.textContent = candidateName ? `更换为：${candidateName}` : ''
+      candidateEl.textContent = candidateName ? `${getLocale() === 'en' ? 'Change to: ' : '更换为：'}${candidateName}` : ''
     }
     if (actionsEl) actionsEl.style.display = hasCandidate ? '' : 'none'
 
@@ -282,7 +283,7 @@ export class CitizenWorkshop {
       const candidate = this.picker.candidateGroup
       const isSame = candidate?.id === this.getCurrentAvatarId()
       confirmBtn.disabled = !candidate || isSame
-      confirmBtn.textContent = isSame ? '已是当前模型' : '确认更换'
+      confirmBtn.textContent = isSame ? (getLocale() === 'en' ? 'Already current' : '已是当前模型') : (getLocale() === 'en' ? 'Confirm' : '确认更换')
     }
   }
 
@@ -295,8 +296,8 @@ export class CitizenWorkshop {
     })
     this.roster.onDelete(id => {
       const citizen = this.config.citizens.find(c => c.id === id)
-      const name = citizen?.name || '该居民'
-      this.showConfirm('删除居民', `确定要删除「${name}」吗？`).then(ok => {
+      const name = citizen?.name || (getLocale() === 'en' ? 'this citizen' : '该居民')
+      this.showConfirm(getLocale() === 'en' ? 'Delete Citizen' : '删除居民', getLocale() === 'en' ? `Delete "${name}"?` : `确定要删除「${name}」吗？`).then(ok => {
         if (!ok) return
         this.roster.deleteCitizen(id)
         this.saveDraft()
@@ -418,7 +419,7 @@ export class CitizenWorkshop {
   private renderInspector(): void {
     const content = document.getElementById('cw-inspector-content')!
     if (!this.selection) {
-      content.innerHTML = '<div class="cw-empty-state">选择一个角色</div>'
+      content.innerHTML = `<div class="cw-empty-state">${getLocale() === 'en' ? 'Select a character' : '选择一个角色'}</div>`
       return
     }
 
@@ -437,14 +438,14 @@ export class CitizenWorkshop {
     const u = this.config.user
     el.innerHTML = `
       <div class="cw-identity-row">
-        <div class="cw-avatar-clickable" id="cw-user-avatar-btn" title="点击更换头像">
+        <div class="cw-avatar-clickable" id="cw-user-avatar-btn" title="${getLocale() === 'en' ? 'Change avatar' : '点击更换头像'}">
           ${this.resolveAvatarHtml(u.name, u.avatarUrl, u.avatarId)}
           <div class="cw-avatar-hover-overlay">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
           </div>
         </div>
         <div class="cw-identity-fields">
-          <input class="cw-input cw-input-name" id="cw-user-name" value="${this.esc(u.name)}" placeholder="角色名" />
+          <input class="cw-input cw-input-name" id="cw-user-name" value="${this.esc(u.name)}" placeholder="${getLocale() === 'en' ? 'Name' : '角色名'}" />
         </div>
       </div>
       <div id="cw-user-transform" class="cw-field-conditional"></div>
@@ -468,31 +469,31 @@ export class CitizenWorkshop {
 
     el.innerHTML = `
       <div class="cw-identity-row">
-        <div class="cw-avatar-clickable" id="cw-stew-avatar-btn" title="点击更换头像">
+        <div class="cw-avatar-clickable" id="cw-stew-avatar-btn" title="${getLocale() === 'en' ? 'Change avatar' : '点击更换头像'}">
           ${this.resolveAvatarHtml(s.name, s.avatarUrl, s.avatarId)}
           <div class="cw-avatar-hover-overlay">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
           </div>
         </div>
         <div class="cw-identity-fields">
-          <input class="cw-input cw-input-name" id="cw-stew-name" value="${this.esc(s.name)}" placeholder="管家名" />
+          <input class="cw-input cw-input-name" id="cw-stew-name" value="${this.esc(s.name)}" placeholder="${getLocale() === 'en' ? 'Name' : '管家名'}" />
         </div>
       </div>
       <div class="cw-field">
-        <div class="cw-field-label">人设风格</div>
-        <textarea class="cw-textarea" id="cw-stew-bio" placeholder="描述管家的性格特征、说话风格…">${this.esc(s.bio)}</textarea>
+        <div class="cw-field-label">${getLocale() === 'en' ? 'Persona Style' : '人设风格'}</div>
+        <textarea class="cw-textarea" id="cw-stew-bio" placeholder="${getLocale() === 'en' ? 'Describe personality, style...' : '描述管家的性格特征、说话风格…'}">${this.esc(s.bio)}</textarea>
       </div>
       <div id="cw-stew-model-variant" class="cw-field cw-field-conditional"></div>
       <div id="cw-stew-model-color" class="cw-field cw-field-conditional"></div>
       <div class="cw-field">
-        <div class="cw-field-label">OpenClaw 绑定</div>
+        <div class="cw-field-label">${getLocale() === 'en' ? 'OpenClaw Binding' : 'OpenClaw 绑定'}</div>
         <div class="cw-agent-auto-badge">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-          <span>自动绑定当前 OpenClaw 主 Agent</span>
+          <span>${getLocale() === 'en' ? 'Auto-bound to main Agent' : '自动绑定当前 OpenClaw 主 Agent'}</span>
         </div>
       </div>
       <div class="cw-section cw-section-conditional">
-        <div class="cw-section-title">动画映射</div>
+        <div class="cw-section-title">${getLocale() === 'en' ? 'Animation Mapping' : '动画映射'}</div>
         <div id="cw-stew-anim-container"></div>
       </div>
       <div id="cw-stew-transform" class="cw-field-conditional"></div>
@@ -519,7 +520,7 @@ export class CitizenWorkshop {
 
     el.innerHTML = `
       <div class="cw-avatar-standalone">
-        <div class="cw-avatar-clickable" id="cw-cit-avatar-btn" title="点击更换头像">
+        <div class="cw-avatar-clickable" id="cw-cit-avatar-btn" title="${getLocale() === 'en' ? 'Change avatar' : '点击更换头像'}">
           ${this.resolveAvatarHtml(c.name, c.avatarUrl, c.avatarId)}
           <div class="cw-avatar-hover-overlay">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
@@ -529,46 +530,46 @@ export class CitizenWorkshop {
       <div class="cw-persona-block${isCustom ? ' cw-persona-custom' : ' cw-persona-default'}">
         ${showCustomToggle ? `
         <div class="cw-persona-header">
-          <span class="cw-persona-header-label">自定义人设</span>
+          <span class="cw-persona-header-label">${getLocale() === 'en' ? 'Custom Persona' : '自定义人设'}</span>
           <div class="pi-toggle${isCustom ? ' active' : ''}" id="cw-cit-custom-toggle"></div>
         </div>` : ''}
         <div class="cw-field">
-          <div class="cw-field-label">名字</div>
-          <input class="cw-input cw-input-name" id="cw-cit-name" value="${this.esc(c.name)}" placeholder="角色名" ${hasPresetSoul ? 'readonly' : ''} />
+          <div class="cw-field-label">${getLocale() === 'en' ? 'Name' : '名字'}</div>
+          <input class="cw-input cw-input-name" id="cw-cit-name" value="${this.esc(c.name)}" placeholder="${getLocale() === 'en' ? 'Name' : '角色名'}" ${hasPresetSoul ? 'readonly' : ''} />
         </div>
         <div class="cw-field">
-          <div class="cw-field-label">专业技能</div>
-          <input class="cw-input" id="cw-cit-specialty" value="${this.esc(c.specialty)}" placeholder="如：前端开发、产品经理…" ${hasPresetSoul ? 'readonly' : ''} />
+          <div class="cw-field-label">${getLocale() === 'en' ? 'Specialty' : '专业技能'}</div>
+          <input class="cw-input" id="cw-cit-specialty" value="${this.esc(c.specialty)}" placeholder="${getLocale() === 'en' ? 'e.g. Frontend, PM...' : '如：前端开发、产品经理…'}" ${hasPresetSoul ? 'readonly' : ''} />
         </div>
         <div class="cw-field">
-          <div class="cw-field-label">一句话介绍</div>
-          <input class="cw-input" id="cw-cit-bio" value="${this.esc(c.bio)}" placeholder="一句话描述角色特点" ${hasPresetSoul ? 'readonly' : ''} />
+          <div class="cw-field-label">${getLocale() === 'en' ? 'Bio' : '一句话介绍'}</div>
+          <input class="cw-input" id="cw-cit-bio" value="${this.esc(c.bio)}" placeholder="${getLocale() === 'en' ? 'Brief description' : '一句话描述角色特点'}" ${hasPresetSoul ? 'readonly' : ''} />
         </div>
         ${isCustom ? `<div class="cw-field">
           <div class="cw-field-label-row">
-            <div class="cw-field-label">完整人设</div>
-            <button class="cw-ai-gen-btn" id="cw-cit-gen-soul"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.09 3.26L16.36 6l-3.27 1.09L12 10.36l-1.09-3.27L7.64 6l3.27-1.09L12 2z"/><path d="M5 15l.55 1.64L7.18 17.2 5.55 17.75 5 19.4l-.55-1.65L2.82 17.2l1.63-.56L5 15z"/><path d="M19 11l.55 1.64 1.63.56-1.63.55L19 15.4l-.55-1.65-1.63-.55 1.63-.56L19 11z"/></svg> AI 生成</button>
+            <div class="cw-field-label">${getLocale() === 'en' ? 'Full Persona' : '完整人设'}</div>
+            <button class="cw-ai-gen-btn" id="cw-cit-gen-soul"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.09 3.26L16.36 6l-3.27 1.09L12 10.36l-1.09-3.27L7.64 6l3.27-1.09L12 2z"/><path d="M5 15l.55 1.64L7.18 17.2 5.55 17.75 5 19.4l-.55-1.65L2.82 17.2l1.63-.56L5 15z"/><path d="M19 11l.55 1.64 1.63.56-1.63.55L19 15.4l-.55-1.65-1.63-.55 1.63-.56L19 11z"/></svg> ${getLocale() === 'en' ? 'AI Generate' : 'AI 生成'}</button>
           </div>
-          <textarea class="cw-textarea" id="cw-cit-custom-soul" placeholder="详细描述角色的性格、说话风格、工作方式…">${this.esc(c.customSoul ?? '')}</textarea>
+          <textarea class="cw-textarea" id="cw-cit-custom-soul" placeholder="${getLocale() === 'en' ? 'Describe personality, style, work...' : '详细描述角色的性格、说话风格、工作方式…'}">${this.esc(c.customSoul ?? '')}</textarea>
         </div>
-        <div class="cw-persona-hint">发布时将根据以上内容合成新 Soul 文件</div>` : ''}
+        <div class="cw-persona-hint">${getLocale() === 'en' ? 'A new Soul file will be generated on publish' : '发布时将根据以上内容合成新 Soul 文件'}</div>` : ''}
       </div>
       <div id="cw-cit-model-variant" class="cw-field cw-field-conditional"></div>
       <div id="cw-cit-model-color" class="cw-field cw-field-conditional"></div>
       <div class="cw-field">
-        <div class="cw-field-label">Agent 模式</div>
+        <div class="cw-field-label">${getLocale() === 'en' ? 'Agent Mode' : 'Agent 模式'}</div>
         <div class="cw-agent-toggle-row" id="cw-cit-agent-toggle-row">
           <div class="pi-toggle${c.agentEnabled ? ' active' : ''}" id="cw-cit-agent-toggle"></div>
-          <span class="cw-agent-toggle-label" id="cw-cit-agent-label">${c.agentEnabled ? '已开启 · 发布后可对话' : '未开启'}</span>
+          <span class="cw-agent-toggle-label" id="cw-cit-agent-label">${c.agentEnabled ? (getLocale() === 'en' ? 'Enabled · Chat after publish' : '已开启 · 发布后可对话') : (getLocale() === 'en' ? 'Disabled' : '未开启')}</span>
         </div>
-        <div class="cw-agent-hint">${c.agentEnabled ? '发布后将创建常驻子 Agent，用户可与该居民直接聊天' : '开启后该居民将拥有独立 AI 人格，可与用户对话'}</div>
+        <div class="cw-agent-hint">${c.agentEnabled ? (getLocale() === 'en' ? 'A sub-agent will be created for direct chat' : '发布后将创建常驻子 Agent，用户可与该居民直接聊天') : (getLocale() === 'en' ? 'Enable for independent AI personality' : '开启后该居民将拥有独立 AI 人格，可与用户对话')}</div>
       </div>
       <div class="cw-field">
-        <div class="cw-field-label">分配场景住宅</div>
+        <div class="cw-field-label">${getLocale() === 'en' ? 'Assign Home' : '分配场景住宅'}</div>
         <div id="cw-cit-home-dd"></div>
       </div>
       <div class="cw-section cw-section-conditional">
-        <div class="cw-section-title">动画映射</div>
+        <div class="cw-section-title">${getLocale() === 'en' ? 'Animation Mapping' : '动画映射'}</div>
         <div id="cw-cit-anim-container"></div>
       </div>
       <div id="cw-cit-transform" class="cw-field-conditional"></div>
@@ -602,10 +603,10 @@ export class CitizenWorkshop {
     const onAgentToggle = () => {
       c.agentEnabled = !c.agentEnabled
       agentToggle.classList.toggle('active', !!c.agentEnabled)
-      agentLabel.textContent = c.agentEnabled ? '已开启 · 发布后可对话' : '未开启'
+      agentLabel.textContent = c.agentEnabled ? (getLocale() === 'en' ? 'Enabled · Chat after publish' : '已开启 · 发布后可对话') : (getLocale() === 'en' ? 'Disabled' : '未开启')
       agentHint.textContent = c.agentEnabled
-        ? '发布后将创建常驻子 Agent，用户可与该居民直接聊天'
-        : '开启后该居民将拥有独立 AI 人格，可与用户对话'
+        ? (getLocale() === 'en' ? 'A sub-agent will be created for direct chat' : '发布后将创建常驻子 Agent，用户可与该居民直接聊天')
+        : (getLocale() === 'en' ? 'Enable for independent AI personality' : '开启后该居民将拥有独立 AI 人格，可与用户对话')
       this.saveDraft()
     }
     agentToggle.addEventListener('click', onAgentToggle)
@@ -614,7 +615,7 @@ export class CitizenWorkshop {
     this.createDropdown(
       el, 'cw-cit-home-dd',
       this.buildingList.map(b => ({ value: b.id, label: b.name })),
-      c.homeId || '', '未分配',
+      c.homeId || '', getLocale() === 'en' ? 'Unassigned' : '未分配',
       (val) => { c.homeId = val; this.saveDraft() }
     )
 
@@ -651,7 +652,7 @@ export class CitizenWorkshop {
   private async generateSoulForCitizen(c: WorkshopCitizenConfig, el: HTMLElement): Promise<void> {
     const btn = el.querySelector('#cw-cit-gen-soul') as HTMLButtonElement | null
     if (!btn || !c.name || !c.bio) return
-    btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="cw-spin"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> 生成中...'
+    btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="cw-spin"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> ${getLocale() === 'en' ? 'Generating...' : '生成中...'}`
     btn.classList.add('disabled')
     try {
       const r = await fetch('/citizen-workshop/_api/generate-soul', {
@@ -667,7 +668,7 @@ export class CitizenWorkshop {
         this.saveDraft()
       }
     } catch (e) { console.error('[CitizenWorkshop] generate-soul failed:', e) }
-    btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.09 3.26L16.36 6l-3.27 1.09L12 10.36l-1.09-3.27L7.64 6l3.27-1.09L12 2z"/><path d="M5 15l.55 1.64L7.18 17.2 5.55 17.75 5 19.4l-.55-1.65L2.82 17.2l1.63-.56L5 15z"/><path d="M19 11l.55 1.64 1.63.56-1.63.55L19 15.4l-.55-1.65-1.63-.55 1.63-.56L19 11z"/></svg> AI 生成'
+    btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.09 3.26L16.36 6l-3.27 1.09L12 10.36l-1.09-3.27L7.64 6l3.27-1.09L12 2z"/><path d="M5 15l.55 1.64L7.18 17.2 5.55 17.75 5 19.4l-.55-1.65L2.82 17.2l1.63-.56L5 15z"/><path d="M19 11l.55 1.64 1.63.56-1.63.55L19 15.4l-.55-1.65-1.63-.55 1.63-.56L19 11z"/></svg> ${getLocale() === 'en' ? 'AI Generate' : 'AI 生成'}`
     btn.classList.remove('disabled')
   }
 
@@ -750,13 +751,13 @@ export class CitizenWorkshop {
 
     const displayText = c.industry && c.specialty
       ? `${c.industry} · ${c.specialty}`
-      : c.industry || '选择行业 / 专业'
+      : c.industry || (getLocale() === 'en' ? 'Select industry' : '选择行业 / 专业')
 
     const trigger = document.createElement('button')
     trigger.type = 'button'
     trigger.className = 'cw-dropdown-trigger'
     const hasValue = !!(c.industry && c.specialty)
-    trigger.innerHTML = `<span class="cw-dd-text${!hasValue ? ' cw-dd-placeholder' : ''}">${hasValue ? this.esc(displayText) : '选择行业 / 专业'}</span>`
+    trigger.innerHTML = `<span class="cw-dd-text${!hasValue ? ' cw-dd-placeholder' : ''}">${hasValue ? this.esc(displayText) : (getLocale() === 'en' ? 'Select industry' : '选择行业 / 专业')}</span>`
     wrapper.appendChild(trigger)
 
     const menu = document.createElement('div')
@@ -871,7 +872,7 @@ export class CitizenWorkshop {
     if (variantEl) {
       if (group.variants.length > 1) {
         variantEl.style.display = ''
-        variantEl.innerHTML = `<div class="cw-field-label">3D模型变体</div>`
+        variantEl.innerHTML = `<div class="cw-field-label">${getLocale() === 'en' ? '3D Variants' : '3D模型变体'}</div>`
         const btns = document.createElement('div')
         btns.className = 'cw-picker-variant-btns'
         for (const v of group.variants) {
@@ -896,7 +897,7 @@ export class CitizenWorkshop {
     if (colorEl) {
       if (group.colors.length > 1) {
         colorEl.style.display = ''
-        colorEl.innerHTML = `<div class="cw-field-label">3D模型配色</div>`
+        colorEl.innerHTML = `<div class="cw-field-label">${getLocale() === 'en' ? '3D Colors' : '3D模型配色'}</div>`
         const swatches = document.createElement('div')
         swatches.className = 'cw-picker-color-swatches'
         const palette = [
@@ -909,7 +910,7 @@ export class CitizenWorkshop {
           const swatch = document.createElement('button')
           swatch.className = `cw-picker-color-swatch${c === this._activeColor ? ' active' : ''}`
           swatch.style.background = palette[i % palette.length]
-          swatch.title = `配色 ${c}`
+          swatch.title = `${getLocale() === 'en' ? 'Color' : '配色'} ${c}`
           swatch.addEventListener('click', () => {
             this._activeColor = c
             const meshUrl = resolveGroupMeshUrl(group, this._activeVariant, c)
@@ -955,11 +956,11 @@ export class CitizenWorkshop {
       <div class="cw-anim-status ${hasMapped ? 'has-anim' : 'no-anim'}">
         <div class="cw-anim-status-icon">${hasMapped ? '✓' : '⚠'}</div>
         <div class="cw-anim-status-text">
-          <div class="cw-anim-status-title">${hasMapped ? `已映射 ${mappedCount}/${totalSlots}` : '未配置动画'}</div>
-          <div class="cw-anim-status-detail">${hasMapped ? mappedNames : '角色在小镇中将没有动画效果'}</div>
+          <div class="cw-anim-status-title">${hasMapped ? `${getLocale() === 'en' ? 'Mapped' : '已映射'} ${mappedCount}/${totalSlots}` : (getLocale() === 'en' ? 'No animations' : '未配置动画')}</div>
+          <div class="cw-anim-status-detail">${hasMapped ? mappedNames : (getLocale() === 'en' ? 'No animation effects in town' : '角色在小镇中将没有动画效果')}</div>
         </div>
       </div>
-      <button class="cw-anim-edit-btn" id="cw-anim-edit-btn">${hasMapped ? '编辑动画映射' : '配置动画映射'}</button>
+      <button class="cw-anim-edit-btn" id="cw-anim-edit-btn">${hasMapped ? (getLocale() === 'en' ? 'Edit Mapping' : '编辑动画映射') : (getLocale() === 'en' ? 'Configure Mapping' : '配置动画映射')}</button>
     `
 
     container.querySelector('#cw-anim-edit-btn')?.addEventListener('click', () => {
@@ -1056,37 +1057,37 @@ export class CitizenWorkshop {
 
     container.innerHTML = `
       <div class="cw-section">
-        <div class="cw-section-title">模型调整</div>
+        <div class="cw-section-title">${getLocale() === 'en' ? 'Transform' : '模型调整'}</div>
         <div class="cw-transform-grid">
-          <label class="cw-transform-label">缩放</label>
+          <label class="cw-transform-label">${getLocale() === 'en' ? 'Scale' : '缩放'}</label>
           <input type="range" class="cw-transform-slider" id="cw-tf-scale" min="0.1" max="5" step="0.01" value="${t.scale}" />
           <input type="number" class="cw-transform-num" id="cw-tf-scale-n" min="0.1" max="5" step="0.01" value="${t.scale}" />
 
-          <label class="cw-transform-label">旋转X</label>
+          <label class="cw-transform-label">${getLocale() === 'en' ? 'Rotate X' : '旋转X'}</label>
           <input type="range" class="cw-transform-slider" id="cw-tf-rx" min="-180" max="180" step="1" value="${t.rotationX}" />
           <input type="number" class="cw-transform-num" id="cw-tf-rx-n" min="-180" max="180" step="1" value="${t.rotationX}" />
 
-          <label class="cw-transform-label">旋转Y</label>
+          <label class="cw-transform-label">${getLocale() === 'en' ? 'Rotate Y' : '旋转Y'}</label>
           <input type="range" class="cw-transform-slider" id="cw-tf-ry" min="-180" max="180" step="1" value="${t.rotationY}" />
           <input type="number" class="cw-transform-num" id="cw-tf-ry-n" min="-180" max="180" step="1" value="${t.rotationY}" />
 
-          <label class="cw-transform-label">旋转Z</label>
+          <label class="cw-transform-label">${getLocale() === 'en' ? 'Rotate Z' : '旋转Z'}</label>
           <input type="range" class="cw-transform-slider" id="cw-tf-rz" min="-180" max="180" step="1" value="${t.rotationZ}" />
           <input type="number" class="cw-transform-num" id="cw-tf-rz-n" min="-180" max="180" step="1" value="${t.rotationZ}" />
 
-          <label class="cw-transform-label">偏移X</label>
+          <label class="cw-transform-label">${getLocale() === 'en' ? 'Offset X' : '偏移X'}</label>
           <input type="range" class="cw-transform-slider" id="cw-tf-ox" min="-2" max="2" step="0.01" value="${t.offsetX}" />
           <input type="number" class="cw-transform-num" id="cw-tf-ox-n" min="-2" max="2" step="0.01" value="${t.offsetX}" />
 
-          <label class="cw-transform-label">偏移Y</label>
+          <label class="cw-transform-label">${getLocale() === 'en' ? 'Offset Y' : '偏移Y'}</label>
           <input type="range" class="cw-transform-slider" id="cw-tf-oy" min="-2" max="2" step="0.01" value="${t.offsetY}" />
           <input type="number" class="cw-transform-num" id="cw-tf-oy-n" min="-2" max="2" step="0.01" value="${t.offsetY}" />
 
-          <label class="cw-transform-label">偏移Z</label>
+          <label class="cw-transform-label">${getLocale() === 'en' ? 'Offset Z' : '偏移Z'}</label>
           <input type="range" class="cw-transform-slider" id="cw-tf-oz" min="-2" max="2" step="0.01" value="${t.offsetZ}" />
           <input type="number" class="cw-transform-num" id="cw-tf-oz-n" min="-2" max="2" step="0.01" value="${t.offsetZ}" />
         </div>
-        <button class="cw-btn cw-btn-secondary cw-transform-reset" id="cw-tf-reset">重置为推荐值</button>
+        <button class="cw-btn cw-btn-secondary cw-transform-reset" id="cw-tf-reset">${getLocale() === 'en' ? 'Reset' : '重置为推荐值'}</button>
       </div>
     `
 
@@ -1322,7 +1323,7 @@ export class CitizenWorkshop {
 
   async publish(): Promise<{ success: boolean; error?: string; changeset?: any }> {
     const saveOk = await this.saveToFile()
-    if (!saveOk) return { success: false, error: '保存草稿失败' }
+    if (!saveOk) return { success: false, error: getLocale() === 'en' ? 'Draft save failed' : '保存草稿失败' }
 
     try {
       const souls: Record<string, string> = {}
@@ -1336,9 +1337,9 @@ export class CitizenWorkshop {
       })
       const data = await resp.json()
       if (data.success) return { success: true, changeset: data.changeset }
-      return { success: false, error: data.error ?? '发布失败' }
+      return { success: false, error: data.error ?? (getLocale() === 'en' ? 'Publish failed' : '发布失败') }
     } catch {
-      return { success: false, error: '网络请求失败' }
+      return { success: false, error: getLocale() === 'en' ? 'Network error' : '网络请求失败' }
     }
   }
 

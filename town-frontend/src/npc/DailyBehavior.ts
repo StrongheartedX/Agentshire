@@ -4,6 +4,7 @@ import type { GameClock } from '../game/GameClock'
 import type { ActivityJournal } from './ActivityJournal'
 import type { AgentBrain } from './AgentBrain'
 import { matchTemplate, getTemplateById, getScheduleSlotForPeriod, randInRange, type RoutineTemplate } from './RoutineTemplates'
+import { getLocale } from '../i18n'
 
 export type BehaviorState =
   | 'sleeping' | 'leaving_home' | 'roaming' | 'at_building' | 'walking_home'
@@ -178,6 +179,10 @@ export class DailyBehavior {
     return this._inDialogue
   }
 
+  getWalkSpeed(): number {
+    return this.profile.walkSpeed ?? 2.5
+  }
+
   pauseForDialogue(): void {
     this._inDialogue = true
     this._dialoguePausedState = this.state
@@ -210,9 +215,9 @@ export class DailyBehavior {
     }
     this.journal?.record({
       location: this.currentBuilding ?? 'plaza_center',
-      locationName: this.currentBuilding ? this.buildingName(this.currentBuilding) : '广场',
+      locationName: this.currentBuilding ? this.buildingName(this.currentBuilding) : (getLocale() === 'en' ? 'Plaza' : '广场'),
       action: 'summoned',
-      detail: '被管家叫去开会',
+      detail: getLocale() === 'en' ? 'Called to briefing' : '被管家叫去开会',
     })
     this.transitionTo('summoned')
   }
@@ -249,7 +254,7 @@ export class DailyBehavior {
             location: this.profile.homeBuilding,
             locationName: this.buildingName(this.profile.homeBuilding),
             action: 'woke_up',
-            detail: '起床出门',
+            detail: getLocale() === 'en' ? 'Woke up, heading out' : '起床出门',
           })
           this.transitionTo('leaving_home')
           this.startWalkFromHome()
@@ -268,7 +273,7 @@ export class DailyBehavior {
             location: this.profile.homeBuilding,
             locationName: this.buildingName(this.profile.homeBuilding),
             action: 'walking',
-            detail: '天黑了，准备回家',
+            detail: getLocale() === 'en' ? 'Getting dark, going home' : '天黑了，准备回家',
           })
           this.transitionTo('walking_home')
           this.startWalkHome()
@@ -337,7 +342,7 @@ export class DailyBehavior {
       location: this.profile.homeBuilding,
       locationName: this.buildingName(this.profile.homeBuilding),
       action: 'went_home',
-      detail: '回家了',
+      detail: getLocale() === 'en' ? 'Went home' : '回家了',
     })
     this.transitionTo('sleeping')
     this.npc.setVisible(false)
@@ -488,7 +493,7 @@ export class DailyBehavior {
       location: building.key,
       locationName: building.name,
       action: 'arrived',
-      detail: `到达${building.name}`,
+      detail: getLocale() === 'en' ? `Arrived at ${building.name}` : `到达${building.name}`,
     })
 
     this.brain?.onArrival(building.key)
@@ -527,7 +532,7 @@ export class DailyBehavior {
         location: this.currentBuilding,
         locationName: this.buildingName(this.currentBuilding),
         action: 'departed',
-        detail: `离开${this.buildingName(this.currentBuilding)}`,
+        detail: getLocale() === 'en' ? `Left ${this.buildingName(this.currentBuilding)}` : `离开${this.buildingName(this.currentBuilding)}`,
       })
       getOccupancy(this.currentBuilding).delete(this.npc.id)
       this.spotAllocator?.release(this.npc.id)

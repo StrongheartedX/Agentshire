@@ -1,3 +1,6 @@
+import { initLocale, t } from '../i18n'
+initLocale()
+
 import '../styles/editor.css'
 import { TownEditor } from './TownEditor'
 import { createDefaultConfig } from './TownMapConfig'
@@ -9,6 +12,8 @@ import { CustomAssetStore } from './CustomAssetStore'
 import { CustomAssetUpload } from './CustomAssetUpload'
 
 async function boot() {
+  applyEditorLocale()
+
   const editor = new TownEditor()
 
   editor.initScene(document.getElementById('scene-container')!)
@@ -182,3 +187,26 @@ async function boot() {
 }
 
 boot().catch(console.error)
+
+function applyEditorLocale(): void {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n')!
+    const translated = t(key)
+    if (translated !== key) el.textContent = translated
+  })
+  document.querySelectorAll('[data-i18n-tip]').forEach(el => {
+    const key = el.getAttribute('data-i18n-tip')!
+    const translated = t(key)
+    if (translated !== key) el.setAttribute('data-tip', translated)
+  })
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    const key = el.getAttribute('data-i18n-title')!
+    const translated = t(key)
+    if (translated !== key) el.setAttribute('title', translated)
+  })
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder')!
+    const translated = t(key)
+    if (translated !== key) (el as HTMLInputElement).placeholder = translated
+  })
+}

@@ -211,7 +211,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-#town-new-session-btn {
+#town-more-btn {
   height: 24px;
   padding: 0 10px;
   border-radius: 12px;
@@ -225,10 +225,177 @@
   flex-shrink: 0;
   transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
-#town-new-session-btn:hover {
+#town-more-btn:hover {
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(212, 165, 116, 0.24);
   color: #ffffff;
+}
+
+#town-end-topic-btn {
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  background: rgba(248, 113, 113, 0.1);
+  color: var(--town-red, #f87171);
+  font-size: 11px;
+  line-height: 1;
+  font-family: inherit;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+#town-end-topic-btn:hover {
+  background: rgba(248, 113, 113, 0.2);
+  border-color: rgba(248, 113, 113, 0.5);
+  color: #fff;
+}
+
+/* ── "More" action dropdown ── */
+#town-action-dropdown {
+  position: absolute; bottom: 100%; right: 0;
+  margin-bottom: 4px; min-width: 120px;
+  background: rgba(18,18,35,0.97);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px; padding: 4px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.5);
+  z-index: 40;
+}
+.town-action-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; font-size: 13px;
+  color: rgba(255,255,255,0.7); cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  border-radius: 6px; white-space: nowrap;
+}
+.town-action-item:hover {
+  background: rgba(255,255,255,0.08); color: #fff;
+}
+.town-action-item.disabled {
+  opacity: 0.35; pointer-events: none; cursor: default;
+}
+
+/* ── Multi-avatar group (topic mode) ── */
+.tas-group-avatars {
+  display: inline-flex; align-items: center; flex-shrink: 0;
+}
+.tas-group-avatars > * {
+  margin-left: -6px; border: 2px solid rgba(18,18,35,0.97);
+  border-radius: 50%; box-sizing: content-box;
+}
+.tas-group-avatars > *:first-child { margin-left: 0; }
+.tas-group-overflow {
+  width: 20px; height: 20px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.7);
+  font-size: 9px; font-weight: 700; flex-shrink: 0;
+}
+
+/* ── Confirm dialog ── */
+.town-confirm-backdrop {
+  position: fixed; inset: 0; z-index: 60;
+  background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  animation: town-fade-in 0.15s ease-out;
+}
+@keyframes town-fade-in { from { opacity: 0; } to { opacity: 1; } }
+.town-confirm-card {
+  background: rgba(18,18,35,0.98); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px; padding: 24px 28px; min-width: 260px; max-width: 320px;
+  text-align: center; box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+}
+.town-confirm-title {
+  color: #fff; font-size: 15px; font-weight: 600; margin-bottom: 8px;
+}
+.town-confirm-body {
+  color: rgba(255,255,255,0.55); font-size: 13px; line-height: 1.5; margin-bottom: 20px;
+}
+.town-confirm-actions {
+  display: flex; gap: 10px; justify-content: center;
+}
+.town-confirm-btn {
+  flex: 1; height: 34px; border-radius: 10px; font-size: 13px;
+  font-family: inherit; cursor: pointer; transition: all 0.15s;
+}
+.town-confirm-btn.cancel {
+  border: 1px solid rgba(255,255,255,0.12); background: transparent;
+  color: rgba(255,255,255,0.6);
+}
+.town-confirm-btn.cancel:hover {
+  background: rgba(255,255,255,0.06); color: #fff;
+}
+.town-confirm-btn.confirm {
+  border: none; background: var(--town-red, #f87171); color: #fff;
+}
+.town-confirm-btn.confirm:hover { filter: brightness(1.1); }
+
+/* ── Topic setup panel ── */
+#town-topic-overlay {
+  position: fixed; inset: 0; z-index: 70;
+  background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  animation: town-fade-in 0.15s ease-out;
+}
+.topic-card {
+  background: rgba(18,18,35,0.98); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px; padding: 20px; width: 320px; max-height: 70vh;
+  display: flex; flex-direction: column; box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+}
+.topic-card-title {
+  color: #fff; font-size: 15px; font-weight: 600; margin-bottom: 4px;
+}
+.topic-card-sub {
+  color: rgba(255,255,255,0.45); font-size: 12px; margin-bottom: 14px;
+}
+.topic-citizen-list {
+  flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 2px;
+  margin-bottom: 14px; max-height: 300px;
+}
+.topic-citizen-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px; border-radius: 8px; cursor: pointer;
+  transition: background 0.12s;
+}
+.topic-citizen-row:hover { background: rgba(255,255,255,0.06); }
+.topic-citizen-row.unavailable {
+  opacity: 0.4; cursor: default;
+  position: relative;
+}
+.topic-citizen-row.unavailable:hover { background: transparent; }
+.topic-citizen-row.unavailable[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute; left: 50%; bottom: calc(100% - 6px); transform: translateX(-50%);
+  padding: 6px 14px; border-radius: 8px;
+  background: rgba(10, 10, 18, 0.97);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 12px; white-space: nowrap; pointer-events: none; z-index: 10;
+}
+.topic-citizen-row.selected { background: rgba(212,165,116,0.1); }
+.topic-citizen-check {
+  width: 18px; height: 18px; border-radius: 4px; flex-shrink: 0;
+  border: 1.5px solid rgba(255,255,255,0.25); display: flex;
+  align-items: center; justify-content: center; transition: all 0.15s;
+}
+.topic-citizen-row.selected .topic-citizen-check {
+  background: #D4A574; border-color: #D4A574;
+}
+.topic-citizen-check svg { display: none; }
+.topic-citizen-row.selected .topic-citizen-check svg { display: block; }
+.topic-citizen-name { color: #fff; font-size: 13px; font-weight: 500; }
+.topic-citizen-spec { color: rgba(255,255,255,0.4); font-size: 11px; margin-left: auto; }
+.topic-gather-btn {
+  width: 100%; height: 38px; border-radius: 12px; border: none;
+  background: linear-gradient(135deg, #C4915E, #D4A574); color: #fff;
+  font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer;
+  transition: filter 0.15s, opacity 0.15s;
+  box-shadow: 0 4px 12px rgba(212, 165, 116, 0.3);
+}
+.topic-gather-btn:hover { filter: brightness(1.1); }
+.topic-gather-btn:disabled { opacity: 0.35; cursor: default; filter: none; }
+.topic-empty {
+  text-align: center; padding: 30px 10px; color: rgba(255,255,255,0.4); font-size: 13px;
 }
 
 #town-input-text {

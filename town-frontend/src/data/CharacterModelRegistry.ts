@@ -1,5 +1,9 @@
-import builtinCatalog from './character-catalog.json'
+import builtinCatalogZh from './character-catalog.json'
+import builtinCatalogEn from './character-catalog.en.json'
+import { getLocale } from '../i18n'
 import type { CustomAsset } from '../editor/CustomAssetStore'
+
+function getBuiltinCatalog() { return getLocale() === 'en' ? builtinCatalogEn : builtinCatalogZh }
 
 export type CharacterModelSource = 'builtin' | 'library' | 'custom'
 
@@ -35,26 +39,35 @@ const BASE = import.meta.env.BASE_URL + 'assets/models'
 const EXT_BASE = '/ext-assets'
 const SHARED_ANIM_URL = `${EXT_BASE}/Characters_1/gLTF/Animations/Animations.glb`
 
-const BUILTIN_MODELS: CharacterModelEntry[] = (builtinCatalog.models ?? []).map((m: any) => ({
-  id: m.id,
-  displayName: m.description?.slice(0, 12) ?? m.id,
-  gender: m.gender as 'male' | 'female',
-  tags: m.tags ?? [],
-  description: m.description ?? '',
-  source: 'builtin' as const,
-  meshUrl: `${BASE}/characters/character-${m.id.replace('char-', '')}.glb`,
-  hasEmbeddedAnimations: true,
-}))
+let _builtinModels: CharacterModelEntry[] | null = null
+let _builtinGroups: CharacterGroup[] | null = null
+let _cachedLocale: string | null = null
 
-const BUILTIN_GROUPS: CharacterGroup[] = BUILTIN_MODELS.map(m => ({
-  id: m.id,
-  displayName: m.id.replace('char-', '').replace('-', ' '),
-  source: 'builtin' as const,
-  thumbnailUrl: `${import.meta.env.BASE_URL}assets/avatars/${m.id}.webp`,
-  variants: [],
-  colors: [],
-  meshUrlPattern: m.meshUrl,
-}))
+function ensureBuiltinCache(): void {
+  const locale = getLocale()
+  if (_builtinModels && _cachedLocale === locale) return
+  _cachedLocale = locale
+  const catalog = getBuiltinCatalog()
+  _builtinModels = (catalog.models ?? []).map((m: any) => ({
+    id: m.id,
+    displayName: m.description?.slice(0, 12) ?? m.id,
+    gender: m.gender as 'male' | 'female',
+    tags: m.tags ?? [],
+    description: m.description ?? '',
+    source: 'builtin' as const,
+    meshUrl: `${BASE}/characters/character-${m.id.replace('char-', '')}.glb`,
+    hasEmbeddedAnimations: true,
+  }))
+  _builtinGroups = _builtinModels.map(m => ({
+    id: m.id,
+    displayName: m.id.replace('char-', '').replace('-', ' '),
+    source: 'builtin' as const,
+    thumbnailUrl: `${import.meta.env.BASE_URL}assets/avatars/${m.id}.webp`,
+    variants: [],
+    colors: [],
+    meshUrlPattern: m.meshUrl,
+  }))
+}
 
 const PET_NAMES = [
   'beaver', 'bee', 'bunny', 'cat', 'caterpillar', 'chick',
@@ -98,7 +111,8 @@ const LIBRARY_GROUPS: CharacterGroup[] = LIBRARY_TYPES.map(t => ({
 }))
 
 export function getBuiltinGroups(): CharacterGroup[] {
-  return [...BUILTIN_GROUPS, ...PET_GROUPS]
+  ensureBuiltinCache()
+  return [..._builtinGroups!, ...PET_GROUPS]
 }
 
 export function getLibraryGroups(): CharacterGroup[] {
@@ -106,6 +120,7 @@ export function getLibraryGroups(): CharacterGroup[] {
 }
 
 export function getAllGroups(customAssets: CustomAsset[] = []): CharacterGroup[] {
+  ensureBuiltinCache()
   const customs: CharacterGroup[] = customAssets
     .filter(a => a.kind === 'character')
     .map(a => ({
@@ -117,7 +132,7 @@ export function getAllGroups(customAssets: CustomAsset[] = []): CharacterGroup[]
       colors: [],
       meshUrlPattern: `custom-assets/characters/${a.fileName}`,
     }))
-  return [...BUILTIN_GROUPS, ...PET_GROUPS, ...LIBRARY_GROUPS, ...customs]
+  return [..._builtinGroups!, ...PET_GROUPS, ...LIBRARY_GROUPS, ...customs]
 }
 
 export function resolveGroupMeshUrl(group: CharacterGroup, variant?: number, color?: number): string {
@@ -131,11 +146,13 @@ export function resolveGroupMeshUrl(group: CharacterGroup, variant?: number, col
 }
 
 export function getBuiltinModels(): CharacterModelEntry[] {
-  return BUILTIN_MODELS
+  ensureBuiltinCache()
+  return _builtinModels!
 }
 
 export function findModelEntry(modelId: string): CharacterModelEntry | undefined {
-  return BUILTIN_MODELS.find(m => m.id === modelId)
+  ensureBuiltinCache()
+  return _builtinModels!.find(m => m.id === modelId)
 }
 
 export { SHARED_ANIM_URL }

@@ -5,6 +5,7 @@ import {
   ANIM_SLOTS, SLOT_LABELS, autoMatchAnimSlots,
   type AnimMapping, type AnimSlot,
 } from '../../data/CitizenWorkshopConfig'
+import { getLocale } from '../../i18n'
 
 export interface AnimDialogInput {
   meshUrl: string
@@ -95,18 +96,18 @@ export class AnimMappingDialog {
   // ── Loading pipeline ──
 
   private async beginLoading(input: AnimDialogInput): Promise<void> {
-    this.setStatus('正在加载模型...')
+    this.setStatus(getLocale() === 'en' ? 'Loading model...' : '正在加载模型...')
 
     const modelClips = await this.loadModel(input.meshUrl)
 
     if (modelClips.length > 0) {
-      this.sources.push({ label: '模型内嵌', url: input.meshUrl, clips: modelClips.map(c => c.name), removable: false })
+      this.sources.push({ label: getLocale() === 'en' ? 'Embedded' : '模型内嵌', url: input.meshUrl, clips: modelClips.map(c => c.name), removable: false })
       this.allClips.push(...modelClips)
     }
 
     if (input.animFileUrls && input.animFileUrls.length > 0) {
       for (const url of input.animFileUrls) {
-        this.setStatus('正在加载动画文件...')
+        this.setStatus(getLocale() === 'en' ? 'Loading animations...' : '正在加载动画文件...')
         await this.loadAnimFileIntoSources(url, true)
       }
     }
@@ -150,34 +151,34 @@ export class AnimMappingDialog {
     this.overlay.innerHTML = `
       <div class="anim-dialog">
         <div class="anim-dialog-header">
-          <span class="anim-dialog-title">动画映射配置</span>
-          <button class="anim-dialog-close" aria-label="关闭">
+          <span class="anim-dialog-title">${getLocale() === 'en' ? 'Animation Mapping' : '动画映射配置'}</span>
+          <button class="anim-dialog-close" aria-label="${getLocale() === 'en' ? 'Close' : '关闭'}">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
           </button>
         </div>
         <div class="anim-dialog-body">
           <div class="anim-dialog-left">
-            <div class="amd-section-label">动画源</div>
+            <div class="amd-section-label">${getLocale() === 'en' ? 'Sources' : '动画源'}</div>
             <div class="amd-sources" id="amd-sources"></div>
             <button class="amd-add-btn" id="amd-add-anim">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              追加动画文件
+              ${getLocale() === 'en' ? 'Add Animation' : '追加动画文件'}
             </button>
             <div class="amd-divider"></div>
-            <div class="amd-section-label">槽位映射</div>
+            <div class="amd-section-label">${getLocale() === 'en' ? 'Slot Mapping' : '槽位映射'}</div>
             <div class="amd-map-list" id="amd-mapping"></div>
           </div>
           <div class="anim-dialog-right">
             <div class="amd-preview-wrap" id="amd-preview">
               <canvas class="amd-preview-canvas" id="amd-canvas"></canvas>
-              <div class="amd-preview-loading" id="amd-loading">加载中...</div>
+              <div class="amd-preview-loading" id="amd-loading">${getLocale() === 'en' ? 'Loading...' : '加载中...'}</div>
               <div class="amd-slot-tabs" id="amd-slot-tabs"></div>
             </div>
           </div>
         </div>
         <div class="anim-dialog-footer">
-          <button class="amd-btn amd-btn-cancel" id="amd-cancel">取消</button>
-          <button class="amd-btn amd-btn-confirm" id="amd-confirm">确认保存</button>
+          <button class="amd-btn amd-btn-cancel" id="amd-cancel">${getLocale() === 'en' ? 'Cancel' : '取消'}</button>
+          <button class="amd-btn amd-btn-confirm" id="amd-confirm">${getLocale() === 'en' ? 'Save' : '确认保存'}</button>
         </div>
       </div>
     `
@@ -199,7 +200,7 @@ export class AnimMappingDialog {
     if (!el) return
     el.innerHTML = ''
     if (this.sources.length === 0) {
-      el.innerHTML = '<div class="amd-source-empty">未检测到动画源</div>'
+      el.innerHTML = `<div class="amd-source-empty">${getLocale() === 'en' ? 'No animation sources' : '未检测到动画源'}</div>`
       return
     }
     for (const src of this.sources) {
@@ -217,14 +218,14 @@ export class AnimMappingDialog {
 
         const replaceBtn = document.createElement('button')
         replaceBtn.className = 'amd-source-act'
-        replaceBtn.title = '替换'
+        replaceBtn.title = getLocale() === 'en' ? 'Replace' : '替换'
         replaceBtn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0115-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 01-15 6.7L3 16"/></svg>'
         replaceBtn.addEventListener('click', () => this.replaceSource(src))
         actions.appendChild(replaceBtn)
 
         const delBtn = document.createElement('button')
         delBtn.className = 'amd-source-act amd-source-del'
-        delBtn.title = '删除'
+        delBtn.title = getLocale() === 'en' ? 'Delete' : '删除'
         delBtn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>'
         delBtn.addEventListener('click', () => this.removeSource(src))
         actions.appendChild(delBtn)
@@ -233,7 +234,7 @@ export class AnimMappingDialog {
       } else {
         const badge = document.createElement('span')
         badge.className = 'amd-source-tag'
-        badge.textContent = '内嵌'
+        badge.textContent = getLocale() === 'en' ? 'Built-in' : '内嵌'
         row.appendChild(badge)
       }
       el.appendChild(row)
@@ -279,7 +280,7 @@ export class AnimMappingDialog {
     const trigger = document.createElement('button')
     trigger.type = 'button'
     trigger.className = 'amd-dd-trigger'
-    trigger.innerHTML = `<span class="amd-dd-text${!selected ? ' placeholder' : ''}">${selected || '-- 未映射 --'}</span>`
+    trigger.innerHTML = `<span class="amd-dd-text${!selected ? ' placeholder' : ''}">${selected || (getLocale() === 'en' ? '-- Unmapped --' : '-- 未映射 --')}</span>`
 
     const menu = document.createElement('div')
     menu.className = 'amd-dd-menu'
@@ -289,7 +290,7 @@ export class AnimMappingDialog {
       const emptyOpt = document.createElement('button')
       emptyOpt.type = 'button'
       emptyOpt.className = `amd-dd-opt${!selected ? ' selected' : ''}`
-      emptyOpt.textContent = '-- 未映射 --'
+      emptyOpt.textContent = (getLocale() === 'en' ? '-- Unmapped --' : '-- 未映射 --')
       emptyOpt.addEventListener('click', () => { select('') })
       menu.appendChild(emptyOpt)
 
@@ -305,7 +306,7 @@ export class AnimMappingDialog {
 
     const select = (val: string) => {
       selected = val
-      trigger.innerHTML = `<span class="amd-dd-text${!val ? ' placeholder' : ''}">${val || '-- 未映射 --'}</span>`
+      trigger.innerHTML = `<span class="amd-dd-text${!val ? ' placeholder' : ''}">${val || (getLocale() === 'en' ? '-- Unmapped --' : '-- 未映射 --')}</span>`
       close()
       onChange(val)
     }
@@ -354,7 +355,7 @@ export class AnimMappingDialog {
     const file = await this.pickFile('.glb,.gltf')
     if (!file) return
     const addBtn = this.overlay.querySelector('#amd-add-anim') as HTMLButtonElement
-    if (addBtn) { addBtn.disabled = true; addBtn.textContent = '上传中...' }
+    if (addBtn) { addBtn.disabled = true; addBtn.textContent = getLocale() === 'en' ? 'Uploading...' : '上传中...' }
 
     try {
       const url = await this.uploadAnimFile(file)
@@ -367,7 +368,7 @@ export class AnimMappingDialog {
 
     if (addBtn) {
       addBtn.disabled = false
-      addBtn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> 追加动画文件'
+      addBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> ${getLocale() === 'en' ? 'Add Animation' : '追加动画文件'}`
     }
   }
 

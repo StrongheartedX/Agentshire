@@ -7,9 +7,10 @@ import type { IWorldDataSource } from '../data/IWorldDataSource'
 import type { TownConfigStore } from '../data/TownConfigStore'
 import type { MockDataSource } from '../data/MockDataSource'
 import type { GameEvent, GameAction } from '../data/GameProtocol'
-import { createDefaultTownConfig, publishedToTownView } from '../data/TownConfig'
+import { createDefaultTownConfig, publishedToTownView, setHasPublished } from '../data/TownConfig'
 import type { TownConfig } from '../data/TownConfig'
 import type { PublishedCitizenConfig } from '../data/CitizenWorkshopConfig'
+import { t } from '../i18n'
 
 export interface SceneBootstrapDeps {
   ui: UIManager
@@ -52,6 +53,7 @@ export class SceneBootstrap {
         const data = await res.json()
         const published = data.config as PublishedCitizenConfig | null
         if (published?.characters?.length) {
+          setHasPublished(true)
           this.buildAgentConfigMap(published)
           const config = publishedToTownView(published)
           this.deps.configStore.save(config)
@@ -61,6 +63,7 @@ export class SceneBootstrap {
     } catch {
       // fetch failed — fall through to local/default
     }
+    setHasPublished(false)
     const fallback = this.deps.configStore.load() ?? createDefaultTownConfig()
     return fallback
   }
@@ -133,7 +136,7 @@ export class SceneBootstrap {
       animFileUrls: config.steward.animFileUrls,
     })
     dispatchGameEvent({
-      type: 'npc_spawn', npcId: 'user', name: config.user?.name ?? '镇长',
+      type: 'npc_spawn', npcId: 'user', name: config.user?.name ?? t('mayor'),
       role: 'general', category: 'citizen',
       avatarId: config.user?.avatarId,
       modelUrl: config.user?.modelUrl,

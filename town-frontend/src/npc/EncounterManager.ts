@@ -3,10 +3,19 @@ import type { GameClock } from '../game/GameClock'
 import type { ActivityJournal } from './ActivityJournal'
 import type { DailyBehavior } from './DailyBehavior'
 import type { PersonaCache, PersonaStore } from './PersonaStore'
+import { getLocale } from '../i18n'
 
-const FALLBACK_INIT = ['嗨，好久不见！', '哟，你也在这啊', '今天天气不错呢', '最近怎么样？', '嘿！在忙啥呢？']
-const FALLBACK_REPLY = ['是呀！', '哈哈对', '嗯嗯', '说得也是', '可不是嘛', '哈哈，你说得对']
-const FAREWELL_PHRASES = ['回见~', '下次聊~', '先走了！', '拜拜~']
+const FALLBACK_INIT_ZH = ['嗨，好久不见！', '哟，你也在这啊', '今天天气不错呢', '最近怎么样？', '嘿！在忙啥呢？']
+const FALLBACK_REPLY_ZH = ['是呀！', '哈哈对', '嗯嗯', '说得也是', '可不是嘛', '哈哈，你说得对']
+const FAREWELL_PHRASES_ZH = ['回见~', '下次聊~', '先走了！', '拜拜~']
+
+const FALLBACK_INIT_EN = ['Hey, long time!', 'Oh, you\'re here too', 'Nice day, huh?', 'How\'s it going?', 'Hey! What\'s up?']
+const FALLBACK_REPLY_EN = ['Yeah!', 'Haha right', 'Mhm', 'True that', 'Exactly', 'Haha, you said it']
+const FAREWELL_PHRASES_EN = ['See ya~', 'Chat later~', 'Gotta go!', 'Bye~']
+
+function getFallbackInit() { return getLocale() === 'en' ? FALLBACK_INIT_EN : FALLBACK_INIT_ZH }
+function getFallbackReply() { return getLocale() === 'en' ? FALLBACK_REPLY_EN : FALLBACK_REPLY_ZH }
+function getFarewellPhrases() { return getLocale() === 'en' ? FAREWELL_PHRASES_EN : FAREWELL_PHRASES_ZH }
 
 function pick<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)]
@@ -244,7 +253,7 @@ export class EncounterManager {
         const journal = this.getJournal?.(speaker.id)
         const context = journal?.toContextJSON({
           currentLocation: 'town',
-          currentLocationName: '小镇',
+          currentLocationName: getLocale() === 'en' ? 'Town' : '小镇',
           encounteredNpc: { name: listener.label ?? listener.id },
         })
         const persona = this.personaStore?.get(speaker.id)
@@ -265,13 +274,13 @@ export class EncounterManager {
         detectedEnd = /\[END\]/.test(raw)
         text = raw.replace(/\[END\]/g, '').trim()
       } catch {
-        text = pick(scene === 'encounter_init' ? FALLBACK_INIT : FALLBACK_REPLY)
+        text = pick(scene === 'encounter_init' ? getFallbackInit() : getFallbackReply())
       }
     } else {
-      text = pick(scene === 'encounter_init' ? FALLBACK_INIT : FALLBACK_REPLY)
+      text = pick(scene === 'encounter_init' ? getFallbackInit() : getFallbackReply())
     }
 
-    if (!text) text = pick(scene === 'encounter_init' ? FALLBACK_INIT : FALLBACK_REPLY)
+    if (!text) text = pick(scene === 'encounter_init' ? getFallbackInit() : getFallbackReply())
 
     dialogue.turns.push({ speaker: speaker.label ?? speaker.id, text })
 
@@ -286,7 +295,7 @@ export class EncounterManager {
     dialogue.phase = 'ending'
     const { initiator, responder, turns } = dialogue
 
-    this.onBubble?.(initiator, pick(FAREWELL_PHRASES), 1500)
+    this.onBubble?.(initiator, pick(getFarewellPhrases()), 1500)
     initiator.playAnim('wave')
     responder.playAnim('wave')
     await this.delay(1500)
@@ -312,7 +321,7 @@ export class EncounterManager {
 
   private async generateSummary(dialogue: ActiveDialogue): Promise<string> {
     const { turns } = dialogue
-    if (turns.length === 0) return '闲聊了几句'
+    if (turns.length === 0) return getLocale() === 'en' ? 'had a brief chat' : '闲聊了几句'
 
     if (this.dialogueProvider) {
       try {
@@ -334,7 +343,8 @@ export class EncounterManager {
       } catch { /* fallback below */ }
     }
 
-    return `聊了${turns.map(t => t.text).join('、').slice(0, 30)}`
+    const joined = turns.map(t => t.text).join(getLocale() === 'en' ? ', ' : '、').slice(0, 30)
+    return getLocale() === 'en' ? `chatted about ${joined}` : `聊了${joined}`
   }
 
   // ── Relationship update (local rules, no LLM) ──
@@ -408,11 +418,15 @@ export class EncounterManager {
     const jI = this.getJournal?.(initiator.id)
     const jR = this.getJournal?.(responder.id)
 
+    const townLabel = getLocale() === 'en' ? 'Town' : '小镇'
+
     jI?.record({
       location: 'town',
-      locationName: '小镇',
+      locationName: townLabel,
       action: 'chatted',
-      detail: `和${responder.label ?? responder.id}${summary}`,
+      detail: getLocale() === 'en'
+        ? `with ${responder.label ?? responder.id}: ${summary}`
+        : `和${responder.label ?? responder.id}${summary}`,
       relatedNpc: responder.label ?? responder.id,
     })
     jI?.recordDialogue({
@@ -426,9 +440,11 @@ export class EncounterManager {
 
     jR?.record({
       location: 'town',
-      locationName: '小镇',
+      locationName: townLabel,
       action: 'chatted',
-      detail: `和${initiator.label ?? initiator.id}${summary}`,
+      detail: getLocale() === 'en'
+        ? `with ${initiator.label ?? initiator.id}: ${summary}`
+        : `和${initiator.label ?? initiator.id}${summary}`,
       relatedNpc: initiator.label ?? initiator.id,
     })
     jR?.recordDialogue({

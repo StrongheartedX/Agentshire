@@ -22,6 +22,7 @@ import { getAudioSystem } from '../../audio/AudioSystem'
 import { getCharacterKeyForNpc } from '../../data/CharacterRoster'
 import { WAYPOINTS } from '../../types'
 import type { SceneType } from '../../types'
+import { getLocale, t } from '../../i18n'
 
 export interface WorkflowHandlerDeps {
   npcManager: NPCManager
@@ -164,7 +165,7 @@ export class WorkflowHandler {
     }
 
     cameraCtrl.moveTo({ x: 18, z: 13 })
-    ui.setProgress(0, citizenIds.length, '团队集结中...')
+    ui.setProgress(0, citizenIds.length, getLocale() === 'en' ? 'Rallying...' : '团队集结中...')
     await this.delay(500)
 
     const rallyPositions = [
@@ -180,7 +181,7 @@ export class WorkflowHandler {
     })
 
     await Promise.all(rallyPromises)
-    ui.setProgress(citizenIds.length, citizenIds.length, '团队就绪！')
+    ui.setProgress(citizenIds.length, citizenIds.length, getLocale() === 'en' ? 'Ready!' : '团队就绪！')
 
     citizenIds.forEach(cId => {
       const npc = npcManager.get(cId)
@@ -251,14 +252,16 @@ export class WorkflowHandler {
     const { modeManager, bubbles, cameraCtrl } = this.deps
     const lines = this.pendingBriefingLines.length >= npcs.length
       ? this.pendingBriefingLines
-      : npcs.map(n => `${n.label ?? n.id}，交给你了！`)
+      : npcs.map(n => getLocale() === 'en'
+        ? `${n.label ?? n.id}, it's yours!`
+        : `${n.label ?? n.id}，交给你了！`)
 
     this.briefingOrchestrator.execute({
       steward,
       mayor: this.deps.npcManager.get('user') ?? null,
       npcs,
       lines,
-      gameName: this.pendingBriefingGameName || '新项目',
+      gameName: this.pendingBriefingGameName || t('new_project'),
       modeManager,
       getBehavior: (id) => this.deps.getBehavior(id),
       getJournal: (id) => this.deps.getJournal(id),
@@ -401,7 +404,7 @@ export class WorkflowHandler {
     }
   }
 
-  private static readonly DEPART_PHRASES = [
+  private static readonly DEPART_PHRASES_ZH = [
     '搞定了！先撤啦~',
     '完工！回去休息~',
     '收工收工！',
@@ -409,6 +412,22 @@ export class WorkflowHandler {
     '任务完成，下班！',
     '交差咯~',
   ]
+
+  private static readonly DEPART_PHRASES_EN = [
+    'Done! Heading out~',
+    'Finished! Time to rest~',
+    'That\'s a wrap!',
+    'Finally done!',
+    'Task complete, off I go!',
+    'Delivered~',
+  ]
+
+  private static getDepartPhrase(): string {
+    const pool = getLocale() === 'en'
+      ? WorkflowHandler.DEPART_PHRASES_EN
+      : WorkflowHandler.DEPART_PHRASES_ZH
+    return pool[Math.floor(Math.random() * pool.length)]
+  }
 
   async handleNpcWorkDone(npcId: string, status: string, stationId?: string, isTempWorker?: boolean): Promise<void> {
     const { npcManager, bubbles, officeBuilder, dataSource, vfx } = this.deps
@@ -477,7 +496,7 @@ export class WorkflowHandler {
     npc.indicator.setState('idle')
     this.releaseWorkstation(npcId, stationId)
 
-    const phrase = WorkflowHandler.DEPART_PHRASES[Math.floor(Math.random() * WorkflowHandler.DEPART_PHRASES.length)]
+    const phrase = WorkflowHandler.getDepartPhrase()
     bubbles.show(npc.mesh, phrase, 1500)
     await this.delay(2000)
 
@@ -783,7 +802,7 @@ export class WorkflowHandler {
     npc.playAnim('typing')
     npc.setGlow('yellow')
     npc.setStatusEmoji('working')
-    officeBuilder.setScreenState(resolvedStation, { mode: 'waiting', label: '等待中...' })
+    officeBuilder.setScreenState(resolvedStation, { mode: 'waiting', label: t('card.thinking') })
   }
 
   screenFlash(): void {

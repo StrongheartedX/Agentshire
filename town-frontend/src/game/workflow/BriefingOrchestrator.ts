@@ -4,10 +4,11 @@ import type { DailyBehavior } from '../../npc/DailyBehavior'
 import type { ActivityJournal } from '../../npc/ActivityJournal'
 import { WAYPOINTS } from '../../types'
 import { BaseOrchestrator } from './BaseOrchestrator'
+import { getLocale } from '../../i18n'
 
 // ── Role-based acceptance phrases (v2.1: indexed by role, not NPC name) ──
 
-const ACCEPT_PHRASES: Record<string, string[]> = {
+const ACCEPT_PHRASES_ZH: Record<string, string[]> = {
   programming: ['收到，我看看。', '没问题，开搞！', '了解了解！', '好的！我有想法了！'],
   design:       ['好的，交给我！', '没问题，我来！', '放心吧～', '包在我身上！'],
   planning:     ['明白！我来规划。', 'OK，我想到了。', '收到收到。', '有方向了！'],
@@ -16,7 +17,24 @@ const ACCEPT_PHRASES: Record<string, string[]> = {
   default:          ['好的！', '收到！', '没问题！', '了解！', '马上开始！'],
 }
 
-const MARCH_PHRASES = ['好期待啊！', '这个项目听起来很有意思', '走走走！', '冲鸭！']
+const ACCEPT_PHRASES_EN: Record<string, string[]> = {
+  programming: ['Got it, let me check.', 'No problem!', 'On it!', 'I have an idea!'],
+  design:       ['Leave it to me!', 'Sure thing!', 'Don\'t worry~', 'I\'m on it!'],
+  planning:     ['Got it! Let me plan.', 'OK, I see it.', 'Roger that.', 'I have a direction!'],
+  writing:      ['On it!', 'This topic speaks to me!', 'I\'ll write it!', 'Inspiration hit!'],
+  data:         ['Give me the data.', 'I\'ll analyze.', 'Got it, checking quality.', 'I see a pattern.'],
+  default:          ['OK!', 'Got it!', 'Sure!', 'Roger!', 'Starting now!'],
+}
+
+const MARCH_PHRASES_ZH = ['好期待啊！', '这个项目听起来很有意思', '走走走！', '冲鸭！']
+const MARCH_PHRASES_EN = ['So excited!', 'This sounds fun!', 'Let\'s go!', 'Charge!']
+
+function getAcceptPhrases(): Record<string, string[]> {
+  return getLocale() === 'en' ? ACCEPT_PHRASES_EN : ACCEPT_PHRASES_ZH
+}
+function getMarchPhrases(): string[] {
+  return getLocale() === 'en' ? MARCH_PHRASES_EN : MARCH_PHRASES_ZH
+}
 
 const BUBBLE_MS_PER_CHAR = 120
 const BUBBLE_MIN_MS = 1500
@@ -52,7 +70,9 @@ export class BriefingOrchestrator extends BaseOrchestrator<BriefingConfig> {
     const { steward, npcs, lines, modeManager } = cfg
 
     // ── 1. Opening speech ──
-    const opener = '好的，镇长的任务我已经想好分工了！'
+    const opener = getLocale() === 'en'
+      ? 'Alright, I\'ve got the plan!'
+      : '好的，镇长的任务我已经想好分工了！'
     steward.playAnim('idle')
     cfg.onBubble(steward, opener, bubbleDuration(opener))
     await this.delay(bubbleDuration(opener) + 400)
@@ -62,7 +82,9 @@ export class BriefingOrchestrator extends BaseOrchestrator<BriefingConfig> {
     for (let i = 0; i < npcs.length; i++) {
       if (this.shouldAbort()) return
       const npc = npcs[i]
-      const line = lines[i] ?? `${npc.label ?? npc.id}，交给你了！`
+      const line = lines[i] ?? (getLocale() === 'en'
+        ? `${npc.label ?? npc.id}, it's yours!`
+        : `${npc.label ?? npc.id}，交给你了！`)
 
       // 2a. Steward turns to NPC
       steward.lookAtTarget({ x: npc.getPosition().x, z: npc.getPosition().z })
@@ -80,7 +102,7 @@ export class BriefingOrchestrator extends BaseOrchestrator<BriefingConfig> {
 
       // 2d. NPC responds
       const role = npc.role || 'default'
-      const phrases = ACCEPT_PHRASES[role] ?? ACCEPT_PHRASES.default
+      const phrases = getAcceptPhrases()[role] ?? getAcceptPhrases().default
       const reply = pick(phrases)
       npc.playAnim('wave')
       cfg.onBubble(npc, reply, 1200)
@@ -90,7 +112,7 @@ export class BriefingOrchestrator extends BaseOrchestrator<BriefingConfig> {
       // Record in journal
       cfg.getJournal?.(npc.id)?.record({
         location: 'gathering_point',
-        locationName: '聚集点',
+        locationName: getLocale() === 'en' ? 'Rally Point' : '聚集点',
         action: 'assigned_task',
         detail: line,
       })
@@ -103,7 +125,9 @@ export class BriefingOrchestrator extends BaseOrchestrator<BriefingConfig> {
     if (this.shouldAbort()) return
 
     // ── 3. Closing line ──
-    const closer = '走，去办公室开干！'
+    const closer = getLocale() === 'en'
+      ? 'Let\'s go, office time!'
+      : '走，去办公室开干！'
     steward.lookAtTarget({ x: WAYPOINTS.office_door.x, z: WAYPOINTS.office_door.z })
     cfg.onBubble(steward, closer, bubbleDuration(closer))
     await this.delay(bubbleDuration(closer) + 300)
@@ -164,7 +188,7 @@ export class BriefingOrchestrator extends BaseOrchestrator<BriefingConfig> {
       fadePromises.push(promise)
 
       if (i < 2 && npcs[i] && Math.random() < 0.3) {
-        cfg.onBubble(npcs[i], pick(MARCH_PHRASES), 1500)
+        cfg.onBubble(npcs[i], pick(getMarchPhrases()), 1500)
       }
     }
 

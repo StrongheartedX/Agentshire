@@ -10,6 +10,7 @@ import type { TownEditor, EditorTool } from './TownEditor'
 import type { Command } from './UndoStack'
 import type { AssetCatalogEntry } from './AssetPalette'
 import type { CustomAssetStore } from './CustomAssetStore'
+import { getLocale } from '../i18n'
 
 const SKY_COLOR = 0x87ceeb
 const SELECTION_COLOR = 0x00d4ff
@@ -1061,7 +1062,7 @@ export class EditorScene {
     this.renderer.domElement.style.cursor = 'crosshair'
 
     const statusTool = document.getElementById('status-tool')
-    if (statusTool) statusTool.textContent = '吸附模式：点击目标模型'
+    if (statusTool) statusTool.textContent = getLocale() === 'en' ? 'Snap: click target' : '吸附模式：点击目标模型'
 
     this.snapHandler = (e: MouseEvent) => {
       e.stopPropagation()
@@ -1119,7 +1120,7 @@ export class EditorScene {
     this.snapCallback = null
     this.renderer.domElement.style.cursor = ''
     const statusTool = document.getElementById('status-tool')
-    if (statusTool) statusTool.textContent = '选择模式'
+    if (statusTool) statusTool.textContent = getLocale() === 'en' ? 'Select mode' : '选择模式'
   }
 
   enterJoinMode(sourceItem: PlacedItem, callback: (newX: number, newZ: number) => void): void {
@@ -1127,7 +1128,7 @@ export class EditorScene {
     this.renderer.domElement.style.cursor = 'crosshair'
 
     const statusTool = document.getElementById('status-tool')
-    if (statusTool) statusTool.textContent = '拼接模式：点击目标模型的侧面'
+    if (statusTool) statusTool.textContent = getLocale() === 'en' ? 'Join: click target side' : '拼接模式：点击目标模型的侧面'
 
     const handler = (e: MouseEvent) => {
       e.stopPropagation()
@@ -1187,12 +1188,12 @@ export class EditorScene {
 
         callback(newX, newZ)
         this.renderer.domElement.style.cursor = ''
-        if (statusTool) statusTool.textContent = '选择模式'
+        if (statusTool) statusTool.textContent = getLocale() === 'en' ? 'Select mode' : '选择模式'
         return
       }
 
       this.renderer.domElement.style.cursor = ''
-      if (statusTool) statusTool.textContent = '选择模式'
+      if (statusTool) statusTool.textContent = getLocale() === 'en' ? 'Select mode' : '选择模式'
     }
 
     this.renderer.domElement.addEventListener('click', handler, { once: true, capture: true })
@@ -1581,7 +1582,7 @@ export class EditorScene {
 
     const statusEl = document.createElement('div')
     statusEl.style.cssText = 'position:absolute;bottom:110px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);color:#ff4466;padding:8px 20px;border-radius:8px;font-size:13px;z-index:50;pointer-events:none;white-space:nowrap;border:1px solid rgba(255,68,102,0.3);backdrop-filter:blur(8px);'
-    statusEl.textContent = '标记前方 · 请点击模型的车头位置 · ESC 取消'
+    statusEl.textContent = getLocale() === 'en' ? 'Mark front · Click vehicle front · ESC cancel' : '标记前方 · 请点击模型的车头位置 · ESC 取消'
     this.container.appendChild(statusEl)
 
     const cx = model.position.x
@@ -1692,11 +1693,11 @@ export class EditorScene {
 
     const statusEl = document.createElement('div')
     statusEl.style.cssText = 'position:absolute;bottom:110px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);color:#00d4ff;padding:8px 20px;border-radius:8px;font-size:13px;z-index:50;pointer-events:none;white-space:nowrap;border:1px solid rgba(0,212,255,0.2);backdrop-filter:blur(8px);'
-    statusEl.textContent = `路线编辑 · 点击地面添加航点 (${waypoints.length} 个) · 右键/Enter 确认 · ESC 取消`
+    statusEl.textContent = getLocale() === 'en' ? `Route edit · Click to add (${waypoints.length}) · Right/Enter done · ESC cancel` : `路线编辑 · 点击地面添加航点 (${waypoints.length} 个) · 右键/Enter 确认 · ESC 取消`
     this.container.appendChild(statusEl)
 
     const updateStatus = () => {
-      statusEl.textContent = `路线编辑 · 点击地面添加航点 (${waypoints.length} 个) · 右键/Enter 确认 · ESC 取消`
+      statusEl.textContent = getLocale() === 'en' ? `Route edit · Click to add (${waypoints.length}) · Right/Enter done · ESC cancel` : `路线编辑 · 点击地面添加航点 (${waypoints.length} 个) · 右键/Enter 确认 · ESC 取消`
     }
 
     const previewMarker = new THREE.Mesh(

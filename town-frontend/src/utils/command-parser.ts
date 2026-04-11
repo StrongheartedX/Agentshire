@@ -1,3 +1,5 @@
+import { getLocale } from '../i18n'
+
 export interface ParsedCommand {
   type: 'frontend' | 'gateway'
   command: string
@@ -47,3 +49,18 @@ export const HELP_TEXT = [
   '',
   '更多指令：/fast, /verbose, /reasoning, /btw, /usage, /context, /commands',
 ].join('\n')
+
+const HELP_TEXT_EN = `Available commands:
+  /new [model]     New session (optional model)
+  /stop            Abort current run
+  /status          View current status
+  /model [name]    View/switch model
+  /think <level>   Set thinking depth
+  /tools           List tools
+  /help            Show this help
+
+More: /fast, /verbose, /reasoning, /btw, /usage, /context, /commands`
+
+export function getHelpText(): string {
+  return getLocale() === 'en' ? HELP_TEXT_EN : HELP_TEXT
+}

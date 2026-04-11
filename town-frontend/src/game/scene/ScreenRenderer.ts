@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import type { ScreenState } from '../../data/GameProtocol'
+import { t } from '../../i18n'
 
 const W = 256
 const H = 160
@@ -95,7 +96,7 @@ export class ScreenRenderer {
     ctx.fillStyle = '#5577aa'
     ctx.font = '16px monospace'
     ctx.textAlign = 'center'
-    const label = ('label' in this.state && this.state.label) || '等待中...'
+    const label = ('label' in this.state && this.state.label) || t('card.thinking')
     ctx.fillText(label, W / 2, H / 2 - 10)
 
     const cx = W / 2, cy = H / 2 + 20, r = 12
@@ -130,7 +131,7 @@ export class ScreenRenderer {
     ctx.font = '13px monospace'
     ctx.textAlign = 'center'
     const dots = '.'.repeat(1 + Math.floor(this.elapsed * 2) % 4)
-    ctx.fillText('分析中' + dots, W / 2, H / 2)
+    ctx.fillText(t('screen.analyzing') + dots, W / 2, H / 2)
     ctx.textAlign = 'left'
   }
 

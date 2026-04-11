@@ -1,6 +1,7 @@
 import type { ModeState, WorkSubState } from '../types'
-import { WORK_SUB_STATE_LABELS } from '../types'
+import { getWorkSubStateLabel } from '../types'
 import { createFilledGearIcon } from './LucideIcon'
+import { t } from '../i18n'
 
 export class ModeIndicator {
   private container: HTMLElement
@@ -125,7 +126,7 @@ export class ModeIndicator {
 
   private renderWork(subState?: WorkSubState): void {
     this.container.style.display = 'flex'
-    const label = subState ? WORK_SUB_STATE_LABELS[subState] : '工作模式'
+    const label = subState ? getWorkSubStateLabel(subState) : t('mode.work')
 
     this.iconWrap.innerHTML = ''
     const gearSvg = createFilledGearIcon(18, '#3b82f6')

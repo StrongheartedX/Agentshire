@@ -12,8 +12,8 @@
 import type { NPC } from './NPC'
 import type { TimePeriod, WeatherType } from '../types'
 import {
-  GENERAL_SCRIPTS, WEATHER_SCRIPTS, PERIOD_SCRIPTS,
-  WAVE_LINES, WAVE_LINES_PERIOD,
+  getGeneralScripts, getWeatherScripts, getPeriodScripts,
+  getWaveLines, getWaveLinesPeriod,
   type DialogueLine,
 } from './DialogueScripts'
 
@@ -41,21 +41,24 @@ const _pick = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)]
 function pickDialogue(weather?: WeatherType, period?: TimePeriod): DialogueLine {
   const useContext = Math.random() < 0.3
   if (useContext) {
-    if (weather && WEATHER_SCRIPTS[weather]?.length) {
-      if (Math.random() < 0.5) return _pick(WEATHER_SCRIPTS[weather]!)
+    const weatherScripts = getWeatherScripts()
+    if (weather && weatherScripts[weather]?.length) {
+      if (Math.random() < 0.5) return _pick(weatherScripts[weather]!)
     }
-    if (period && PERIOD_SCRIPTS[period]?.length) {
-      return _pick(PERIOD_SCRIPTS[period]!)
+    const periodScripts = getPeriodScripts()
+    if (period && periodScripts[period]?.length) {
+      return _pick(periodScripts[period]!)
     }
   }
-  return _pick(GENERAL_SCRIPTS)
+  return _pick(getGeneralScripts())
 }
 
 function pickWaveLine(period?: TimePeriod): string {
-  if (period && WAVE_LINES_PERIOD[period]?.length && Math.random() < 0.4) {
-    return _pick(WAVE_LINES_PERIOD[period]!)
+  const periodLines = getWaveLinesPeriod()
+  if (period && periodLines[period]?.length && Math.random() < 0.4) {
+    return _pick(periodLines[period]!)
   }
-  return _pick(WAVE_LINES)
+  return _pick(getWaveLines())
 }
 
 export type CasualBubbleCallback = (npcId: string, text: string, durationMs: number) => void

@@ -106,6 +106,17 @@ export const BUILDING_REGISTRY: BuildingDef[] = [
   { key: 'museum_door',    name: '博物馆',  scene: 'museum',    category: 'public',       tag: 'museum',   stayRange: [5000, 12000],   capacity: 5 },
 ]
 
+const BUILDING_NAMES_EN: Record<string, string> = {
+  office_door: 'Office', house_a_door: 'House A', house_b_door: 'House B',
+  house_c_door: 'House C', market_door: 'Market', cafe_door: 'Café',
+  user_home_door: 'Player Home', museum_door: 'Museum',
+}
+
+export function getBuildingName(key: string): string {
+  if (getLocale() === 'en') return BUILDING_NAMES_EN[key] ?? key
+  return BUILDING_REGISTRY.find(b => b.key === key)?.name ?? key
+}
+
 export interface NPCRouteProfile {
   npcId: string
   homeBuilding: string
@@ -205,6 +216,22 @@ export const WORK_SUB_STATE_LABELS: Record<WorkSubState, string> = {
   returning: '返回小镇',
 }
 
+const WORK_SUB_STATE_LABELS_EN: Record<WorkSubState, string> = {
+  summoning: 'Summoning',
+  assigning: 'Briefing',
+  going_to_office: 'To Office',
+  working: 'Working',
+  publishing: 'Publishing',
+  celebrating: 'Celebrating',
+  returning: 'Returning',
+}
+
+import { getLocale } from './i18n'
+
+export function getWorkSubStateLabel(state: WorkSubState): string {
+  return getLocale() === 'en' ? WORK_SUB_STATE_LABELS_EN[state] : WORK_SUB_STATE_LABELS[state]
+}
+
 export interface NarrativeStep {
   type: 'camera_move' | 'npc_move' | 'dialog' | 'wait'
     | 'scene_switch' | 'npc_state' | 'parallel' | 'fx'
@@ -229,4 +256,18 @@ export const MOCK_REPLIES: Record<string, string[]> = {
   return_office: ['走，回去看看他们干得怎么样'],
   completion: ['全部完成了！你的新作品已经上架博物馆了，去看看？'],
   fallback: ['嗯嗯，我明白了', '好的，让我想想', '有意思！', '没问题~', '交给我吧！'],
+}
+
+const MOCK_REPLIES_EN: Record<string, string[]> = {
+  greeting: ['Hi! Welcome to town! I\'m the steward. What shall we build?'],
+  game_request: ['Great idea! Let me summon the team!', 'Roguelike! Cool. Let me call everyone!'],
+  progress: ['Planner is drafting, artist is sketching, devs are coding...'],
+  tour: ['Sure! Follow me~', 'This way, let me show you around~'],
+  return_office: ['Let\'s check on the team'],
+  completion: ['All done! Your creation is in the museum, check it out?'],
+  fallback: ['I see', 'Let me think', 'Interesting!', 'No problem~', 'On it!'],
+}
+
+export function getMockReplies(): Record<string, string[]> {
+  return getLocale() === 'en' ? MOCK_REPLIES_EN : MOCK_REPLIES
 }

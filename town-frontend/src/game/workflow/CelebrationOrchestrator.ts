@@ -4,15 +4,27 @@ import type { ModeManager } from './ModeManager'
 import type { VFXSystem } from '../visual/VFXSystem'
 import type { GameClock } from '../GameClock'
 import { BaseOrchestrator } from './BaseOrchestrator'
+import { getLocale } from '../../i18n'
 
 const OFFICE_CENTER = new THREE.Vector3(15, 0, 12.5)
 const OFFICE_DOOR = { x: 15, z: 24 }
 
-const CELEBRATION_PHRASES: Record<string, string[]> = {
+const CELEBRATION_PHRASES_ZH: Record<string, string[]> = {
   programmer: ['终于跑通了！', '没有 bug！太好了！', '完美！', 'ship it！', '太酷了！'],
   artist:     ['好好看！', '效果超棒的！', '太满意了！', '视觉完美！'],
   planner:    ['和预期一模一样！', '完美交付！', '大家太厉害了！', '达成目标！'],
   default:    ['太棒了！', '完成啦！', '好厉害！', '🎉', '成功！'],
+}
+
+const CELEBRATION_PHRASES_EN: Record<string, string[]> = {
+  programmer: ['It runs!', 'Zero bugs!', 'Perfect!', 'Ship it!', 'So cool!'],
+  artist:     ['Looks great!', 'Amazing!', 'Love it!', 'Pixel perfect!'],
+  planner:    ['Just as planned!', 'Delivered!', 'Team rocks!', 'Goal hit!'],
+  default:    ['Awesome!', 'Done!', 'Wow!', '🎉', 'Success!'],
+}
+
+function getCelebrationPhrases(): Record<string, string[]> {
+  return getLocale() === 'en' ? CELEBRATION_PHRASES_EN : CELEBRATION_PHRASES_ZH
 }
 
 function pick<T>(arr: T[]): T {
@@ -62,7 +74,7 @@ export class CelebrationOrchestrator extends BaseOrchestrator<CelebrationConfig>
 
   private async publishingPhase(cfg: CelebrationConfig): Promise<void> {
     cfg.onSetAllScreens('publishing')
-    cfg.onBubble(cfg.steward, '全部完成！正在发布...', 2000)
+    cfg.onBubble(cfg.steward, getLocale() === 'en' ? 'All done! Publishing...' : '全部完成！正在发布...', 2000)
 
     await this.delay(2000)
     if (this.shouldAbort()) return
@@ -104,10 +116,10 @@ export class CelebrationOrchestrator extends BaseOrchestrator<CelebrationConfig>
 
     for (const npc of cfg.npcs) {
       const role = (npc as any).persona?.role || 'default'
-      const phrases = CELEBRATION_PHRASES[role] || CELEBRATION_PHRASES.default
+      const phrases = getCelebrationPhrases()[role] || getCelebrationPhrases().default
       cfg.onBubble(npc, pick(phrases), 3000)
     }
-    cfg.onBubble(cfg.steward, '太棒了！大家辛苦了！', 3000)
+    cfg.onBubble(cfg.steward, getLocale() === 'en' ? 'Great job, everyone!' : '太棒了！大家辛苦了！', 3000)
 
     await this.delay(3000)
     if (this.shouldAbort()) return

@@ -1,4 +1,5 @@
 import { getSkill, createSkillIcon } from './SkillIcons'
+import { t } from '../i18n'
 
 export class SkillLearnCard {
   private overlay: HTMLElement
@@ -23,7 +24,7 @@ export class SkillLearnCard {
 
     const title = document.createElement('div')
     title.className = 'gp-title'
-    title.textContent = '已获取新技能'
+    title.textContent = t('skill.new_skill')
 
     const showcase = document.createElement('div')
     Object.assign(showcase.style, {
@@ -43,12 +44,12 @@ export class SkillLearnCard {
 
     const learnBtn = document.createElement('button')
     learnBtn.className = 'gp-play-btn'
-    learnBtn.textContent = '立即学习'
+    learnBtn.textContent = t('skill.learn_now')
     learnBtn.addEventListener('click', () => { this.hide(); onLearn(slug) })
 
     const laterBtn = document.createElement('button')
     laterBtn.className = 'gp-later'
-    laterBtn.textContent = '稍后再说'
+    laterBtn.textContent = t('skill.learn_later')
     laterBtn.addEventListener('click', () => this.hide())
 
     card.append(title, showcase, learnBtn, laterBtn)

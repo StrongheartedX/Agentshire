@@ -1,4 +1,5 @@
 import type { GameAction } from '../data/GameProtocol'
+import { t } from '../i18n'
 import {
   type TownConfig,
   getSpecialtyLabel,
@@ -46,10 +47,10 @@ export class TownSetupUI {
 
     this.card.className = 'ts-card shimmer'
     this.card.innerHTML = `
-      <div class="ts-title">🏘️ ${this.escHtml(this.townConfig.townName)}小镇 居民总览</div>
+      <div class="ts-title">🏘️ ${this.escHtml(this.townConfig.townName)} ${t('setup.title_suffix')}</div>
       <div style="position:relative;">${rows}</div>
-      <div class="ts-hint" style="margin-top:12px;">以后随时可以修改或招募新居民</div>
-      <button class="ts-primary-btn" id="ts-close-btn" style="margin-top:16px;">关闭</button>
+      <div class="ts-hint" style="margin-top:12px;">${t('setup.hint')}</div>
+      <button class="ts-primary-btn" id="ts-close-btn" style="margin-top:16px;">${t('setup.close')}</button>
     `
     this.show()
 

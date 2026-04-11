@@ -1,6 +1,7 @@
 // @desc Media preview — deliverable card overlay, lightbox, download helpers
 
 import { escapeHtml, truncateFileName } from './ui-utils'
+import { t } from '../i18n'
 
 export type ShowToastFn = (msg: string) => void
 
@@ -206,7 +207,7 @@ export class MediaPreview {
         document.body.removeChild(a)
         setTimeout(() => URL.revokeObjectURL(blobUrl), 1000)
       } catch {
-        this.showToastFn('下载失败，请稍后重试')
+        this.showToastFn(t('media.download_fail'))
       }
     }
 
@@ -221,7 +222,7 @@ export class MediaPreview {
       const canAction = httpMode || hasDownload(item)
       singleDownloadBtn.style.display = canAction ? '' : 'none'
       if (canAction) {
-        singleDownloadBtn.textContent = httpMode ? '立即查看' : '立即下载'
+        singleDownloadBtn.textContent = httpMode ? t('media.view') : t('media.download_btn')
       }
       singlePreview.innerHTML = ''
 
@@ -248,8 +249,8 @@ export class MediaPreview {
       } else {
         singlePreview.innerHTML = `
           <div style="font-size: 48px; color: var(--accent-cyan); margin-bottom: 12px;">📄</div>
-          <div style="color: #fff; font-size: 16px; font-weight: 600; text-align: center; max-width: 90%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(truncateFileName(item.name || item.filePath || '未知文件'))}</div>
-          <div style="color: rgba(255,255,255,0.5); font-size: 12px; margin-top: 4px;">${escapeHtml(item.mimeType || '未知类型')}</div>
+          <div style="color: #fff; font-size: 16px; font-weight: 600; text-align: center; max-width: 90%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(truncateFileName(item.name || item.filePath || t('media.unknown_file')))}</div>
+          <div style="color: rgba(255,255,255,0.5); font-size: 12px; margin-top: 4px;">${escapeHtml(item.mimeType || t('media.unknown_type'))}</div>
         `
       }
 
@@ -296,7 +297,7 @@ export class MediaPreview {
         row.innerHTML = `
           <div class="media-item-thumb">${thumbHtml}</div>
           <div class="media-item-info">
-            <div class="media-item-name">${escapeHtml(truncateFileName(item.name || item.filePath || '未知文件'))}</div>
+            <div class="media-item-name">${escapeHtml(truncateFileName(item.name || item.filePath || t('media.unknown_file')))}</div>
             <div class="media-item-meta">${escapeHtml(item.mimeType || item.cardType)}</div>
           </div>
           ${canAction ? `<button class="media-item-action">${actionIcon}</button>` : ''}

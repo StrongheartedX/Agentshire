@@ -1,7 +1,12 @@
+import { initLocale, t, getLocale } from '../i18n'
+initLocale()
+
 import '../styles/editor.css'
 import { CitizenWorkshop } from './citizen/CitizenWorkshop'
 
 async function boot() {
+  applyEditorLocale()
+
   const workshop = new CitizenWorkshop()
   workshop.show()
 
@@ -29,7 +34,7 @@ async function boot() {
   }
   const doSave = async () => {
     const ok = await workshop.saveToFile()
-    flashSaveBtn(ok ? ' 已保存' : ' 保存失败')
+    flashSaveBtn(ok ? (getLocale() === 'en' ? ' Saved' : ' 已保存') : (getLocale() === 'en' ? ' Failed' : ' 保存失败'))
   }
   saveBtn?.addEventListener('click', doSave)
 
@@ -65,17 +70,17 @@ async function boot() {
         const cs = result.changeset
         const parts: string[] = []
         if (cs) {
-          if (cs.agentToCreate?.length) parts.push(`创建 ${cs.agentToCreate.length} 个 Agent`)
-          if (cs.agentToDisable?.length) parts.push(`停用 ${cs.agentToDisable.length} 个`)
-          if (cs.agentToUpdateSoul?.length) parts.push(`更新 ${cs.agentToUpdateSoul.length} 个`)
+          if (cs.agentToCreate?.length) parts.push(getLocale() === 'en' ? `Create ${cs.agentToCreate.length} Agent(s)` : `创建 ${cs.agentToCreate.length} 个 Agent`)
+          if (cs.agentToDisable?.length) parts.push(getLocale() === 'en' ? `Disable ${cs.agentToDisable.length}` : `停用 ${cs.agentToDisable.length} 个`)
+          if (cs.agentToUpdateSoul?.length) parts.push(getLocale() === 'en' ? `Update ${cs.agentToUpdateSoul.length}` : `更新 ${cs.agentToUpdateSoul.length} 个`)
         }
         const summary = parts.length ? `（${parts.join('，')}）` : ''
-        showToast(`发布成功${summary}`)
+        showToast(getLocale() === 'en' ? `Published${summary}` : `发布成功${summary}`)
       } else {
-        showToast(result.error ?? '发布失败', true)
+        showToast(result.error ?? (getLocale() === 'en' ? 'Publish failed' : '发布失败'), true)
       }
     } catch {
-      showToast('发布请求失败', true)
+      showToast(getLocale() === 'en' ? 'Publish request failed' : '发布请求失败', true)
     } finally {
       const spinner = publishBtn.querySelector('svg')
       if (spinner) spinner.outerHTML = PUBLISH_ICON_HTML
@@ -90,7 +95,7 @@ async function boot() {
   })
   document.getElementById('btn-import')?.addEventListener('click', async () => {
     const ok = await workshop.importJSON()
-    flashSaveBtn(ok ? ' 已导入' : ' 导入失败')
+    flashSaveBtn(ok ? (getLocale() === 'en' ? ' Imported' : ' 已导入') : (getLocale() === 'en' ? ' Failed' : ' 导入失败'))
   })
 
   const showConfirm = (title: string, message: string): Promise<boolean> => {
@@ -120,7 +125,10 @@ async function boot() {
   }
 
   document.getElementById('btn-clear')?.addEventListener('click', async () => {
-    const ok = await showConfirm('清空角色配置', '确定要清空所有角色配置吗？此操作不可撤销。')
+    const ok = await showConfirm(
+      getLocale() === 'en' ? 'Clear citizen config' : '清空角色配置',
+      getLocale() === 'en' ? 'Clear all citizen configs? This cannot be undone.' : '确定要清空所有角色配置吗？此操作不可撤销。'
+    )
     if (!ok) return
     workshop.resetToDefault()
   })
@@ -153,3 +161,26 @@ async function boot() {
 }
 
 boot().catch(console.error)
+
+function applyEditorLocale(): void {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n')!
+    const translated = t(key)
+    if (translated !== key) el.textContent = translated
+  })
+  document.querySelectorAll('[data-i18n-tip]').forEach(el => {
+    const key = el.getAttribute('data-i18n-tip')!
+    const translated = t(key)
+    if (translated !== key) el.setAttribute('data-tip', translated)
+  })
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    const key = el.getAttribute('data-i18n-title')!
+    const translated = t(key)
+    if (translated !== key) el.setAttribute('title', translated)
+  })
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder')!
+    const translated = t(key)
+    if (translated !== key) (el as HTMLInputElement).placeholder = translated
+  })
+}

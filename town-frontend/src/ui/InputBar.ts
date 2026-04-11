@@ -5,6 +5,7 @@
  */
 import { isSttSupported, startStt, stopStt, isSttActive } from './speech'
 import { parseCommand } from '../utils/command-parser'
+import { t } from '../i18n'
 
 export type TownMessage =
   | { type: 'chat'; message: string }
@@ -225,7 +226,7 @@ export class InputBar {
   }
 
   setBusy(busy: boolean): void {
-    this.textarea.placeholder = busy ? 'AI 工作中...' : '输入消息...'
+    this.textarea.placeholder = busy ? t('input.busy') : t('input.idle')
     this.sendBtn.classList.toggle('btn-busy', busy)
   }
 

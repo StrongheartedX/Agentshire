@@ -5,7 +5,7 @@ import { useWebSocket, type ChatItem } from '@/hooks/useWebSocket'
 import { AgentList } from './AgentList'
 import { ChatMessages } from './ChatMessages'
 import { ChatInputBar } from './ChatInputBar'
-import { HELP_TEXT, type ParsedCommand } from '@/utils/command-parser'
+import { getHelpText, type ParsedCommand } from '@/utils/command-parser'
 
 interface ChatViewProps {
   visible: boolean
@@ -309,7 +309,7 @@ export function ChatView({ visible, selectedAgent, onAgentChange, onConnectedCha
         return
       }
       case 'help': {
-        addSystemMessage(routingKey, HELP_TEXT)
+        addSystemMessage(routingKey, getHelpText())
         return
       }
       case 'stop': {

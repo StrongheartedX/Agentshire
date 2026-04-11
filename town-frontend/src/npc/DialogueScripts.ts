@@ -6,6 +6,8 @@
  */
 
 import type { TimePeriod, WeatherType } from '../types'
+import { getLocale } from '../i18n'
+import * as dialogueEn from '../i18n/dialogue-en'
 
 export type DialogueLine = [string, string]
 
@@ -492,4 +494,26 @@ export const WAVE_LINES_PERIOD: Partial<Record<TimePeriod, string[]>> = {
   afternoon: ['下午好~', '困不困？', '喝咖啡去？'],
   dusk: ['回家了？', '天要黑了~', '晚饭吃了？'],
   night: ['还没回去？', '晚安~', '夜里小心'],
+}
+
+// ── Locale-aware getters (used by CasualEncounter) ──
+
+export function getGeneralScripts(): DialogueLine[] {
+  return getLocale() === 'en' ? dialogueEn.GENERAL_SCRIPTS : GENERAL_SCRIPTS
+}
+
+export function getWeatherScripts(): Partial<Record<WeatherType, DialogueLine[]>> {
+  return getLocale() === 'en' ? dialogueEn.WEATHER_SCRIPTS : WEATHER_SCRIPTS
+}
+
+export function getPeriodScripts(): Partial<Record<TimePeriod, DialogueLine[]>> {
+  return getLocale() === 'en' ? dialogueEn.PERIOD_SCRIPTS : PERIOD_SCRIPTS
+}
+
+export function getWaveLines(): string[] {
+  return getLocale() === 'en' ? dialogueEn.WAVE_LINES : WAVE_LINES
+}
+
+export function getWaveLinesPeriod(): Partial<Record<TimePeriod, string[]>> {
+  return getLocale() === 'en' ? dialogueEn.WAVE_LINES_PERIOD : WAVE_LINES_PERIOD
 }

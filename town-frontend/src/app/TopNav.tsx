@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils'
 import type { AgentInfo } from '@/hooks/useAgents'
 import logoTitleUrl from '@/assets/logo-title.png'
 import logoUrl from '@/assets/logo.png'
+import { t } from '@/i18n'
 
 export type AppTab = 'town' | 'chat'
 
@@ -15,12 +16,14 @@ interface TopNavProps {
   onChatBack?: () => void
 }
 
-const MENU_ITEMS = [
-  { icon: Users, label: '居民管理', action: 'citizen-editor' as const },
-  { icon: Palette, label: '小镇改造', action: 'town-editor' as const },
-  { icon: Star, label: '技能商店', action: 'skill-store' as const },
-  { icon: Settings, label: '设置', action: 'settings' as const },
-]
+function getMenuItems() {
+  return [
+    { icon: Users, label: t('topnav.citizens'), action: 'citizen-editor' as const },
+    { icon: Palette, label: t('topnav.town_editor'), action: 'town-editor' as const },
+    { icon: Star, label: t('topnav.skill_store'), action: 'skill-store' as const },
+    { icon: Settings, label: t('topnav.settings'), action: 'settings' as const },
+  ]
+}
 
 export function TopNav({ activeTab, onTabChange, chatAgent, chatConnected, onChatBack }: TopNavProps) {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -42,6 +45,22 @@ export function TopNav({ activeTab, onTabChange, chatAgent, chatConnected, onCha
     if (action === 'citizen-editor') window.open('citizen-editor.html', '_blank')
     else if (action === 'town-editor') window.open('editor.html', '_blank')
     else if (action === 'skill-store') window.open('https://clawhub.ai/', '_blank', 'noopener,noreferrer')
+    else if (action === 'settings') {
+      import('@/ui/SettingsPanel').then(({ showSettingsPanel }) => {
+        showSettingsPanel({
+          onMusicChange: (enabled) => {
+            document.dispatchEvent(new CustomEvent('agentshire:music', { detail: { enabled } }))
+          },
+          onSoulModeChange: (enabled) => {
+            document.dispatchEvent(new CustomEvent('agentshire:soulmode', { detail: { enabled } }))
+          },
+          onReset: () => {
+            localStorage.removeItem('agentshire_config')
+            location.reload()
+          },
+        })
+      })
+    }
   }, [])
 
   const inMobileChat = activeTab === 'chat' && chatAgent != null
@@ -122,7 +141,7 @@ export function TopNav({ activeTab, onTabChange, chatAgent, chatConnected, onCha
 
         {menuOpen && (
           <div className="absolute right-0 top-full mt-1.5 w-48 py-2 rounded-2xl bg-bg-surface border border-border-subtle shadow-2xl shadow-black/60 z-50">
-            {MENU_ITEMS.map(({ icon: Icon, label, action }) => (
+            {getMenuItems().map(({ icon: Icon, label, action }) => (
               <button
                 key={action}
                 onClick={() => handleMenuAction(action)}

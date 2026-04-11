@@ -3,6 +3,7 @@ import { getAudioSystem } from '../audio/AudioSystem'
 import { type ChatBubbleSystem, getBubbleDurationMs } from '../ui/ChatBubble'
 import type { UIManager } from '../ui/UIManager'
 import type { NPCManager } from '../npc/NPCManager'
+import { t } from '../i18n'
 
 export interface DialogManagerDeps {
   bubbles: ChatBubbleSystem
@@ -80,11 +81,12 @@ export class DialogManager {
   }
 
   onNpcActivity(event: { npcId: string; icon: string; message: string; time?: string; status?: boolean | null }): void {
-    const isPlaceholder = event.message === '正在思考'
+    const thinkingText = t('card.thinking')
+    const isPlaceholder = event.message === thinkingText
     const logs = this.workLogs.get(event.npcId) ?? []
     if (!isPlaceholder) {
       const lastIdx = logs.length - 1
-      if (lastIdx >= 0 && logs[lastIdx].message === '正在思考') {
+      if (lastIdx >= 0 && logs[lastIdx].message === thinkingText) {
         logs.pop()
       }
     }

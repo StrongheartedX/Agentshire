@@ -1,14 +1,14 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { getLocale } from '../../i18n'
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024
 const ALLOWED_EXTENSIONS = ['.glb', '.gltf']
 
-const SLOT_LABELS: Record<string, string> = {
-  idle: '待机', walk: '行走', typing: '工作', wave: '打招呼',
-  cheer: '庆祝', reading: '阅读', frustrated: '沮丧', dancing: '跳舞',
-}
+const SLOT_LABELS_ZH: Record<string, string> = { idle: '待机', walk: '行走', typing: '工作', wave: '打招呼', cheer: '庆祝', reading: '阅读', frustrated: '沮丧', dancing: '跳舞' }
+const SLOT_LABELS_EN_UPLOAD: Record<string, string> = { idle: 'Idle', walk: 'Walk', typing: 'Work', wave: 'Wave', cheer: 'Cheer', reading: 'Read', frustrated: 'Frustrated', dancing: 'Dance' }
+function getSlotLabels(): Record<string, string> { return getLocale() === 'en' ? SLOT_LABELS_EN_UPLOAD : SLOT_LABELS_ZH }
 
 export type CharacterUploadResult = {
   assetId: string
@@ -119,7 +119,7 @@ export class CharacterModelUpload {
         })
         .catch(() => {
           const info = this.overlay.querySelector('.upload-preview-info') as HTMLElement
-          if (info) info.textContent = '模型加载失败'
+          if (info) info.textContent = getLocale() === 'en' ? 'Model load failed' : '模型加载失败'
         })
     } catch {
       this.close()
@@ -131,7 +131,7 @@ export class CharacterModelUpload {
     panel.classList.remove('upload-panel--step2')
     panel.innerHTML = `
       <div class="upload-header">
-        <span class="upload-title">添加角色模型</span>
+        <span class="upload-title">${getLocale() === 'en' ? 'Add Character' : '添加角色模型'}</span>
         <button class="upload-close-btn">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
         </button>
@@ -144,15 +144,15 @@ export class CharacterModelUpload {
             <line x1="12" y1="3" x2="12" y2="15"/>
           </svg>
         </div>
-        <div class="dropzone-text">拖拽 .glb / .gltf 文件到此处</div>
-        <div class="dropzone-hint">或点击选择文件（≤ 50MB）</div>
+        <div class="dropzone-text">${getLocale() === 'en' ? 'Drop .glb / .gltf file here' : '拖拽 .glb / .gltf 文件到此处'}</div>
+        <div class="dropzone-hint">${getLocale() === 'en' ? 'or click to browse (≤ 50MB)' : '或点击选择文件（≤ 50MB）'}</div>
         <input type="file" accept=".glb,.gltf" hidden id="char-upload-file-input">
       </div>
       <div class="upload-error" id="char-upload-error"></div>
-      <div class="upload-divider"><span class="upload-divider-line"></span><span class="upload-divider-text">或</span><span class="upload-divider-line"></span></div>
+      <div class="upload-divider"><span class="upload-divider-line"></span><span class="upload-divider-text">${getLocale() === 'en' ? 'or' : '或'}</span><span class="upload-divider-line"></span></div>
       <button class="ai-gen-toggle" id="char-ai-gen-toggle">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.09 3.26L16.36 6l-3.27 1.09L12 10.36l-1.09-3.27L7.64 6l3.27-1.09L12 2z"/><path d="M5 15l.55 1.64L7.18 17.2 5.55 17.75 5 19.4l-.55-1.65L2.82 17.2l1.63-.56L5 15z"/><path d="M19 11l.55 1.64 1.63.56-1.63.55L19 15.4l-.55-1.65-1.63-.55 1.63-.56L19 11z"/></svg>
-        <span class="ai-gen-label">AI 生成 3D 角色</span>
+        <span class="ai-gen-label">${getLocale() === 'en' ? 'AI Generate 3D' : 'AI 生成 3D 角色'}</span>
         <svg class="ai-gen-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
       </button>
       <div class="ai-gen-tools" id="char-ai-gen-tools">
@@ -217,13 +217,13 @@ export class CharacterModelUpload {
 
     const ext = file.name.substring(file.name.lastIndexOf('.')).toLowerCase()
     if (!ALLOWED_EXTENSIONS.includes(ext)) {
-      errorEl.textContent = '仅支持 .glb / .gltf 格式'
+      errorEl.textContent = getLocale() === 'en' ? 'Only .glb / .gltf supported' : '仅支持 .glb / .gltf 格式'
       errorEl.classList.add('visible')
       return
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      errorEl.textContent = '文件超过 50MB 限制'
+      errorEl.textContent = getLocale() === 'en' ? 'File exceeds 50MB' : '文件超过 50MB 限制'
       errorEl.classList.add('visible')
       return
     }
@@ -245,7 +245,7 @@ export class CharacterModelUpload {
     panel.classList.add('upload-panel--step2')
     panel.innerHTML = `
       <div class="upload-header">
-        <span class="upload-title">${isEdit ? '编辑角色模型' : '添加角色模型'}</span>
+        <span class="upload-title">${isEdit ? (getLocale() === 'en' ? 'Edit Character' : '编辑角色模型') : (getLocale() === 'en' ? 'Add Character' : '添加角色模型')}</span>
         <button class="upload-close-btn">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
         </button>
@@ -253,10 +253,10 @@ export class CharacterModelUpload {
       <div class="upload-body">
         <div class="upload-form">
           <label class="upload-label">
-            名称
-            <input type="text" class="upload-input" id="char-upload-name" value="${this.escHtml(name)}" maxlength="20" placeholder="角色名称">
+            ${getLocale() === 'en' ? 'Name' : '名称'}
+            <input type="text" class="upload-input" id="char-upload-name" value="${this.escHtml(name)}" maxlength="20" placeholder="${getLocale() === 'en' ? 'Character name' : '角色名称'}">
           </label>
-          <label class="upload-label">缩放</label>
+          <label class="upload-label">${getLocale() === 'en' ? 'Scale' : '缩放'}</label>
           <div class="upload-scale-row">
             <button class="pi-scale-btn" data-action="scale-minus">−</button>
             <input type="range" class="pi-scale-range" id="char-upload-scale" min="0.05" max="5" step="0.05" value="${scale}" />
@@ -270,18 +270,18 @@ export class CharacterModelUpload {
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             </span>
             <span class="upload-optimize-text">
-              <span class="upload-optimize-name">优化模型</span>
-              <span class="upload-optimize-hint">去重 + 量化压缩，减小文件体积</span>
+              <span class="upload-optimize-name">${getLocale() === 'en' ? 'Optimize' : '优化模型'}</span>
+              <span class="upload-optimize-hint">${getLocale() === 'en' ? 'Deduplicate & compress' : '去重 + 量化压缩，减小文件体积'}</span>
             </span>
           </label>
           <div class="upload-footer">
-            <button class="upload-btn upload-btn-cancel" id="char-upload-cancel">取消</button>
-            <button class="upload-btn upload-btn-save" id="char-upload-save">${isEdit ? '保存修改' : '保存'}</button>
+            <button class="upload-btn upload-btn-cancel" id="char-upload-cancel">${getLocale() === 'en' ? 'Cancel' : '取消'}</button>
+            <button class="upload-btn upload-btn-save" id="char-upload-save">${isEdit ? (getLocale() === 'en' ? 'Save' : '保存修改') : (getLocale() === 'en' ? 'Save' : '保存')}</button>
           </div>
         </div>
         <div class="upload-preview-area">
           <canvas class="upload-preview-canvas"></canvas>
-          <div class="upload-preview-info">加载中...</div>
+          <div class="upload-preview-info">${getLocale() === 'en' ? 'Loading...' : '加载中...'}</div>
         </div>
       </div>
     `
@@ -331,7 +331,7 @@ export class CharacterModelUpload {
     const isEdit = !!this.editingAsset
 
     if (!name) {
-      errorEl.textContent = '请输入角色名称'
+      errorEl.textContent = getLocale() === 'en' ? 'Enter a name' : '请输入角色名称'
       errorEl.classList.add('visible')
       return
     }
@@ -340,7 +340,7 @@ export class CharacterModelUpload {
 
     const saveBtn = this.overlay.querySelector('#char-upload-save') as HTMLButtonElement
     saveBtn.disabled = true
-    saveBtn.textContent = '保存中...'
+    saveBtn.textContent = getLocale() === 'en' ? 'Saving...' : '保存中...'
 
     const thumbnail = this.captureThumbnail()
 
@@ -361,7 +361,7 @@ export class CharacterModelUpload {
           errorEl.textContent = result.error
           errorEl.classList.add('visible')
           saveBtn.disabled = false
-          saveBtn.textContent = '保存修改'
+          saveBtn.textContent = getLocale() === 'en' ? 'Save' : '保存修改'
           return
         }
         const asset = result.asset
@@ -399,7 +399,7 @@ export class CharacterModelUpload {
           errorEl.textContent = result.error
           errorEl.classList.add('visible')
           saveBtn.disabled = false
-          saveBtn.textContent = '保存'
+          saveBtn.textContent = getLocale() === 'en' ? 'Save' : '保存'
           return
         }
         const asset = result.asset
@@ -416,10 +416,10 @@ export class CharacterModelUpload {
         })
       }
     } catch {
-      errorEl.textContent = isEdit ? '保存失败，请重试' : '上传失败，请重试'
+      errorEl.textContent = isEdit ? (getLocale() === 'en' ? 'Save failed' : '保存失败，请重试') : (getLocale() === 'en' ? 'Upload failed' : '上传失败，请重试')
       errorEl.classList.add('visible')
       saveBtn.disabled = false
-      saveBtn.textContent = isEdit ? '保存修改' : '保存'
+      saveBtn.textContent = isEdit ? (getLocale() === 'en' ? 'Save' : '保存修改') : (getLocale() === 'en' ? 'Save' : '保存')
     }
   }
 
@@ -427,7 +427,7 @@ export class CharacterModelUpload {
     const checkbox = this.overlay.querySelector('#char-upload-optimize') as HTMLInputElement | null
     if (!checkbox?.checked) return
 
-    statusBtn.textContent = '优化中...'
+    statusBtn.textContent = getLocale() === 'en' ? 'Optimizing...' : '优化中...'
     try {
       const r = await fetch('/custom-assets/_api/optimize', {
         method: 'POST',
@@ -436,7 +436,7 @@ export class CharacterModelUpload {
       })
       const d = await r.json()
       if (d.success) {
-        statusBtn.textContent = `已优化 (-${d.ratio}%)`
+        statusBtn.textContent = getLocale() === 'en' ? `Optimized (-${d.ratio}%)` : `已优化 (-${d.ratio}%)`
       }
     } catch { /* optimize failed, non-blocking */ }
   }
@@ -489,7 +489,7 @@ export class CharacterModelUpload {
       .catch(() => {
         URL.revokeObjectURL(url)
         const info = this.overlay.querySelector('.upload-preview-info') as HTMLElement
-        if (info) info.textContent = '模型加载失败，请检查文件是否完整'
+        if (info) info.textContent = getLocale() === 'en' ? 'Model load failed' : '模型加载失败，请检查文件是否完整'
       })
   }
 

@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { getLocale } from '../i18n'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import type { CustomAssetStore, CustomAsset } from './CustomAssetStore'
@@ -60,7 +61,7 @@ export class CustomAssetUpload {
     panel.classList.remove('upload-panel--step2')
     panel.innerHTML = `
       <div class="upload-header">
-        <span class="upload-title">添加资产</span>
+        <span class="upload-title">${getLocale() === 'en' ? 'Add Asset' : '添加资产'}</span>
         <button class="upload-close-btn">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
         </button>
@@ -73,15 +74,15 @@ export class CustomAssetUpload {
             <line x1="12" y1="3" x2="12" y2="15"/>
           </svg>
         </div>
-        <div class="dropzone-text">拖拽 .glb 文件到此处</div>
-        <div class="dropzone-hint">或点击选择文件（≤ 10MB）</div>
+        <div class="dropzone-text">${getLocale() === 'en' ? 'Drop .glb file here' : '拖拽 .glb 文件到此处'}</div>
+        <div class="dropzone-hint">${getLocale() === 'en' ? 'or click to browse (≤ 10MB)' : '或点击选择文件（≤ 10MB）'}</div>
         <input type="file" accept=".glb" hidden id="upload-file-input">
       </div>
       <div class="upload-error" id="upload-error"></div>
-      <div class="upload-divider"><span class="upload-divider-line"></span><span class="upload-divider-text">或</span><span class="upload-divider-line"></span></div>
+      <div class="upload-divider"><span class="upload-divider-line"></span><span class="upload-divider-text">${getLocale() === 'en' ? 'or' : '或'}</span><span class="upload-divider-line"></span></div>
       <button class="ai-gen-toggle" id="ai-gen-toggle">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.09 3.26L16.36 6l-3.27 1.09L12 10.36l-1.09-3.27L7.64 6l3.27-1.09L12 2z"/><path d="M5 15l.55 1.64L7.18 17.2 5.55 17.75 5 19.4l-.55-1.65L2.82 17.2l1.63-.56L5 15z"/><path d="M19 11l.55 1.64 1.63.56-1.63.55L19 15.4l-.55-1.65-1.63-.55 1.63-.56L19 11z"/></svg>
-        <span class="ai-gen-label">AI 生成 3D 资产</span>
+        <span class="ai-gen-label">${getLocale() === 'en' ? 'AI Generate 3D' : 'AI 生成 3D 资产'}</span>
         <svg class="ai-gen-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
       </button>
       <div class="ai-gen-tools" id="ai-gen-tools">
@@ -150,13 +151,13 @@ export class CustomAssetUpload {
 
     const ext = file.name.substring(file.name.lastIndexOf('.')).toLowerCase()
     if (!ALLOWED_EXTENSIONS.includes(ext)) {
-      errorEl.textContent = '仅支持 .glb 格式'
+      errorEl.textContent = getLocale() === 'en' ? 'Only .glb supported' : '仅支持 .glb 格式'
       errorEl.classList.add('visible')
       return
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      errorEl.textContent = '文件超过 10MB 限制'
+      errorEl.textContent = getLocale() === 'en' ? 'File exceeds 10MB' : '文件超过 10MB 限制'
       errorEl.classList.add('visible')
       return
     }
@@ -192,7 +193,7 @@ export class CustomAssetUpload {
       })
       .catch(() => {
         const info = this.overlay.querySelector('.upload-preview-info') as HTMLElement
-        if (info) info.textContent = '模型加载失败'
+        if (info) info.textContent = getLocale() === 'en' ? 'Model load failed' : '模型加载失败'
       })
   }
 
@@ -206,7 +207,7 @@ export class CustomAssetUpload {
     panel.classList.add('upload-panel--step2')
     panel.innerHTML = `
       <div class="upload-header">
-        <span class="upload-title">${isEdit ? '编辑资产' : '添加资产'}</span>
+        <span class="upload-title">${isEdit ? (getLocale() === 'en' ? 'Edit Asset' : '编辑资产') : (getLocale() === 'en' ? 'Add Asset' : '添加资产')}</span>
         <button class="upload-close-btn">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
         </button>
@@ -214,10 +215,10 @@ export class CustomAssetUpload {
       <div class="upload-body">
         <div class="upload-form">
           <label class="upload-label">
-            名称
-            <input type="text" class="upload-input" id="upload-name" value="${this.escHtml(name)}" maxlength="20" placeholder="资产名称">
+            ${getLocale() === 'en' ? 'Name' : '名称'}
+            <input type="text" class="upload-input" id="upload-name" value="${this.escHtml(name)}" maxlength="20" placeholder="${getLocale() === 'en' ? 'Asset name' : '资产名称'}">
           </label>
-          <label class="upload-label">放置类型</label>
+          <label class="upload-label">${getLocale() === 'en' ? 'Type' : '放置类型'}</label>
           <div class="upload-custom-select" id="upload-type-select">
             <div class="upload-select-trigger" id="upload-type-trigger">
               <span class="upload-select-value">${this.getAssetTypeLabel(assetType)}</span>
@@ -228,28 +229,28 @@ export class CustomAssetUpload {
             </div>
             <input type="hidden" id="upload-type" value="${assetType}" />
           </div>
-          <label class="upload-label">缩放</label>
+          <label class="upload-label">${getLocale() === 'en' ? 'Scale' : '缩放'}</label>
           <div class="upload-scale-row">
             <button class="pi-scale-btn" data-action="scale-minus">−</button>
             <input type="range" class="pi-scale-range" id="upload-scale" min="0.05" max="5" step="0.05" value="${scale}" />
             <button class="pi-scale-btn" data-action="scale-plus">+</button>
             <input type="number" class="pi-scale-num" id="upload-scale-num" min="0.05" max="5" step="0.05" value="${scale}" />
           </div>
-          <label class="upload-label">旋转 X</label>
+          <label class="upload-label">${getLocale() === 'en' ? 'Rotation X' : '旋转 X'}</label>
           <div class="upload-scale-row">
             <button class="pi-scale-btn" data-action="rotx-minus">−</button>
             <input type="range" class="pi-scale-range" id="upload-rotx" min="-180" max="180" step="1" value="${fixRotationX}" />
             <button class="pi-scale-btn" data-action="rotx-plus">+</button>
             <span class="upload-rot-wrap"><input type="number" class="pi-scale-num" id="upload-rotx-num" min="-180" max="180" step="1" value="${fixRotationX}" /></span>
           </div>
-          <label class="upload-label">旋转 Y</label>
+          <label class="upload-label">${getLocale() === 'en' ? 'Rotation Y' : '旋转 Y'}</label>
           <div class="upload-scale-row">
             <button class="pi-scale-btn" data-action="roty-minus">−</button>
             <input type="range" class="pi-scale-range" id="upload-roty" min="-180" max="180" step="1" value="${fixRotationY}" />
             <button class="pi-scale-btn" data-action="roty-plus">+</button>
             <span class="upload-rot-wrap"><input type="number" class="pi-scale-num" id="upload-roty-num" min="-180" max="180" step="1" value="${fixRotationY}" /></span>
           </div>
-          <label class="upload-label">旋转 Z</label>
+          <label class="upload-label">${getLocale() === 'en' ? 'Rotation Z' : '旋转 Z'}</label>
           <div class="upload-scale-row">
             <button class="pi-scale-btn" data-action="rotz-minus">−</button>
             <input type="range" class="pi-scale-range" id="upload-rotz" min="-180" max="180" step="1" value="${fixRotationZ}" />
@@ -258,13 +259,13 @@ export class CustomAssetUpload {
           </div>
           <div class="upload-error" id="upload-error"></div>
           <div class="upload-footer">
-            <button class="upload-btn upload-btn-cancel" id="upload-cancel">取消</button>
-            <button class="upload-btn upload-btn-save" id="upload-save">${isEdit ? '保存修改' : '保存'}</button>
+            <button class="upload-btn upload-btn-cancel" id="upload-cancel">${getLocale() === 'en' ? 'Cancel' : '取消'}</button>
+            <button class="upload-btn upload-btn-save" id="upload-save">${isEdit ? (getLocale() === 'en' ? 'Save' : '保存修改') : (getLocale() === 'en' ? 'Save' : '保存')}</button>
           </div>
         </div>
         <div class="upload-preview-area">
           <canvas class="upload-preview-canvas"></canvas>
-          <div class="upload-preview-info">加载中...</div>
+          <div class="upload-preview-info">${getLocale() === 'en' ? 'Loading...' : '加载中...'}</div>
         </div>
       </div>
     `
@@ -361,7 +362,7 @@ export class CustomAssetUpload {
     const autoCells = this.computeCells(scale)
 
     if (!name) {
-      errorEl.textContent = '请输入资产名称'
+      errorEl.textContent = getLocale() === 'en' ? 'Enter a name' : '请输入资产名称'
       errorEl.classList.add('visible')
       return
     }
@@ -370,7 +371,7 @@ export class CustomAssetUpload {
 
     const saveBtn = this.overlay.querySelector('#upload-save') as HTMLButtonElement
     saveBtn.disabled = true
-    saveBtn.textContent = '保存中...'
+    saveBtn.textContent = getLocale() === 'en' ? 'Saving...' : '保存中...'
 
     try {
       if (this.editingAsset) {
@@ -387,7 +388,7 @@ export class CustomAssetUpload {
           errorEl.textContent = result.error
           errorEl.classList.add('visible')
           saveBtn.disabled = false
-          saveBtn.textContent = '保存修改'
+          saveBtn.textContent = getLocale() === 'en' ? 'Save' : '保存修改'
           return
         }
       } else {
@@ -408,7 +409,7 @@ export class CustomAssetUpload {
           errorEl.textContent = result.error
           errorEl.classList.add('visible')
           saveBtn.disabled = false
-          saveBtn.textContent = '保存'
+          saveBtn.textContent = getLocale() === 'en' ? 'Save' : '保存'
           return
         }
       }
@@ -416,10 +417,10 @@ export class CustomAssetUpload {
       this.close()
       this.onComplete?.()
     } catch {
-      errorEl.textContent = '保存失败，请重试'
+      errorEl.textContent = getLocale() === 'en' ? 'Save failed' : '保存失败，请重试'
       errorEl.classList.add('visible')
       saveBtn.disabled = false
-      saveBtn.textContent = this.editingAsset ? '保存修改' : '保存'
+      saveBtn.textContent = this.editingAsset ? (getLocale() === 'en' ? 'Save' : '保存修改') : (getLocale() === 'en' ? 'Save' : '保存')
     }
   }
 
@@ -476,7 +477,7 @@ export class CustomAssetUpload {
       .catch(() => {
         URL.revokeObjectURL(url)
         const info = this.overlay.querySelector('.upload-preview-info') as HTMLElement
-        if (info) info.textContent = '模型加载失败，请检查文件是否完整'
+        if (info) info.textContent = getLocale() === 'en' ? 'Model load failed' : '模型加载失败，请检查文件是否完整'
       })
   }
 
@@ -579,24 +580,24 @@ export class CustomAssetUpload {
   }
 
   private static readonly ASSET_TYPE_OPTIONS: { value: string; label: string }[] = [
-    { value: 'building', label: '建筑' },
-    { value: 'road', label: '道路' },
-    { value: 'prop', label: '道具' },
-    { value: 'vehicle', label: '汽车' },
-    { value: 'nature', label: '自然' },
-    { value: 'streetProp', label: '街道' },
-    { value: 'tile', label: '瓦片' },
-    { value: 'sign', label: '标牌' },
-    { value: 'factory', label: '工厂' },
-    { value: 'food', label: '餐饮' },
-    { value: 'roofProp', label: '屋顶' },
-    { value: 'basketball', label: '球场' },
-    { value: 'construction', label: '工地' },
-    { value: 'other', label: '其他' },
+    { value: 'building', label: getLocale() === 'en' ? 'Building' : '建筑' },
+    { value: 'road', label: getLocale() === 'en' ? 'Road' : '道路' },
+    { value: 'prop', label: getLocale() === 'en' ? 'Prop' : '道具' },
+    { value: 'vehicle', label: getLocale() === 'en' ? 'Vehicle' : '汽车' },
+    { value: 'nature', label: getLocale() === 'en' ? 'Nature' : '自然' },
+    { value: 'streetProp', label: getLocale() === 'en' ? 'Street' : '街道' },
+    { value: 'tile', label: getLocale() === 'en' ? 'Tile' : '瓦片' },
+    { value: 'sign', label: getLocale() === 'en' ? 'Sign' : '标牌' },
+    { value: 'factory', label: getLocale() === 'en' ? 'Factory' : '工厂' },
+    { value: 'food', label: getLocale() === 'en' ? 'Food' : '餐饮' },
+    { value: 'roofProp', label: getLocale() === 'en' ? 'Roof' : '屋顶' },
+    { value: 'basketball', label: getLocale() === 'en' ? 'Sports' : '球场' },
+    { value: 'construction', label: getLocale() === 'en' ? 'Build' : '工地' },
+    { value: 'other', label: getLocale() === 'en' ? 'Other' : '其他' },
   ]
 
   private getAssetTypeLabel(value: string): string {
-    return CustomAssetUpload.ASSET_TYPE_OPTIONS.find(o => o.value === value)?.label ?? '道具'
+    return CustomAssetUpload.ASSET_TYPE_OPTIONS.find(o => o.value === value)?.label ?? (getLocale() === 'en' ? 'Prop' : '道具')
   }
 
   private renderAssetTypeOptions(current: string): string {

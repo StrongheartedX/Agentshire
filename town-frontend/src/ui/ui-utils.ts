@@ -1,6 +1,7 @@
 // @desc Shared UI utility functions used across sub-panels
 
 import type { NPCConfig } from '../types'
+import { getLocale } from '../i18n'
 
 const AVATAR_KEYS = new Set([
   'char-female-b', 'char-female-c', 'char-female-e', 'char-female-f',
@@ -67,15 +68,23 @@ function buildFallbackAvatar(
   return div
 }
 
-const STATE_LABELS: Record<string, string> = {
+const STATE_LABELS_ZH: Record<string, string> = {
   idle: '空闲', walking: '行走中', running: '奔跑中', sitting: '休息中',
   typing: '编码中', thinking: '思考中', celebrate: '庆祝', frustrated: '受挫',
   sleeping: '休息中', wave: '打招呼', working: '工作中', talking: '对话中',
   waiting: '等待中', done: '已完成', error: '出错',
 }
 
+const STATE_LABELS_EN: Record<string, string> = {
+  idle: 'Idle', walking: 'Walking', running: 'Running', sitting: 'Resting',
+  typing: 'Coding', thinking: 'Thinking', celebrate: 'Celebrating', frustrated: 'Frustrated',
+  sleeping: 'Sleeping', wave: 'Waving', working: 'Working', talking: 'Talking',
+  waiting: 'Waiting', done: 'Done', error: 'Error',
+}
+
 export function localizeState(state: string): string {
-  return STATE_LABELS[state] ?? state
+  const labels = getLocale() === 'en' ? STATE_LABELS_EN : STATE_LABELS_ZH
+  return labels[state] ?? state
 }
 
 export function escapeHtml(str: string): string {

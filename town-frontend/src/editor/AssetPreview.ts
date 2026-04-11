@@ -1,7 +1,7 @@
+import { getLocale } from '../i18n'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-
 const BG_COLOR = 0x101018
 const TARGET_SIZE = 2.5
 
@@ -95,14 +95,14 @@ export class AssetPreview {
 
   private async loadModel(url: string, name: string): Promise<void> {
     this.infoName.textContent = name
-    this.infoSize.textContent = '加载中...'
+    this.infoSize.textContent = getLocale() === 'en' ? 'Loading...' : '加载中...'
 
     const resolvedUrl = /^(blob:|https?:\/\/)/.test(url) ? url : (import.meta.env.BASE_URL ?? '/') + url
     try {
       const gltf = await this.loader.loadAsync(resolvedUrl)
       this.setModel(gltf.scene, name)
     } catch {
-      this.infoSize.textContent = '加载失败'
+      this.infoSize.textContent = getLocale() === 'en' ? 'Load failed' : '加载失败'
       if (this.currentModel) {
         this.scene.remove(this.currentModel)
         this.currentModel = null

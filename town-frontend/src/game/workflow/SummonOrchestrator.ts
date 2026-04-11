@@ -6,6 +6,7 @@ import type { EncounterManager } from '../../npc/EncounterManager'
 import type { ActivityJournal } from '../../npc/ActivityJournal'
 import { WAYPOINTS } from '../../types'
 import { BaseOrchestrator } from './BaseOrchestrator'
+import { getLocale } from '../../i18n'
 
 // ── Obstacle map for formation collision avoidance ──
 
@@ -91,9 +92,9 @@ export class SummonOrchestrator extends BaseOrchestrator<SummonConfig> {
     for (const npc of npcs) {
       cfg.getJournal?.(npc.id)?.record({
         location: 'gathering_point',
-        locationName: '聚集点',
+        locationName: getLocale() === 'en' ? 'Rally Point' : '聚集点',
         action: 'arrived',
-        detail: '到达管家身边，准备开会',
+        detail: getLocale() === 'en' ? 'Arrived for briefing' : '到达管家身边，准备开会',
       })
     }
 

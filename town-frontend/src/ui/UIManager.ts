@@ -8,6 +8,7 @@ import { NpcCardPanel } from './NpcCardPanel'
 import { GamePublishPanel } from './GamePublishPanel'
 import { MediaPreview, type DeliverableItem } from './MediaPreview'
 import { createLucideIcon } from './LucideIcon'
+import { t } from '../i18n'
 
 export type TabType = 'world' | 'chat'
 export type UIEvent =
@@ -80,7 +81,7 @@ export class UIManager {
       (msg) => this.showToast(msg),
       (item, onClose) =>
         this.gamePublishPanel.show({
-          gameName: item.name || '新项目',
+          gameName: item.name || t('new_project'),
           iframeSrc: item.url || '',
           onClose,
         }),
@@ -102,7 +103,7 @@ export class UIManager {
     const settingsBtn = document.getElementById('tab-settings')
     if (settingsBtn) {
       settingsBtn.addEventListener('click', () => {
-        if (confirm('重置小镇？将清除所有设定并重新开始创镇流程。')) {
+        if (confirm(t('reset.confirm'))) {
           localStorage.removeItem('agentshire_config')
           location.reload()
         }
@@ -284,7 +285,7 @@ export class UIManager {
   private tasArrowEl: HTMLElement | null = null
   private tasDropdown: HTMLElement | null = null
   private activeCitizenTarget: NPCConfig | null = null
-  private stewardName = '管家'
+  private stewardName = t('steward')
   private stewardConfig: NPCConfig | null = null
   private onSwitchToSteward: (() => void) | null = null
   private onSwitchToCitizen: (() => void) | null = null
@@ -337,7 +338,7 @@ export class UIManager {
 
     wrap.addEventListener('click', (e) => {
       e.stopPropagation()
-      if (this.activeCitizenTarget) this.toggleDropdown()
+      if (this.topicTargets || this.activeCitizenTarget) this.toggleDropdown()
     })
 
     document.addEventListener('click', () => this.hideDropdown())
@@ -375,6 +376,48 @@ export class UIManager {
 
   clearChatTarget(): void {
     this.activeCitizenTarget = null
+    this.topicTargets = null
+    this.updateChatTargetIndicator(null, false)
+  }
+
+  // ── Topic mode (multi-citizen group discussion) ──
+
+  private topicTargets: NPCConfig[] | null = null
+  private onEndTopic: (() => void) | null = null
+
+  initTopicCallbacks(opts: { onEndTopic: () => void }): void {
+    this.onEndTopic = opts.onEndTopic
+  }
+
+  updateTopicIndicator(citizens: NPCConfig[]): void {
+    this.topicTargets = citizens
+    if (!this.tasAvatarWrap || !this.tasNameEl || !this.tasArrowEl) return
+
+    this.tasAvatarWrap.innerHTML = ''
+    this.tasAvatarWrap.className = 'tas-group-avatars'
+
+    const maxShow = 2
+    const shown = citizens.slice(0, maxShow)
+    for (const c of shown) {
+      const el = buildAvatarEl('tas-avatar', c, 20)
+      this.tasAvatarWrap.appendChild(el)
+    }
+    if (citizens.length > maxShow) {
+      const overflow = document.createElement('span')
+      overflow.className = 'tas-group-overflow'
+      overflow.textContent = `+${citizens.length - maxShow}`
+      this.tasAvatarWrap.appendChild(overflow)
+    }
+
+    this.tasNameEl.textContent = ''
+    this.tasArrowEl.style.display = 'inline'
+  }
+
+  clearTopicIndicator(): void {
+    this.topicTargets = null
+    if (this.tasAvatarWrap) {
+      this.tasAvatarWrap.className = 'tas-avatar-wrap'
+    }
     this.updateChatTargetIndicator(null, false)
   }
 
@@ -386,7 +429,31 @@ export class UIManager {
   }
 
   private showDropdown(): void {
-    if (!this.tasDropdown || !this.activeCitizenTarget) return
+    if (!this.tasDropdown) return
+
+    // Topic mode: only show steward option (ends topic with confirm)
+    if (this.topicTargets) {
+      this.tasDropdown.innerHTML = ''
+      const stewardItem = document.createElement('div')
+      stewardItem.className = 'tas-dropdown-item'
+      if (this.stewardConfig) {
+        const avatar = buildAvatarEl('tas-dropdown-avatar', this.stewardConfig, 18)
+        stewardItem.appendChild(avatar)
+      }
+      const nameSpan = document.createElement('span')
+      nameSpan.textContent = this.stewardName
+      stewardItem.appendChild(nameSpan)
+      stewardItem.addEventListener('click', (e) => {
+        e.stopPropagation()
+        this.hideDropdown()
+        this.showEndTopicConfirm()
+      })
+      this.tasDropdown.appendChild(stewardItem)
+      this.tasDropdown.style.display = 'block'
+      return
+    }
+
+    if (!this.activeCitizenTarget) return
     this.tasDropdown.innerHTML = ''
 
     const currentName = this.tasNameEl?.textContent ?? ''
@@ -423,6 +490,51 @@ export class UIManager {
 
   private hideDropdown(): void {
     if (this.tasDropdown) this.tasDropdown.style.display = 'none'
+  }
+
+  showEndTopicConfirm(): void {
+    const backdrop = document.createElement('div')
+    backdrop.className = 'town-confirm-backdrop'
+
+    const card = document.createElement('div')
+    card.className = 'town-confirm-card'
+
+    const title = document.createElement('div')
+    title.className = 'town-confirm-title'
+    title.textContent = t('topic.end_title')
+    card.appendChild(title)
+
+    const body = document.createElement('div')
+    body.className = 'town-confirm-body'
+    body.textContent = t('topic.end_desc')
+    card.appendChild(body)
+
+    const actions = document.createElement('div')
+    actions.className = 'town-confirm-actions'
+
+    const cancelBtn = document.createElement('button')
+    cancelBtn.className = 'town-confirm-btn cancel'
+    cancelBtn.textContent = t('cancel')
+    cancelBtn.addEventListener('click', () => backdrop.remove())
+
+    const confirmBtn = document.createElement('button')
+    confirmBtn.className = 'town-confirm-btn confirm'
+    confirmBtn.textContent = t('confirm')
+    confirmBtn.addEventListener('click', () => {
+      backdrop.remove()
+      this.onEndTopic?.()
+    })
+
+    actions.appendChild(cancelBtn)
+    actions.appendChild(confirmBtn)
+    card.appendChild(actions)
+    backdrop.appendChild(card)
+
+    backdrop.addEventListener('click', (e) => {
+      if (e.target === backdrop) backdrop.remove()
+    })
+
+    document.body.appendChild(backdrop)
   }
 
   // ── Delegates to ChatPanel ──

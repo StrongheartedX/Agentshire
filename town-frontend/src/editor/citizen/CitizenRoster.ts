@@ -1,4 +1,5 @@
 import type { CitizenWorkshopConfig, WorkshopCitizenConfig } from '../../data/CitizenWorkshopConfig'
+import { getLocale } from '../../i18n'
 import { generateCitizenId, INDUSTRY_SPECIALTY_MAP } from '../../data/CitizenWorkshopConfig'
 import { getAllGroups } from '../../data/CharacterModelRegistry'
 
@@ -69,7 +70,7 @@ export class CitizenRoster {
 
     const citizen: WorkshopCitizenConfig = {
       id,
-      name: name.trim() || '新居民',
+      name: name.trim() || (getLocale() === 'en' ? 'New Citizen' : '新居民'),
       avatarId: 'char-male-f',
       modelSource: 'builtin',
       bio: '',
@@ -111,7 +112,7 @@ export class CitizenRoster {
 
     const delItem = document.createElement('button')
     delItem.className = 'cw-roster-menu-item danger'
-    delItem.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>删除居民`
+    delItem.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>${getLocale() === 'en' ? 'Delete' : '删除居民'}`
     delItem.addEventListener('click', (e) => {
       e.stopPropagation()
       this.closeActiveMenu()
@@ -148,14 +149,14 @@ export class CitizenRoster {
     ]))
 
     list.appendChild(this.renderGroup('', [
-      this.renderItem({ type: 'steward' }, s.name, s.bio ? '管家' : '', s.avatarUrl, s.avatarId),
+      this.renderItem({ type: 'steward' }, s.name, s.bio ? (getLocale() === 'en' ? 'Steward' : '管家') : '', s.avatarUrl, s.avatarId),
     ]))
 
     if (this.config.citizens.length > 0) {
       const citizenItems = this.config.citizens.map(c =>
         this.renderItem({ type: 'citizen', id: c.id }, c.name, c.specialty || c.industry, c.avatarUrl, c.avatarId, true)
       )
-      list.appendChild(this.renderGroup(`居民 (${this.config.citizens.length})`, citizenItems))
+      list.appendChild(this.renderGroup(getLocale() === 'en' ? `Citizens (${this.config.citizens.length})` : `居民 (${this.config.citizens.length})`, citizenItems))
     }
 
     this.updateSelectionUI()

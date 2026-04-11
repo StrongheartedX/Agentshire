@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { t } from '../i18n'
 
 export interface AgentInfo {
   id: string
@@ -41,10 +42,10 @@ export function useAgents() {
             : undefined
           result.push({
             id: entry.role === 'steward' ? 'steward' : entry.id,
-            name: entry.name || (entry.role === 'steward' ? '管家' : '居民'),
+            name: entry.name || (entry.role === 'steward' ? t('steward') : t('resident')),
             avatarUrl: avatarUrl || fallbackAvatar,
             avatarId: avatarIdRaw || undefined,
-            specialty: entry.role === 'steward' ? (entry.bio || 'AI 管家') : (entry.specialty || entry.industry || ''),
+            specialty: entry.role === 'steward' ? (entry.bio || t('ai_steward')) : (entry.specialty || entry.industry || ''),
             type: entry.role === 'steward' ? 'steward' : 'citizen',
             online: entry.role === 'steward' ? true : !!(entry.agentEnabled && entry.agentId),
             agentId: entry.agentId,
@@ -62,7 +63,7 @@ export function useAgents() {
         setAgents(result)
       } catch (err) {
         console.warn('[useAgents] Failed to load:', err)
-        setAgents([{ id: 'steward', name: '管家', type: 'steward', specialty: 'AI 管家', online: true }])
+        setAgents([{ id: 'steward', name: t('steward'), type: 'steward', specialty: t('ai_steward'), online: true }])
       } finally {
         if (!cancelled) setLoading(false)
       }

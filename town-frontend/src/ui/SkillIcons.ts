@@ -1,5 +1,9 @@
 import { icons } from 'lucide'
-import catalog from '../data/skill-catalog.json'
+import catalogZh from '../data/skill-catalog.json'
+import catalogEn from '../data/skill-catalog.en.json'
+import { getLocale } from '../i18n'
+
+function getCatalog() { return getLocale() === 'en' ? catalogEn : catalogZh }
 
 type IconNode = [string, Record<string, string>][]
 
@@ -19,30 +23,43 @@ export interface SkillEntry {
   installs: number
 }
 
-const categories = catalog.categories as Record<string, CategoryDef>
-const skills = catalog.skills as SkillEntry[]
+const _cache: { locale: string; categories: Record<string, CategoryDef>; skills: SkillEntry[]; skillMap: Map<string, SkillEntry> } = {
+  locale: '',
+  categories: {} as Record<string, CategoryDef>,
+  skills: [],
+  skillMap: new Map(),
+}
 
-const skillMap = new Map<string, SkillEntry>()
-for (const s of skills) skillMap.set(s.slug, s)
+function ensureCache(): typeof _cache {
+  const locale = getLocale()
+  if (_cache.locale === locale) return _cache
+  _cache.locale = locale
+  const cat = getCatalog()
+  _cache.categories = cat.categories as Record<string, CategoryDef>
+  _cache.skills = cat.skills as SkillEntry[]
+  _cache.skillMap = new Map()
+  for (const s of _cache.skills) _cache.skillMap.set(s.slug, s)
+  return _cache
+}
 
 export function getSkill(slug: string): SkillEntry | undefined {
-  return skillMap.get(slug)
+  return ensureCache().skillMap.get(slug)
 }
 
 export function getAllSkills(): SkillEntry[] {
-  return skills
+  return ensureCache().skills
 }
 
 export function getSkillsByCategory(cat: string): SkillEntry[] {
-  return skills.filter(s => s.category === cat)
+  return ensureCache().skills.filter(s => s.category === cat)
 }
 
 export function getCategoryDef(cat: string): CategoryDef | undefined {
-  return categories[cat]
+  return ensureCache().categories[cat]
 }
 
 export function getAllCategories(): Record<string, CategoryDef> {
-  return categories
+  return ensureCache().categories
 }
 
 function kebabToPascal(s: string): string {
@@ -77,7 +94,7 @@ function buildSvgElement(iconName: string, size = 24, color = '#fff'): SVGSVGEle
 }
 
 export function createSkillIcon(slug: string, size = 48): HTMLElement {
-  const skill = skillMap.get(slug)
+  const skill = ensureCache().skillMap.get(slug)
   const container = document.createElement('div')
 
   const iconSize = Math.round(size * 0.5)
@@ -90,7 +107,7 @@ export function createSkillIcon(slug: string, size = 48): HTMLElement {
   `
 
   if (skill) {
-    const cat = categories[skill.category]
+    const cat = ensureCache().categories[skill.category]
     const [c1, c2] = cat?.gradient ?? ['#667eea', '#764ba2']
     container.style.background = `linear-gradient(135deg, ${c1}, ${c2})`
     const svg = buildSvgElement(skill.icon, iconSize)
@@ -114,7 +131,7 @@ export function createSkillIcon(slug: string, size = 48): HTMLElement {
 }
 
 export function createSkillCard(slug: string): HTMLElement {
-  const skill = skillMap.get(slug)
+  const skill = ensureCache().skillMap.get(slug)
   const card = document.createElement('div')
   card.className = 'skill-card'
 

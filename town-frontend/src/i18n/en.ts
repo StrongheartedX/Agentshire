@@ -1,0 +1,200 @@
+const en: Record<string, string> = {
+  // ── HUD: Time periods ──
+  'period.dawn': 'Dawn',
+  'period.morning': 'AM',
+  'period.noon': 'Noon',
+  'period.afternoon': 'PM',
+  'period.dusk': 'Dusk',
+  'period.night': 'Night',
+
+  // ── HUD: Weather ──
+  'weather.clear': 'Clear',
+  'weather.cloudy': 'Cloudy',
+  'weather.drizzle': 'Drizzle',
+  'weather.rain': 'Rain',
+  'weather.heavyRain': 'Storm',
+  'weather.storm': 'Thunder',
+  'weather.lightSnow': 'Snow',
+  'weather.snow': 'Snow',
+  'weather.blizzard': 'Blizzard',
+  'weather.fog': 'Fog',
+  'weather.sandstorm': 'Dust',
+  'weather.aurora': 'Aurora',
+
+  // ── Input bar ──
+  'input.busy': 'Working...',
+  'input.idle': 'Message...',
+  'input.gathering': 'Gathering...',
+  'input.topic': 'Topic...',
+
+  // ── Bottom panel ──
+  'steward': 'Steward',
+  'mayor': 'Mayor',
+  'you': 'You',
+  'resident': 'Citizen',
+  'ai_steward': 'AI Steward',
+  'session_label': 'Session',
+  'more_btn': 'More',
+  'attach_title': 'Attach',
+  'voice_title': 'Voice',
+
+  // ── More menu ──
+  'menu.new_task': 'New Task',
+  'menu.start_topic': 'Start Topic',
+  'menu.settings': 'Settings',
+
+  // ── Buttons / Popups ──
+  'back_to_town': '← Back',
+  'task_done': 'Done!',
+  'try_now': 'Try Now',
+  'later': 'Later',
+  'download': 'Download',
+  'cancel': 'Cancel',
+  'confirm': 'Confirm',
+  'new_project': 'New Project',
+  'new_game': 'New Game',
+
+  // ── Loading ──
+  'loading.init_town': 'Initializing...',
+  'loading.creating_souls': 'Setting up citizens',
+
+  // ── Settings panel ──
+  'settings.title': 'Settings',
+  'settings.language': 'Language',
+  'settings.music': 'Music',
+  'settings.soul_mode': 'Soul Mode',
+  'settings.soul_mode_desc': 'NPC AI conversations',
+  'settings.reset': 'Reset Town',
+  'settings.reset_desc': 'Clear all data and restart',
+  'settings.on': 'ON',
+  'settings.off': 'OFF',
+  'settings.cancel': 'Cancel',
+  'settings.save': 'Save',
+
+  // ── Topic ──
+  'topic.title': 'Start Topic',
+  'topic.subtitle': 'Select citizens to join (min 2)',
+  'topic.gather': 'Gather',
+  'topic.gather_n': 'Gather ({n})',
+  'topic.end_title': 'End topic?',
+  'topic.end_desc': 'Citizens will return to daily life',
+  'topic.not_in_town': 'Citizen is not in town yet',
+
+  // ── Reset confirm ──
+  'reset.confirm': 'Reset town? This will clear all settings and restart.',
+
+  // ── NPC card ──
+  'card.chat': 'Chat',
+  'card.busy_working': 'Busy working',
+  'card.offline': 'Offline',
+  'card.task_list': 'Tasks',
+  'card.work_logs': 'Logs',
+  'card.thinking': 'Thinking',
+
+  // ── Mode indicator ──
+  'mode.work': 'Work Mode',
+
+  // ── Media ──
+  'media.download_fail': 'Download failed',
+  'media.view': 'View',
+  'media.download_btn': 'Download',
+  'media.unknown_file': 'Unknown file',
+  'media.unknown_type': 'Unknown',
+  'media.image': '[Image]',
+  'media.video': '[Video]',
+  'media.audio': '[Audio]',
+  'media.file': '[File]',
+
+  // ── WS error ──
+  'ws.error': 'Cannot connect to OpenClaw Gateway ({url}). Check: 1) Gateway is running  2) Port is correct. Refresh after fixing.',
+
+  // ── Top nav ──
+  'topnav.citizens': 'Citizens',
+  'topnav.town_editor': 'Town Editor',
+  'topnav.skill_store': 'Skill Store',
+  'topnav.settings': 'Settings',
+
+  // ── Screen ──
+  'screen.analyzing': 'Analyzing',
+
+  // ── Skill panel ──
+  'skill.equipped': 'Installed',
+  'skill.market': 'Skill Store',
+  'skill.empty': 'No skills yet. Browse the store!',
+  'skill.search': 'Search skills...',
+  'skill.all': 'All',
+  'skill.get': 'Install',
+  'skill.getting': 'Installing',
+  'skill.got': 'Installed',
+  'skill.new_skill': 'New Skill Acquired',
+  'skill.learn_now': 'Learn Now',
+  'skill.learn_later': 'Later',
+  'skill.wan': 'K',
+
+  // ── Setup ──
+  'setup.title_suffix': 'Town Overview',
+  'setup.hint': 'You can modify or recruit citizens anytime',
+  'setup.close': 'Close',
+
+  // ── Town name ──
+  'town_name': 'Shire Town',
+
+  // ── Editor ──
+  'editor.scene_workshop': 'Scene Editor',
+  'editor.citizen_workshop': 'Character Workshop',
+  'editor.save': 'Save',
+  'editor.preview': 'Preview',
+  'editor.publish': 'Publish',
+  'editor.more': 'More',
+  'editor.undo': 'Undo',
+  'editor.redo': 'Redo',
+  'editor.import_map': 'Import Map',
+  'editor.export_map': 'Export Map',
+  'editor.clear_map': 'Clear Map',
+  'editor.import_char': 'Import Config',
+  'editor.export_char': 'Export Config',
+  'editor.clear_char': 'Clear Config',
+  'editor.loading_assets': 'Loading assets...',
+  'editor.asset_lib': 'Assets',
+  'editor.buildings': 'Buildings',
+  'editor.roads': 'Roads',
+  'editor.nature': 'Nature',
+  'editor.props': 'Props',
+  'editor.asset_preview': 'Preview',
+  'editor.select_mode': 'Select',
+  'editor.building_count': 'Buildings',
+  'editor.prop_count': 'Props',
+  'editor.clear_confirm_title': 'Clear Map',
+  'editor.clear_confirm_msg': 'Clear the map? This cannot be undone.',
+  'editor.cancel': 'Cancel',
+  'editor.ok': 'OK',
+  'editor.select_tool': 'Select',
+  'editor.terrain_tool': 'Terrain',
+  'editor.erase_tool': 'Delete',
+  'editor.bindings': 'Bindings',
+  'editor.resize': 'Resize',
+  'editor.persp_mode': 'Perspective',
+  'editor.preview_loading': 'Loading preview...',
+  'editor.preview_fail': 'Preview failed',
+  'editor.close_window': 'Close',
+  'editor.char_list': 'Characters',
+  'editor.add_citizen': '+ Add Citizen',
+  'editor.selected_model': 'Model: ',
+  'editor.change_model': 'Change',
+  'editor.char_asset_lib': 'Character Library',
+  'editor.tab_all': 'Library',
+  'editor.tab_custom': 'Custom',
+  'editor.selected_char': 'Current: ',
+  'editor.change_to': 'Change to: ',
+  'editor.not_selected': 'None',
+  'editor.confirm_change': 'Confirm',
+  'editor.char_settings': 'Settings',
+  'editor.add_citizen_title': 'Add Citizen',
+  'editor.add_citizen_msg': 'Enter citizen name',
+  'editor.citizen_name_placeholder': 'Name',
+  'editor.add': 'Add',
+  'editor.confirm_title': 'Confirm',
+  'editor.publish_to_town': 'Publish',
+}
+
+export default en

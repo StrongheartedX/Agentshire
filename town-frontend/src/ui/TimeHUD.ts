@@ -1,29 +1,29 @@
 import type { GameClock } from '../game/GameClock'
 import type { TimePeriod, WeatherType } from '../types'
 import { createLucideIcon } from './LucideIcon'
+import { t } from '../i18n'
 
-const PERIOD_CONFIG: Record<TimePeriod, { label: string }> = {
-  dawn:      { label: '黎明' },
-  morning:   { label: '上午' },
-  noon:      { label: '正午' },
-  afternoon: { label: '下午' },
-  dusk:      { label: '傍晚' },
-  night:     { label: '夜晚' },
+function getPeriodLabel(period: TimePeriod): string {
+  return t(`period.${period}`)
 }
 
-const WEATHER_CONFIG: Record<WeatherType, { icon: string; iconColor: string; label: string }> = {
-  clear:     { icon: 'sun',             iconColor: '#FFE082', label: '晴' },
-  cloudy:    { icon: 'cloud',           iconColor: '#B0BEC5', label: '阴' },
-  drizzle:   { icon: 'cloud-drizzle',   iconColor: '#90B4C8', label: '细雨' },
-  rain:      { icon: 'cloud-rain',      iconColor: '#80B8D0', label: '雨' },
-  heavyRain: { icon: 'cloud-rain',      iconColor: '#5A9AB5', label: '暴雨' },
-  storm:     { icon: 'cloud-lightning',  iconColor: '#7B68EE', label: '雷暴' },
-  lightSnow: { icon: 'cloud-snow',      iconColor: '#CFD8DC', label: '小雪' },
-  snow:      { icon: 'cloud-snow',      iconColor: '#B0C4DE', label: '雪' },
-  blizzard:  { icon: 'cloud-snow',      iconColor: '#9FB8CC', label: '暴雪' },
-  fog:       { icon: 'cloud-fog',       iconColor: '#A0A8B0', label: '雾' },
-  sandstorm: { icon: 'wind',            iconColor: '#C4A060', label: '沙暴' },
-  aurora:    { icon: 'sparkles',        iconColor: '#88DDAA', label: '极光' },
+function getWeatherLabel(weather: WeatherType): string {
+  return t(`weather.${weather}`)
+}
+
+const WEATHER_ICON_CONFIG: Record<WeatherType, { icon: string; iconColor: string }> = {
+  clear:     { icon: 'sun',             iconColor: '#FFE082' },
+  cloudy:    { icon: 'cloud',           iconColor: '#B0BEC5' },
+  drizzle:   { icon: 'cloud-drizzle',   iconColor: '#90B4C8' },
+  rain:      { icon: 'cloud-rain',      iconColor: '#80B8D0' },
+  heavyRain: { icon: 'cloud-rain',      iconColor: '#5A9AB5' },
+  storm:     { icon: 'cloud-lightning',  iconColor: '#7B68EE' },
+  lightSnow: { icon: 'cloud-snow',      iconColor: '#CFD8DC' },
+  snow:      { icon: 'cloud-snow',      iconColor: '#B0C4DE' },
+  blizzard:  { icon: 'cloud-snow',      iconColor: '#9FB8CC' },
+  fog:       { icon: 'cloud-fog',       iconColor: '#A0A8B0' },
+  sandstorm: { icon: 'wind',            iconColor: '#C4A060' },
+  aurora:    { icon: 'sparkles',        iconColor: '#88DDAA' },
 }
 
 type AnimClassRule = { childIndex: number; className: string }[]
@@ -173,14 +173,13 @@ export class TimeHUD {
 
     if (state.period !== this.lastPeriod) {
       this.lastPeriod = state.period
-      const cfg = PERIOD_CONFIG[state.period]
-      this.periodEl.textContent = cfg.label
+      this.periodEl.textContent = getPeriodLabel(state.period)
     }
 
     const w = weather ?? 'clear'
     if (w !== this.lastWeather) {
       this.lastWeather = w
-      const wcfg = WEATHER_CONFIG[w]
+      const wcfg = WEATHER_ICON_CONFIG[w]
 
       this.weatherWrap.innerHTML = ''
       const wSvg = createLucideIcon(wcfg.icon, 14, wcfg.iconColor)
@@ -189,7 +188,7 @@ export class TimeHUD {
         this.weatherWrap.appendChild(wSvg)
       }
 
-      this.weatherLabel.textContent = wcfg.label
+      this.weatherLabel.textContent = getWeatherLabel(w)
     }
   }
 

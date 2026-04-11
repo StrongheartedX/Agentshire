@@ -1,5 +1,9 @@
-import catalog from '../data/asset-catalog.json'
+import { getLocale } from '../i18n'
+import catalogZh from '../data/asset-catalog.json'
+import catalogEn from '../data/asset-catalog.en.json'
 import type { TownEditor } from './TownEditor'
+
+function getCatalog() { return getLocale() === 'en' ? catalogEn : catalogZh }
 import type { AssetPreview } from './AssetPreview'
 import type { CustomAssetStore, CustomAsset } from './CustomAssetStore'
 import type { CustomAssetUpload } from './CustomAssetUpload'
@@ -31,25 +35,30 @@ export interface AssetCatalogEntry {
   assetType: string
 }
 
-type Category = keyof typeof catalog | 'custom'
+type Category = keyof typeof catalogZh | 'custom'
 
-const CATEGORIES: { key: Category; label: string }[] = [
-  { key: 'custom', label: '我的' },
-  { key: 'kaykit', label: '小镇' },
-  { key: 'buildings', label: '建筑' },
-  { key: 'vehicles', label: '汽车' },
-  { key: 'roads', label: '道路' },
-  { key: 'nature', label: '自然' },
-  { key: 'streetProps', label: '街道' },
-  { key: 'tiles', label: '瓦片' },
-  { key: 'signs', label: '标牌' },
-  { key: 'factory', label: '工厂' },
-  { key: 'foodProps', label: '餐饮' },
-  { key: 'roofProps', label: '屋顶' },
-  { key: 'basketball', label: '球场' },
-  { key: 'other', label: '其他' },
-  { key: 'construction', label: '工地' },
+const CATEGORY_LABELS_ZH: Record<string, string> = {
+  custom: '我的', kaykit: '小镇', buildings: '建筑', vehicles: '汽车',
+  roads: '道路', nature: '自然', streetProps: '街道', tiles: '瓦片',
+  signs: '标牌', factory: '工厂', foodProps: '餐饮', roofProps: '屋顶',
+  basketball: '球场', other: '其他', construction: '工地',
+}
+const CATEGORY_LABELS_EN: Record<string, string> = {
+  custom: 'Custom', kaykit: 'Town', buildings: 'Buildings', vehicles: 'Vehicles',
+  roads: 'Roads', nature: 'Nature', streetProps: 'Street', tiles: 'Tiles',
+  signs: 'Signs', factory: 'Factory', foodProps: 'Food', roofProps: 'Roof',
+  basketball: 'Sports', other: 'Other', construction: 'Build',
+}
+
+const CATEGORY_KEYS: Category[] = [
+  'custom', 'kaykit', 'buildings', 'vehicles', 'roads', 'nature', 'streetProps',
+  'tiles', 'signs', 'factory', 'foodProps', 'roofProps', 'basketball', 'other', 'construction',
 ]
+
+function getCategories(): { key: Category; label: string }[] {
+  const labels = getLocale() === 'en' ? CATEGORY_LABELS_EN : CATEGORY_LABELS_ZH
+  return CATEGORY_KEYS.map(key => ({ key, label: labels[key] ?? key }))
+}
 
 const PAGE_SIZE = 12
 
@@ -101,7 +110,7 @@ export class AssetPalette {
   private initTabs(): void {
     const tabContainer = this.container.querySelector('.palette-tabs')!
     tabContainer.innerHTML = ''
-    for (const cat of CATEGORIES) {
+    for (const cat of getCategories()) {
       const btn = document.createElement('button')
       btn.className = `palette-tab${cat.key === this.activeCategory ? ' active' : ''}`
       btn.dataset.category = cat.key
@@ -124,7 +133,7 @@ export class AssetPalette {
 
   private getGroups(): AssetGroup[] {
     if (this.activeCategory === 'custom') return []
-    return (catalog as unknown as Record<string, AssetGroup[]>)[this.activeCategory] ?? []
+    return (getCatalog() as unknown as Record<string, AssetGroup[]>)[this.activeCategory] ?? []
   }
 
   private renderList(): void {
@@ -140,7 +149,7 @@ export class AssetPalette {
     this.listEl.innerHTML = ''
 
     if (groups.length === 0) {
-      this.listEl.innerHTML = '<div class="palette-empty">暂无资产</div>'
+      this.listEl.innerHTML = '<div class="palette-empty">' + (getLocale() === 'en' ? 'No assets' : '暂无资产') + '</div>'
       return
     }
 
@@ -183,7 +192,7 @@ export class AssetPalette {
           const swatch = document.createElement('button')
           swatch.className = `color-swatch${color === this.selectedColor ? ' active' : ''}`
           swatch.textContent = color
-          swatch.title = `颜色 ${color}`
+          swatch.title = getLocale() === 'en' ? `Color ${color}` : `颜色 ${color}`
           swatch.addEventListener('click', (e) => {
             e.stopPropagation()
             this.selectedColor = color
@@ -236,8 +245,8 @@ export class AssetPalette {
               <line x1="12" y1="3" x2="12" y2="15"/>
             </svg>
           </div>
-          <div>添加你的第一个场景资产</div>
-          <button class="custom-add-btn-empty">+ 添加资产</button>
+          <div>${getLocale() === 'en' ? 'Add your first scene asset' : '添加你的第一个场景资产'}</div>
+          <button class="custom-add-btn-empty">${getLocale() === 'en' ? '+ Add Asset' : '+ 添加资产'}</button>
         </div>
       `
       this.listEl.querySelector('.custom-add-btn-empty')?.addEventListener('click', () => {
@@ -264,7 +273,7 @@ export class AssetPalette {
           <div class="asset-name" title="${this.escHtml(asset.name)}">${this.escHtml(asset.name)}</div>
           <div class="asset-meta">${asset.cells?.[0] ?? 1}×${asset.cells?.[1] ?? 1}</div>
         </div>
-        <button class="custom-more-btn" title="更多">
+        <button class="custom-more-btn" title="${getLocale() === 'en' ? 'More' : '更多'}">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none">
             <circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/>
           </svg>
@@ -316,7 +325,7 @@ export class AssetPalette {
     if (!addBtn) {
       addBtn = document.createElement('button')
       addBtn.className = 'custom-add-footer'
-      addBtn.innerHTML = '+ 添加资产'
+      addBtn.innerHTML = getLocale() === 'en' ? '+ Add Asset' : '+ 添加资产'
       addBtn.addEventListener('click', () => {
         this.customUpload?.open(() => this.renderList())
       })
@@ -358,11 +367,11 @@ export class AssetPalette {
     pop.innerHTML = `
       <button class="popover-item" data-action="edit">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-        编辑
+        ${getLocale() === 'en' ? 'Edit' : '编辑'}
       </button>
       <button class="popover-item popover-danger" data-action="delete">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
-        删除
+        ${getLocale() === 'en' ? 'Delete' : '删除'}
       </button>
     `
 
@@ -392,9 +401,9 @@ export class AssetPalette {
 
   private async confirmDelete(asset: CustomAsset): Promise<void> {
     const overlay = document.getElementById('confirm-overlay')!
-    document.getElementById('confirm-title')!.textContent = '删除资产'
+    document.getElementById('confirm-title')!.textContent = getLocale() === 'en' ? 'Delete Asset' : '删除资产'
     document.getElementById('confirm-message')!.textContent =
-      `确定要删除「${asset.name}」吗？删除后地图中使用该资产的物件将无法显示。`
+      getLocale() === 'en' ? `Delete "${asset.name}"? Items using this asset will not display.` : `确定要删除「${asset.name}」吗？删除后地图中使用该资产的物件将无法显示。`
     overlay.classList.add('open')
 
     const result = await new Promise<boolean>((resolve) => {

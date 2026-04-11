@@ -1,4 +1,8 @@
 import './styles.css'
+import { initLocale } from './i18n'
+initLocale()
+
+import { t } from './i18n'
 import { Engine } from './engine'
 import { MainScene } from './game/MainScene'
 import { PlatformBridge } from './platform/Bridge'
@@ -19,13 +23,13 @@ function summarizeHistoryMessage(msg: WsHistoryMessage): string {
   if (typeof msg.text === 'string' && msg.text.trim()) return msg.text.trim()
   switch (msg.type) {
     case 'image':
-      return '[图片]'
+      return t('media.image')
     case 'video':
-      return msg.fileName?.trim() || '[视频]'
+      return msg.fileName?.trim() || t('media.video')
     case 'audio':
-      return msg.fileName?.trim() || '[音频]'
+      return msg.fileName?.trim() || t('media.audio')
     case 'file':
-      return msg.fileName?.trim() || '[文件]'
+      return msg.fileName?.trim() || t('media.file')
     default:
       return ''
   }
@@ -43,6 +47,28 @@ function formatTownSessionLabel(townSessionId: string): string {
   return `${townSessionId.slice(0, 12)}...${townSessionId.slice(-8)}`
 }
 
+function applyHtmlLocale(): void {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n')!
+    const translated = t(key)
+    if (translated !== key) el.textContent = translated
+  })
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    const key = el.getAttribute('data-i18n-title')!
+    const translated = t(key)
+    if (translated !== key) el.setAttribute('title', translated)
+  })
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder')!
+    const translated = t(key)
+    if (translated !== key) (el as HTMLTextAreaElement).placeholder = translated
+  })
+  const backBtn = document.getElementById('back-btn')
+  if (backBtn) backBtn.textContent = t('back_to_town')
+  const moreBtn = document.getElementById('town-more-btn')
+  if (moreBtn) moreBtn.innerHTML = `${t('more_btn')} <span style="font-size:10px;">▾</span>`
+}
+
 async function main() {
   const params = new URLSearchParams(location.search)
 
@@ -51,6 +77,8 @@ async function main() {
 
   const engine = new Engine(container)
   await engine.init()
+
+  applyHtmlLocale()
 
   const configStore = new TownConfigStore()
   const initialTownSessionId =
@@ -66,7 +94,7 @@ async function main() {
   const syncTownSessionLabel = (townSessionId: string) => {
     const el = document.getElementById('town-session-label')
     if (!el) return
-    el.textContent = `会话: ${formatTownSessionLabel(townSessionId)}`
+    el.textContent = `${t('session_label')}: ${formatTownSessionLabel(townSessionId)}`
     el.setAttribute('title', townSessionId)
   }
 
@@ -78,6 +106,11 @@ async function main() {
 
   let bridgeModule: any = null
   let townWs: WebSocket | null = null
+  const wsSend = (data: any) => {
+    if (townWs && townWs.readyState === WebSocket.OPEN) {
+      townWs.send(JSON.stringify(data))
+    }
+  }
   const implicitChatPending = new Map<string, { resolve: (v: { text: string; usage?: { input: number; output: number } }) => void; timer: ReturnType<typeof setTimeout> }>()
   const seenCitizenMessageKeys = new Set<string>()
   let implicitChatSeq = 0
@@ -104,7 +137,7 @@ async function main() {
         padding: '12px 16px', background: 'rgba(200,50,50,0.92)', color: '#fff',
         fontSize: '13px', lineHeight: '1.6', textAlign: 'center', fontFamily: 'system-ui, sans-serif',
       })
-      banner.textContent = `无法连接 OpenClaw Gateway (${wsUrl})。请检查：1) Gateway 是否已启动  2) WebSocket 端口是否正确。确认后刷新页面即可。`
+      banner.textContent = t('ws.error', { url: wsUrl })
       document.body.appendChild(banner)
     }
     const hideWsError = () => {
@@ -163,6 +196,10 @@ async function main() {
         } else if (data.type === 'town_session_bound' && data.townSessionId) {
           console.log(`[main] Bound to town session ${data.townSessionId}`)
           syncTownSessionLabel(data.townSessionId)
+          if (typeof data.model === 'string' && data.model) {
+            const el = document.querySelector('.tas-model')
+            if (el) el.textContent = data.model
+          }
         } else if (data.type === 'implicit_chat_response' && typeof data.id === 'string') {
           const pending = implicitChatPending.get(data.id)
           if (pending) {
@@ -178,12 +215,6 @@ async function main() {
       wsReady = false
       console.log('[main] DirectorBridge WS closed')
       if (!wsEverConnected) showWsError()
-    }
-
-    const wsSend = (data: any) => {
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify(data))
-      }
     }
 
     let sceneRef: MainScene | null = null
@@ -316,18 +347,132 @@ async function main() {
 
   document.body.classList.add('has-town-panel')
 
-  // InputBar self-binds to DOM in constructor; keep reference for potential future use
-  void new InputBar({
-    send: sendToBackend,
+  // ── Topic mode state ──
+  interface TopicState {
+    npcIds: string[]
+    phase: 'gathering' | 'active'
+  }
+  let topicState: TopicState | null = null
+
+  const inputBar = new InputBar({
+    send: (msg) => {
+      if (topicState?.phase === 'active' && msg.type === 'chat') {
+        wsSend({ type: 'topic_message', npcIds: topicState.npcIds, message: msg.message })
+      } else {
+        sendToBackend(msg)
+      }
+    },
     onUserMessage: (text) => {
       scene.showUserBubble(text)
     },
     onNewSession: startNewTownSession,
   })
 
+  const endTopicAndSwitch = () => {
+    if (!topicState) return
+    wsSend({ type: 'topic_end' })
+    scene.dismissTopic()
+    topicState = null
+    scene.getUIManager().clearTopicIndicator()
+    hideEndTopicBtn()
+    inputBar.setBusy(false)
+    const textarea = document.getElementById('town-input-text') as HTMLTextAreaElement
+    if (textarea) textarea.placeholder = t('input.idle')
+  }
 
-  const newSessionBtn = document.getElementById('town-new-session-btn')
-  newSessionBtn?.addEventListener('click', startNewTownSession)
+  scene.getUIManager().initTopicCallbacks({ onEndTopic: endTopicAndSwitch })
+
+  // ── "End topic" button ──
+  const endTopicBtn = document.getElementById('town-end-topic-btn')
+
+  const showEndTopicBtn = () => { if (endTopicBtn) endTopicBtn.style.display = '' }
+  const hideEndTopicBtn = () => { if (endTopicBtn) endTopicBtn.style.display = 'none' }
+
+  endTopicBtn?.addEventListener('click', () => {
+    scene.getUIManager().showEndTopicConfirm()
+  })
+
+  // ── "More" dropdown ──
+  const moreBtn = document.getElementById('town-more-btn')
+  const actionDropdown = document.getElementById('town-action-dropdown')
+  let dropdownOpen = false
+
+  const closeActionDropdown = () => {
+    if (actionDropdown) actionDropdown.style.display = 'none'
+    dropdownOpen = false
+  }
+
+  const openActionDropdown = () => {
+    if (!actionDropdown) return
+    actionDropdown.innerHTML = ''
+
+    const isWork = scene.getModeManager()?.getMode() === 'work'
+    const isTopic = !!topicState
+
+    const newTaskItem = document.createElement('div')
+    newTaskItem.className = 'town-action-item' + (isTopic ? ' disabled' : '')
+    newTaskItem.textContent = t('menu.new_task')
+    newTaskItem.addEventListener('click', () => {
+      closeActionDropdown()
+      if (!isTopic) startNewTownSession()
+    })
+    actionDropdown.appendChild(newTaskItem)
+
+    const topicItem = document.createElement('div')
+    topicItem.className = 'town-action-item' + (isWork || isTopic ? ' disabled' : '')
+    topicItem.textContent = t('menu.start_topic')
+    topicItem.addEventListener('click', async () => {
+      closeActionDropdown()
+      if (isWork || isTopic) return
+
+      const { showTopicSetupPanel } = await import('./ui/TopicSetupPanel')
+
+      const citizens = scene.getAgentEnabledCitizens()
+      if (citizens.length < 2) {
+        scene.getUIManager().showToast('至少需要2位已开启 Agent 的居民')
+        return
+      }
+
+      const result = await showTopicSetupPanel(citizens, (id) => !!scene.isNpcVisible(id))
+      if (!result || result.citizens.length < 2) return
+
+      const npcIds = result.citizens.map(c => c.id)
+      topicState = { npcIds, phase: 'gathering' }
+
+      const npcConfigs = result.citizens.map(c => ({
+        id: c.id, name: c.name, color: c.color,
+        spawn: { x: 0, y: 0, z: 0 }, role: 'worker' as const,
+        characterKey: c.characterKey, avatarUrl: c.avatarUrl,
+      }))
+      scene.getUIManager().updateTopicIndicator(npcConfigs)
+
+      inputBar.setBusy(true)
+      const textarea = document.getElementById('town-input-text') as HTMLTextAreaElement
+      if (textarea) textarea.placeholder = t('input.gathering')
+
+      wsSend({ type: 'topic_start', npcIds })
+
+      await scene.gatherForTopic(npcIds)
+
+      if (!topicState) return
+      topicState.phase = 'active'
+      inputBar.setBusy(false)
+      if (textarea) textarea.placeholder = t('input.topic')
+      showEndTopicBtn()
+    })
+    actionDropdown.appendChild(topicItem)
+
+    actionDropdown.style.display = 'block'
+    dropdownOpen = true
+  }
+
+  moreBtn?.addEventListener('click', (e) => {
+    e.stopPropagation()
+    if (dropdownOpen) closeActionDropdown()
+    else openActionDropdown()
+  })
+
+  document.addEventListener('click', () => closeActionDropdown())
 
   // ── Platform Bridge ──
 
@@ -353,6 +498,16 @@ async function main() {
   bridge.sendStateChange({ status: 'running', tick: 0, fps: 60, objectCount: 0 })
 
   engine.start()
+
+  document.addEventListener('agentshire:music', (e: Event) => {
+    const { enabled } = (e as CustomEvent).detail
+    scene.setMusicEnabled(enabled)
+  })
+  document.addEventListener('agentshire:soulmode', (e: Event) => {
+    const { enabled } = (e as CustomEvent).detail
+    scene.setSoulModeEnabled(enabled)
+  })
+
   ;(window as any).engine = engine
 }
 

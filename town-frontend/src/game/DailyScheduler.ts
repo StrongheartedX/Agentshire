@@ -49,6 +49,24 @@ export class DailyScheduler {
 
   getImplicitChatFn() { return this._implicitChatFn }
 
+  private _soulModeEnabled = true
+  private _savedImplicitChatFn: typeof this._implicitChatFn = null
+
+  enableSoulMode(): void {
+    this._soulModeEnabled = true
+    if (this._savedImplicitChatFn) {
+      this._implicitChatFn = this._savedImplicitChatFn
+    }
+  }
+
+  disableSoulMode(): void {
+    this._soulModeEnabled = false
+    this._savedImplicitChatFn = this._implicitChatFn
+    this._implicitChatFn = null
+  }
+
+  isSoulModeEnabled(): boolean { return this._soulModeEnabled }
+
   addEligibleNpcId(id: string): void {
     this.dailyBehaviorEligibleNpcIds.add(id)
   }

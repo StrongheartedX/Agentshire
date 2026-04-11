@@ -7,16 +7,20 @@ import {
   createSkillIcon, type SkillEntry,
 } from './SkillIcons'
 
-import catalog from '../data/skill-catalog.json'
+import catalogZh from '../data/skill-catalog.json'
+import catalogEn from '../data/skill-catalog.en.json'
+import { t, getLocale } from '../i18n'
 
-const installTpl = (catalog as any).installCmdTemplate as string
+function getCatalog() { return getLocale() === 'en' ? catalogEn : catalogZh }
+
+const getInstallTpl = () => (getCatalog() as any).installCmdTemplate as string
 
 export function getInstallCmd(slug: string): string {
-  return installTpl.replace(/\{slug\}/g, slug)
+  return getInstallTpl().replace(/\{slug\}/g, slug)
 }
 
 function formatNum(n: number): string {
-  if (n >= 10000) return (n / 10000).toFixed(1) + '万'
+  if (n >= 10000) return (n / 10000).toFixed(1) + t('skill.wan')
   if (n >= 1000) return (n / 1000).toFixed(1) + 'k'
   return String(n)
 }
@@ -82,10 +86,10 @@ export class SkillPanel {
 
     const navSlot = el('nav', 'sp-topbar-nav')
     this.equippedTab = el('a', 'nav-link')
-    this.equippedTab.textContent = '已获取'
+    this.equippedTab.textContent = t('skill.equipped')
     this.equippedTab.addEventListener('click', () => this.switchTab('equipped'))
     this.marketTab = el('a', 'nav-link nav-active')
-    this.marketTab.textContent = '技能超市'
+    this.marketTab.textContent = t('skill.market')
     this.marketTab.addEventListener('click', () => this.switchTab('market'))
     navSlot.append(this.equippedTab, this.marketTab)
 
@@ -120,7 +124,7 @@ export class SkillPanel {
       items = getAllSkills().filter(s => this.isInstalled(s))
       if (items.length === 0) {
         const empty = el('div', 'sp-empty')
-        empty.textContent = '还没有获取技能，去技能超市看看吧'
+        empty.textContent = t('skill.empty')
         this.listWrap.appendChild(empty)
         return
       }
@@ -149,7 +153,7 @@ export class SkillPanel {
     const input = document.createElement('input')
     input.className = 'sp-search'
     input.type = 'text'
-    input.placeholder = '搜索技能名称或描述...'
+    input.placeholder = t('skill.search')
     input.value = this.searchQuery
     let debounce: ReturnType<typeof setTimeout>
     input.addEventListener('input', () => {
@@ -163,7 +167,7 @@ export class SkillPanel {
   private buildFilters(): HTMLElement {
     const bar = el('div', 'sp-filters')
     const allPill = el('button', 'sp-pill' + (this.activeCategory === null ? ' active' : ''))
-    allPill.textContent = '全部'
+    allPill.textContent = t('skill.all')
     allPill.addEventListener('click', () => { this.activeCategory = null; this.renderList() })
     bar.appendChild(allPill)
 
@@ -193,18 +197,18 @@ export class SkillPanel {
 
     const btn = el('button', 'sp-btn') as HTMLButtonElement
     if (status === 'installed') {
-      btn.textContent = '已获取'
+      btn.textContent = t('skill.got')
       btn.className = 'sp-btn installed'
       btn.disabled = true
     } else if (status === 'pending') {
-      btn.textContent = '获取中'
+      btn.textContent = t('skill.getting')
       btn.className = 'sp-btn pending'
       btn.disabled = true
     } else {
-      btn.textContent = '获取'
+      btn.textContent = t('skill.get')
       btn.addEventListener('click', () => {
         this.pendingSlugs.add(skill.slug)
-        btn.textContent = '获取中'
+        btn.textContent = t('skill.getting')
         btn.className = 'sp-btn pending'
         btn.disabled = true
         this.onInstall(skill.slug, getInstallCmd(skill.slug))

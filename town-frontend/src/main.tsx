@@ -1,3 +1,6 @@
+import { initLocale } from './i18n'
+initLocale()
+
 import './app/app.css'
 import { createRoot } from 'react-dom/client'
 import { App } from './app/App'

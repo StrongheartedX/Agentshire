@@ -5,13 +5,15 @@ export interface PreviewHUDCallbacks {
   onExit: () => void
 }
 
+import { getLocale } from '../i18n'
+
 const WEATHER_OPTIONS = [
-  { type: 'clear', label: '☀️ 晴' },
-  { type: 'cloudy', label: '⛅ 阴' },
-  { type: 'rain', label: '🌧️ 雨' },
-  { type: 'snow', label: '❄️ 雪' },
-  { type: 'fog', label: '🌫️ 雾' },
-  { type: 'storm', label: '⛈️ 暴风' },
+  { type: 'clear', label: '☀️ 晴', labelEn: '☀️ Clear' },
+  { type: 'cloudy', label: '⛅ 阴', labelEn: '⛅ Cloudy' },
+  { type: 'rain', label: '🌧️ 雨', labelEn: '🌧️ Rain' },
+  { type: 'snow', label: '❄️ 雪', labelEn: '❄️ Snow' },
+  { type: 'fog', label: '🌫️ 雾', labelEn: '🌫️ Fog' },
+  { type: 'storm', label: '⛈️ 暴风', labelEn: '⛈️ Storm' },
 ]
 
 export class PreviewHUD {
@@ -35,7 +37,7 @@ export class PreviewHUD {
 
     const exitBtn = document.createElement('button')
     exitBtn.className = 'preview-exit-btn'
-    exitBtn.innerHTML = '← 退出预览 <span style="opacity:0.5;font-size:11px">(ESC)</span>'
+    exitBtn.innerHTML = `${getLocale() === 'en' ? '← Exit Preview' : '← 退出预览'} <span style="opacity:0.5;font-size:11px">(ESC)</span>`
     exitBtn.addEventListener('click', callbacks.onExit)
     topBar.appendChild(exitBtn)
 
@@ -81,7 +83,7 @@ export class PreviewHUD {
       const btn = document.createElement('button')
       btn.className = 'preview-weather-btn'
       if (opt.type === 'clear') btn.classList.add('active')
-      btn.textContent = opt.label
+      btn.textContent = getLocale() === 'en' ? opt.labelEn : opt.label
       btn.dataset.weather = opt.type
       btn.addEventListener('click', () => {
         this.currentWeather = opt.type
@@ -97,7 +99,7 @@ export class PreviewHUD {
     const speedGroup = document.createElement('div')
     speedGroup.className = 'preview-hud-group'
     const speedLabel = document.createElement('span')
-    speedLabel.textContent = '速度:'
+    speedLabel.textContent = getLocale() === 'en' ? 'Speed:' : '速度:'
     speedLabel.style.cssText = 'font-size:12px;color:rgba(255,255,255,0.6);'
     speedGroup.appendChild(speedLabel)
     for (const spd of [1, 5, 20]) {

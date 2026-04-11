@@ -21,6 +21,7 @@ import { WAYPOINTS } from '../../types'
 import { SummonOrchestrator } from './SummonOrchestrator'
 import { BriefingOrchestrator } from './BriefingOrchestrator'
 import { CelebrationOrchestrator } from './CelebrationOrchestrator'
+import { getLocale } from '../../i18n'
 
 export interface ChoreographerDeps {
   npcManager: NPCManager
@@ -167,7 +168,9 @@ export class Choreographer {
 
     const lines = event.agents.map(a => {
       const hasRealTask = a.task && a.task !== a.displayName
-      if (!hasRealTask) return `${a.displayName}，交给你了！`
+      if (!hasRealTask) return getLocale() === 'en'
+        ? `${a.displayName}, it's yours!`
+        : `${a.displayName}，交给你了！`
       const taskMatch = a.task.match(/## 任务\n([\s\S]*?)(?:\n## |$)/)
       const rawTask = taskMatch ? taskMatch[1].trim() : a.task
       const firstLine = rawTask.split('\n')[0]
@@ -182,7 +185,7 @@ export class Choreographer {
     await this.briefingOrchestrator.execute({
       steward, npcs, lines,
       mayor: npcManager.get('user') ?? null,
-      gameName: this.deps.workflow.pendingBriefingGameName || '新项目',
+      gameName: this.deps.workflow.pendingBriefingGameName || (getLocale() === 'en' ? 'New Project' : '新项目'),
       modeManager,
       getBehavior: (id) => this.deps.getBehavior(id),
       getJournal: (id) => this.deps.getJournal(id),
@@ -226,7 +229,7 @@ export class Choreographer {
     if (hasCitizenNpcs) {
       await this.celebrationOrchestrator.execute({
         steward, mayor, npcs: npcsInOffice,
-        gameName: this.deps.workflow.pendingBriefingGameName || '新项目',
+        gameName: this.deps.workflow.pendingBriefingGameName || (getLocale() === 'en' ? 'New Project' : '新项目'),
         teamText: npcsInOffice.map(n => n.label ?? n.id).join('、'),
         iframeSrc: this.deps.workflow.pendingGameIframeSrc,
         coverUrl: this.deps.workflow.pendingGameCoverUrl,
@@ -245,7 +248,7 @@ export class Choreographer {
           if (hasUrl) {
             ui.handleDeliverableCard({
               cardType: 'game',
-              name: opts.gameName !== '新游戏' ? opts.gameName : undefined,
+              name: opts.gameName !== (getLocale() === 'en' ? 'New Game' : '新游戏') ? opts.gameName : undefined,
               url: opts.iframeSrc,
             }, () => {
               dataSource.sendAction({ type: 'game_popup_action', action: 'later' })
@@ -261,7 +264,7 @@ export class Choreographer {
         onRestoreLifeMode: () => {},
       })
     } else {
-      bubbles.show(steward.mesh, event.summary || '任务完成了！', 2000)
+      bubbles.show(steward.mesh, event.summary || (getLocale() === 'en' ? 'Task complete!' : '任务完成了！'), 2000)
       await this.delay(2000)
     }
 
@@ -284,7 +287,7 @@ export class Choreographer {
     const shouldPlayOfficeDeparture = event.wasInOffice && this.deps.getSceneType() === 'office'
 
     if (shouldPlayOfficeDeparture) {
-      bubbles.show(steward.mesh, '收工！大家辛苦了，回去休息吧~', 2000)
+      bubbles.show(steward.mesh, getLocale() === 'en' ? 'That\'s a wrap! Great work, team~' : '收工！大家辛苦了，回去休息吧~', 2000)
       await this.delay(2000)
 
       const allNpcs = [steward, ...npcsStillInOffice]
@@ -317,7 +320,7 @@ export class Choreographer {
       }
     }
 
-    bubbles.show(steward.mesh, '好了，大家自由活动吧！', 3000)
+    bubbles.show(steward.mesh, getLocale() === 'en' ? 'Alright, free time everyone!' : '好了，大家自由活动吧！', 3000)
     const skipHours = 1 + Math.random()
     gameClock.advanceTime(skipHours)
     gameClock.resume()

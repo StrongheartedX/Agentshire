@@ -2,6 +2,7 @@ import {
   getBuiltinGroups, getLibraryGroups, resolveGroupMeshUrl,
   type CharacterGroup,
 } from '../../data/CharacterModelRegistry'
+import { getLocale } from '../../i18n'
 import { CharacterModelUpload } from './CharacterModelUpload'
 
 export type ModelPickerListener = (meshUrl: string, groupId: string) => void
@@ -188,7 +189,7 @@ export class ModelPicker {
 
         const moreBtn = document.createElement('button')
         moreBtn.className = 'cw-card-more-btn'
-        moreBtn.title = '更多'
+        moreBtn.title = getLocale() === 'en' ? 'More' : '更多'
         moreBtn.innerHTML = ModelPicker.SVG_MORE
         moreBtn.addEventListener('click', (e) => {
           e.stopPropagation()
@@ -228,7 +229,7 @@ export class ModelPicker {
     card.className = 'cw-model-card cw-model-card-upload'
     card.innerHTML = `
       <div class="cw-model-card-thumb">${ModelPicker.SVG_PLUS}</div>
-      <div class="cw-model-card-name">添加模型</div>
+      <div class="cw-model-card-name">${getLocale() === 'en' ? 'Add Model' : '添加模型'}</div>
     `
     card.addEventListener('click', () => this.handleUpload())
     return card
@@ -245,12 +246,12 @@ export class ModelPicker {
           <line x1="12" y1="22" x2="12" y2="12"/>
         </svg>
       </div>
-      <div class="cw-picker-empty-text">还没有自定义角色模型</div>
-      <div class="cw-picker-empty-hint">上传 .glb / .gltf 格式的 3D 角色模型</div>
+      <div class="cw-picker-empty-text">${getLocale() === 'en' ? 'No custom models yet' : '还没有自定义角色模型'}</div>
+      <div class="cw-picker-empty-hint">${getLocale() === 'en' ? 'Upload .glb / .gltf 3D models' : '上传 .glb / .gltf 格式的 3D 角色模型'}</div>
     `
     const btn = document.createElement('button')
     btn.className = 'cw-picker-empty-btn'
-    btn.textContent = '+ 添加角色模型'
+    btn.textContent = getLocale() === 'en' ? '+ Add Model' : '+ 添加角色模型'
     btn.addEventListener('click', () => this.handleUpload())
     empty.appendChild(btn)
     this.gridEl.appendChild(empty)
@@ -262,9 +263,9 @@ export class ModelPicker {
     const pop = document.createElement('div')
     pop.className = 'custom-popover'
     pop.innerHTML = `
-      <button class="popover-item" data-action="edit">${ModelPicker.SVG_EDIT} 编辑</button>
-      <button class="popover-item" data-action="anim">${ModelPicker.SVG_ANIM} 动画映射</button>
-      <button class="popover-item popover-danger" data-action="delete">${ModelPicker.SVG_DELETE} 删除</button>
+      <button class="popover-item" data-action="edit">${ModelPicker.SVG_EDIT} ${getLocale() === 'en' ? 'Edit' : '编辑'}</button>
+      <button class="popover-item" data-action="anim">${ModelPicker.SVG_ANIM} ${getLocale() === 'en' ? 'Animations' : '动画映射'}</button>
+      <button class="popover-item popover-danger" data-action="delete">${ModelPicker.SVG_DELETE} ${getLocale() === 'en' ? 'Delete' : '删除'}</button>
     `
 
     const card = anchor.closest('.cw-model-card') as HTMLElement

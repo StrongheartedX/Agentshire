@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import type { NPC } from '../../npc/NPC'
 import type { NPCConfig } from '../../types'
 import { buildAvatarEl } from '../../ui/ui-utils'
+import { getLocale } from '../../i18n'
 
 function rand(a: number, b: number): number { return a + Math.random() * (b - a) }
 
@@ -482,10 +483,11 @@ export class BanweiRenderer {
     const el = this.hudCombo
     if (!el) return
     let text: string, cls: string
-    if (n >= 10)     { text = `班味全消!!! x${n}`; cls = 'bw-combo-10' }
-    else if (n >= 7) { text = `满血复活! x${n}`;   cls = 'bw-combo-7' }
-    else if (n >= 4) { text = `提神醒脑! x${n}`;   cls = 'bw-combo-4' }
-    else if (n >= 2) { text = `精神! x${n}`;       cls = 'bw-combo-2' }
+    const isEn = getLocale() === 'en'
+    if (n >= 10)     { text = isEn ? `Stress-free!!! x${n}` : `班味全消!!! x${n}`; cls = 'bw-combo-10' }
+    else if (n >= 7) { text = isEn ? `Revived! x${n}` : `满血复活! x${n}`;   cls = 'bw-combo-7' }
+    else if (n >= 4) { text = isEn ? `Energized! x${n}` : `提神醒脑! x${n}`;   cls = 'bw-combo-4' }
+    else if (n >= 2) { text = isEn ? `Fresh! x${n}` : `精神! x${n}`;       cls = 'bw-combo-2' }
     else return
 
     el.textContent = text

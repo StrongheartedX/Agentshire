@@ -32,6 +32,7 @@ import { ModeManager } from './workflow/ModeManager'
 import { WAYPOINTS, type SceneType, type NPCConfig, type WorkSubState } from '../types'
 import type { IWorldDataSource } from '../data/IWorldDataSource'
 import type { GameEvent, GameNPCRole } from '../data/GameProtocol'
+import { t } from '../i18n'
 import type { TownConfigStore } from '../data/TownConfigStore'
 import { EventDispatcher } from './EventDispatcher'
 import { DialogManager } from './DialogManager'
@@ -85,7 +86,11 @@ export class MainScene implements GameScene {
   private encounterManager!: EncounterManager
   private casualEncounter!: CasualEncounter
   private personaStore = new PersonaStore()
-  private npcProfiles: Map<string, NPCProfile> = getNpcProfiles()
+  private npcProfiles: Map<string, NPCProfile> | null = null
+  private getNpcProfilesCached(): Map<string, NPCProfile> {
+    if (!this.npcProfiles) this.npcProfiles = getNpcProfiles()
+    return this.npcProfiles
+  }
   private inputEnabled = false
   private dialogTarget = 'steward'
   private followBehavior = new FollowBehavior()
@@ -284,7 +289,7 @@ export class MainScene implements GameScene {
       personaStore: this.personaStore,
       getTownJournal: () => this.townJournal,
       getCurrentSceneType: () => this.sceneSwitcher.getSceneType(),
-      getNpcSpecialty: (npcId) => this.npcProfiles.get(npcId)?.specialty,
+      getNpcSpecialty: (npcId) => this.getNpcProfilesCached().get(npcId)?.specialty,
     })
 
     this.dialogManager = new DialogManager({
@@ -421,7 +426,7 @@ export class MainScene implements GameScene {
     })
 
     const savedConfig = this.configStore.load()
-    const stewardLabel = savedConfig?.steward.name ?? '管家'
+    const stewardLabel = savedConfig?.steward.name ?? t('steward')
     const stewardNpc = this.npcManager.get('steward')
     this.ui.initChatTargetIndicator({
       stewardName: stewardLabel,
@@ -905,11 +910,127 @@ __workflow 演出测试指令:
     const userNpc = this.npcManager.get('user')
     this.logBubbleText('user_message', text)
     if (userNpc) this.bubbles.show(userNpc.mesh, text, getBubbleDurationMs(text, 'user'))
-    this.ui.addChatMessage({ from: '镇长', text, timestamp: Date.now() })
+    this.ui.addChatMessage({ from: t('mayor'), text, timestamp: Date.now() })
   }
 
   getDialogTarget(): string {
     return this.dialogTarget
+  }
+
+  getUIManager(): UIManager { return this.ui }
+  getModeManager(): ModeManager { return this.modeManager }
+  isNpcVisible(npcId: string): boolean { return !!this.npcManager.get(npcId)?.mesh.visible }
+
+  getAgentEnabledCitizens(): Array<{ id: string; name: string; specialty: string; color: number; characterKey?: string; avatarUrl?: string; spawned: boolean }> {
+    const config = this.configStore.load()
+    if (!config) return []
+    const agentMap = this.bootstrap.agentConfigMap
+    return config.citizens
+      .filter(c => agentMap.get(c.id)?.agentEnabled)
+      .map(c => ({
+        id: c.id,
+        name: c.name,
+        specialty: c.specialty,
+        color: 0x4488CC,
+        characterKey: c.avatarId,
+        avatarUrl: c.avatarUrl,
+        spawned: !!this.npcManager.get(c.id)?.mesh.visible,
+      }))
+  }
+
+  setMusicEnabled(enabled: boolean): void {
+    if (enabled) {
+      this.bgm.setEnabled(true)
+      this.ambientSound.setEnabled(true)
+    } else {
+      this.bgm.setEnabled(false)
+      this.ambientSound.setEnabled(false)
+    }
+  }
+
+  setSoulModeEnabled(enabled: boolean): void {
+    if (enabled) {
+      this.dailyScheduler.enableSoulMode()
+    } else {
+      this.dailyScheduler.disableSoulMode()
+    }
+  }
+
+  // ── Topic mode (group discussion) ──
+
+  private topicNpcIds: string[] = []
+  private topicGathering = false
+
+  isTopicActive(): boolean {
+    return this.topicNpcIds.length > 0
+  }
+
+  isTopicGathering(): boolean {
+    return this.topicGathering
+  }
+
+  async gatherForTopic(npcIds: string[]): Promise<void> {
+    this.topicNpcIds = npcIds
+    this.topicGathering = true
+
+    for (const id of npcIds) {
+      this.dailyScheduler.getDailyBehaviors().get(id)?.pauseForDialogue()
+      const npc = this.npcManager.get(id)
+      if (npc) npc.transitionTo('idle')
+    }
+
+    const userNpc = this.npcManager.get('user')
+    if (!userNpc) { this.topicGathering = false; return }
+    const center = userNpc.mesh.position.clone()
+
+    const RADIUS = 3.0
+    const ARC_SPAN = Math.PI
+    const startAngle = -ARC_SPAN / 2
+
+    const targets: Array<{ npcId: string; pos: { x: number; z: number } }> = []
+    for (let i = 0; i < npcIds.length; i++) {
+      const angle = startAngle + (ARC_SPAN / Math.max(npcIds.length - 1, 1)) * i
+      targets.push({
+        npcId: npcIds[i],
+        pos: {
+          x: center.x + Math.sin(angle) * RADIUS,
+          z: center.z + Math.cos(angle) * RADIUS,
+        },
+      })
+    }
+
+    const movePromises: Promise<void>[] = []
+    for (const t of targets) {
+      const npc = this.npcManager.get(t.npcId)
+      if (!npc) continue
+      const speed = this.dailyScheduler.getDailyBehaviors().get(t.npcId)?.getWalkSpeed() ?? 2.5
+      movePromises.push(
+        npc.moveTo(t.pos, speed).then(() => {
+          const dx = center.x - npc.mesh.position.x
+          const dz = center.z - npc.mesh.position.z
+          npc.mesh.rotation.y = Math.atan2(dx, dz)
+          npc.transitionTo('emoting')
+        }),
+      )
+    }
+
+    const timeout = new Promise<void>(r => setTimeout(r, 15000))
+    await Promise.race([Promise.all(movePromises), timeout])
+
+    this.topicGathering = false
+  }
+
+  dismissTopic(): void {
+    const npcIds = [...this.topicNpcIds]
+    this.topicNpcIds = []
+    this.topicGathering = false
+
+    for (const npcId of npcIds) {
+      const npc = this.npcManager.get(npcId)
+      if (!npc) continue
+      npc.transitionTo('idle')
+      this.dailyScheduler.getDailyBehaviors().get(npcId)?.resumeFromDialogue()
+    }
   }
 
   private onUserMessage(text: string): void {
@@ -1275,7 +1396,7 @@ __workflow 演出测试指令:
         if (p.coverUrl) this.workflow.pendingGameCoverUrl = p.coverUrl
         if (p.gameName) this.workflow.pendingBriefingGameName = p.gameName
         this.ui.showGamePublish({
-          gameName: p.gameName || '新游戏',
+          gameName: p.gameName || t('new_game'),
           iframeSrc: p.iframeSrc || '',
         })
         break
@@ -1380,7 +1501,7 @@ __workflow 演出测试指令:
       avatarUrl: configAvatarUrl,
     }
 
-    const profile = this.npcProfiles.get(npc.id)
+    const profile = this.getNpcProfilesCached().get(npc.id)
     const logs = this.dialogManager.getWorkLogs().get(npc.id)
 
     const isWorking = this.workflow.workingCitizens.has(npc.id)

@@ -1,13 +1,17 @@
 import type { MinigameSlot, MinigameContext } from './MinigameSlot'
 import { BanweiRenderer, type OrbData, type BossData } from './BanweiRenderer'
 import { BanweiNpcEffects } from './BanweiNpcEffects'
+import { getLocale } from '../../i18n'
+import { VOICE_POOL_EN, WARN_POOL_EN } from '../../i18n/banwei-en'
 
 function pick<T>(arr: T[]): T { return arr[Math.floor(Math.random() * arr.length)] }
 function rand(a: number, b: number): number { return a + Math.random() * (b - a) }
 
-const STEWARD = { name: '管家', initial: '管', color: '#8888aa' }
+const STEWARD_ZH = { name: '管家', initial: '管', color: '#8888aa' }
+const STEWARD_EN = { name: 'Steward', initial: 'S', color: '#8888aa' }
+function getSteward() { return getLocale() === 'en' ? STEWARD_EN : STEWARD_ZH }
 
-const VOICE_POOL: Record<number | string, string[]> = {
+const VOICE_POOL_ZH: Record<number | string, string[]> = {
   2: [
     '嗯？好像轻松了一点', '有人在帮我减压？', '镇长今天人不错', '续了一口气',
     '我的精神状态稍微正常了', '感觉从ICU转到普通病房了', '属于是活过来了一点',
@@ -70,11 +74,18 @@ const VOICE_POOL: Record<number | string, string[]> = {
   ],
 }
 
-const WARN_POOL: Record<number, string> = {
+const WARN_POOL_ZH: Record<number, string> = {
   3: '班味浓度持续上升... ⚠️',
   6: '班味已经开始蔓延了！ ⚠️',
   9: '再不处理居民要罢工了！ ⚠️',
   12: '班味浓度已达危险水平！！ ⚠️',
+}
+
+function getVoicePool(): Record<number | string, string[]> {
+  return getLocale() === 'en' ? VOICE_POOL_EN : VOICE_POOL_ZH
+}
+function getWarnPool(): Record<number, string> {
+  return getLocale() === 'en' ? WARN_POOL_EN : WARN_POOL_ZH
 }
 
 const NPC_COLORS: Record<string, string> = {
@@ -182,7 +193,7 @@ export class BanweiGame implements MinigameSlot {
     this.npcOrbSlots.clear()
     this.renderer.clearAll()
 
-      this.renderer.showVoice({ ...STEWARD, config: this.ctx?.getNpcVoiceConfig('steward') ?? null }, '下班了！！！', false)
+      this.renderer.showVoice({ ...getSteward(), config: this.ctx?.getNpcVoiceConfig('steward') ?? null }, getLocale() === 'en' ? 'Off work!!!' : '下班了！！！', false)
     this.renderer.scheduleHudFade(2000)
 
     console.log('[Banwei] game stopped')
@@ -286,7 +297,7 @@ export class BanweiGame implements MinigameSlot {
     if (!this.firstOrbShown) {
       this.firstOrbShown = true
       this.renderer.clearCombo()
-      this.renderer.showVoice({ ...STEWARD, config: this.ctx?.getNpcVoiceConfig('steward') ?? null }, '居民开始出现班味了，镇长请点击帮他们减压', false)
+      this.renderer.showVoice({ ...getSteward(), config: this.ctx?.getNpcVoiceConfig('steward') ?? null }, getLocale() === 'en' ? 'Citizens are stressed! Click to help' : '居民开始出现班味了，镇长请点击帮他们减压', false)
       this.warningActive = true
       this.renderer.cancelHudFade()
       this.renderer.addPulseIndicator(orb.el)
@@ -297,7 +308,7 @@ export class BanweiGame implements MinigameSlot {
       if (level > this.lastWarnLevel) {
         this.lastWarnLevel = level
         const warnKey = ([3, 6, 9, 12] as number[]).find(k => k >= level) || 12
-        this.showWarning(WARN_POOL[warnKey])
+        this.showWarning(getWarnPool()[warnKey])
       }
     }
   }
@@ -320,7 +331,7 @@ export class BanweiGame implements MinigameSlot {
       this.renderer.showCombo(this.combo)
       const npc = this.ctx?.getNpc(orb.npcId)
       if (npc) {
-        const pool = VOICE_POOL[tier]
+        const pool = getVoicePool()[tier]
         const npcColor = NPC_COLORS[npc.id] || NPC_COLORS[npc.name] || '#8888aa'
         this.renderer.showVoice(
           {
@@ -465,7 +476,7 @@ export class BanweiGame implements MinigameSlot {
   private onBossCleanupDone(wasLastBoss: boolean): void {
     if (wasLastBoss) {
       this.renderer.clearCombo()
-      this.renderer.showVoice({ ...STEWARD, config: this.ctx?.getNpcVoiceConfig('steward') ?? null }, pick(VOICE_POOL.boss), false)
+      this.renderer.showVoice({ ...getSteward(), config: this.ctx?.getNpcVoiceConfig('steward') ?? null }, pick(getVoicePool().boss), false)
     }
     this.celebrationCooldown = true
     this.renderer.scheduleHudFade(5000, () => {
@@ -478,7 +489,7 @@ export class BanweiGame implements MinigameSlot {
 
   private showWarning(text: string): void {
     this.renderer.clearCombo()
-    this.renderer.showVoice({ ...STEWARD, config: this.ctx?.getNpcVoiceConfig('steward') ?? null }, text, true)
+    this.renderer.showVoice({ ...getSteward(), config: this.ctx?.getNpcVoiceConfig('steward') ?? null }, text, true)
     this.warningActive = true
     this.renderer.cancelHudFade()
   }
@@ -502,7 +513,7 @@ export class BanweiGame implements MinigameSlot {
     const level = this.totalUncleared
     if (level >= 3) {
       const warnKey = ([3, 6, 9, 12] as number[]).find(k => k >= Math.min(12, level)) || 12
-      this.showWarning(WARN_POOL[warnKey])
+      this.showWarning(getWarnPool()[warnKey])
     } else {
       this.syncHudWithHazards()
     }

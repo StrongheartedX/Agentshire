@@ -2,6 +2,7 @@
 
 import type { DialogMessage } from '../types'
 import { stripTags } from './ui-utils'
+import { t } from '../i18n'
 
 /**
  * Manages the chat message list displayed in the "chat" tab.
@@ -19,14 +20,14 @@ export class ChatPanel {
   addChatMessage(msg: DialogMessage): void {
     if (!this.chatPanelEl) return
     this.chatMessages.push(msg)
-    const isUser = msg.from === 'user' || msg.from === '你' || msg.from === 'Jin'
+    const isUser = msg.from === 'user' || msg.from === '你' || msg.from === 'Jin' || msg.from === 'Mayor'
     const div = document.createElement('div')
     div.className = 'chat-msg ' + (isUser ? 'user' : 'npc')
     const bgColor = isUser ? '#DDA444' : '#4488CC'
     const avatarDiv = document.createElement('div')
     avatarDiv.className = 'avatar'
     avatarDiv.style.background = bgColor
-    avatarDiv.textContent = isUser ? '你' : msg.from[0]
+    avatarDiv.textContent = isUser ? t('you')[0] : msg.from[0]
     const bubbleDiv = document.createElement('div')
     bubbleDiv.className = 'bubble'
     bubbleDiv.textContent = stripTags(msg.text)

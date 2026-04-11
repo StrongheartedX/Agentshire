@@ -1,3 +1,6 @@
+import { initLocale, t } from '../i18n'
+initLocale()
+
 import '../styles/editor.css'
 import * as THREE from 'three'
 import type { TownMapConfig } from './TownMapConfig'
@@ -24,6 +27,8 @@ import { CustomAssetStore } from './CustomAssetStore'
 const DRAFT_KEY = 'agentshire_map_draft'
 
 async function boot() {
+  applyEditorLocale()
+
   const container = document.getElementById('preview-container')!
   const loadingEl = document.getElementById('preview-loading')!
   const errorEl = document.getElementById('preview-error')!
@@ -221,3 +226,26 @@ async function boot() {
 }
 
 boot()
+
+function applyEditorLocale(): void {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n')!
+    const translated = t(key)
+    if (translated !== key) el.textContent = translated
+  })
+  document.querySelectorAll('[data-i18n-tip]').forEach(el => {
+    const key = el.getAttribute('data-i18n-tip')!
+    const translated = t(key)
+    if (translated !== key) el.setAttribute('data-tip', translated)
+  })
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    const key = el.getAttribute('data-i18n-title')!
+    const translated = t(key)
+    if (translated !== key) el.setAttribute('title', translated)
+  })
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder')!
+    const translated = t(key)
+    if (translated !== key) (el as HTMLInputElement).placeholder = translated
+  })
+}

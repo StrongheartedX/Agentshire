@@ -3,6 +3,7 @@
 import type { NPCConfig } from '../types'
 import { buildAvatarEl, localizeState } from './ui-utils'
 import { createLucideIcon } from './LucideIcon'
+import { t } from '../i18n'
 
 /**
  * Manages the NPC information card overlay: header, persona bio,
@@ -87,13 +88,13 @@ export class NpcCardPanel {
       const chatIcon = createLucideIcon('message-circle', 13, 'currentColor')
       if (chatIcon) chatBtn.appendChild(chatIcon)
       const chatLabel = document.createElement('span')
-      chatLabel.textContent = '聊天'
+      chatLabel.textContent = t('card.chat')
       chatBtn.appendChild(chatLabel)
 
       const canChat = opts.agentOnline && !opts.isWorking
       if (!canChat) {
         chatBtn.disabled = true
-        chatBtn.title = opts.isWorking ? '对方正在专心工作' : '对方不在线'
+        chatBtn.title = opts.isWorking ? t('card.busy_working') : t('card.offline')
       } else {
         chatBtn.onclick = () => {
           this.onChatWith?.(opts.npc.id, opts.npc.label || opts.npc.name)
@@ -133,7 +134,7 @@ export class NpcCardPanel {
       this.npcCard.appendChild(area)
       this.npcCard.classList.add('has-logs')
     }
-    const isPlaceholder = log.message === '正在思考'
+    const isPlaceholder = log.message === t('card.thinking')
     const oldPlaceholder = this.npcCardLogContainer!.querySelector('.thinking-placeholder')
     if (oldPlaceholder && !isPlaceholder) {
       oldPlaceholder.remove()
@@ -225,7 +226,7 @@ export class NpcCardPanel {
     const icon = createLucideIcon('list-checks', 14, 'rgba(255,255,255,0.45)')
     if (icon) header.appendChild(icon)
     const label = document.createElement('span')
-    label.textContent = '任务列表'
+    label.textContent = t('card.task_list')
     header.appendChild(label)
     block.appendChild(header)
     const list = document.createElement('div')
@@ -284,7 +285,7 @@ export class NpcCardPanel {
     area.className = 'card-log-area'
     const title = document.createElement('div')
     title.className = 'card-log-area-title'
-    title.textContent = '最近工作日志'
+    title.textContent = t('card.work_logs')
     area.appendChild(title)
     const list = document.createElement('div')
     list.className = 'card-log-list'

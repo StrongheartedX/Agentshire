@@ -3,6 +3,7 @@ import { UndoStack, type Command } from './UndoStack'
 import { DraftStore } from './DraftStore'
 import { EditorScene } from './EditorScene'
 import type { AssetCatalogEntry } from './AssetPalette'
+import { getLocale } from '../i18n'
 
 export type EditorTool = 'select' | 'terrain' | 'erase'
 
@@ -82,7 +83,7 @@ export class TownEditor {
       this.editorScene.setGhost(null)
     }
 
-    const toolNames: Record<EditorTool, string> = { select: '选择模式', terrain: '地形刷', erase: '删除模式' }
+    const toolNames: Record<EditorTool, string> = { select: getLocale() === 'en' ? 'Select' : '选择模式', terrain: getLocale() === 'en' ? 'Terrain' : '地形刷', erase: getLocale() === 'en' ? 'Delete' : '删除模式' }
     const statusTool = document.getElementById('status-tool')
     if (statusTool) statusTool.textContent = toolNames[tool]
 
@@ -106,13 +107,13 @@ export class TownEditor {
     this.setSelection(null)
     this.editorScene.setGhost(entry)
     const statusTool = document.getElementById('status-tool')
-    if (statusTool) statusTool.textContent = `放置: ${entry.name}`
+    if (statusTool) statusTool.textContent = getLocale() === 'en' ? `Place: ${entry.name}` : `放置: ${entry.name}`
   }
 
   stopPlacing(): void {
     this.editorScene.setGhost(null)
     const statusTool = document.getElementById('status-tool')
-    if (statusTool) statusTool.textContent = '选择模式'
+    if (statusTool) statusTool.textContent = getLocale() === 'en' ? 'Select' : '选择模式'
   }
 
   deleteSelected(): void {
@@ -425,11 +426,11 @@ export class TownEditor {
     const toggle = document.getElementById('btn-camera-toggle')
     if (toggle) {
       toggle.classList.toggle('active', isPersp)
-      toggle.dataset.tip = isPersp ? '透视模式 (Tab)' : '俯视模式 (Tab)'
+      toggle.dataset.tip = isPersp ? (getLocale() === 'en' ? 'Perspective (Tab)' : '透视模式 (Tab)') : (getLocale() === 'en' ? 'Top-down (Tab)' : '俯视模式 (Tab)')
     }
     const statusTool = document.getElementById('status-tool')
-    if (statusTool && isPersp) statusTool.textContent = '透视模式 · 右键旋转 · 中键平移 · 滚轮缩放'
-    else if (statusTool) statusTool.textContent = '选择模式'
+    if (statusTool && isPersp) statusTool.textContent = getLocale() === 'en' ? 'Perspective · RMB rotate · MMB pan · scroll zoom' : '透视模式 · 右键旋转 · 中键平移 · 滚轮缩放'
+    else if (statusTool) statusTool.textContent = getLocale() === 'en' ? 'Select' : '选择模式'
   }
 
   initTerrainBar(): void {

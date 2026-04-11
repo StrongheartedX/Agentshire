@@ -8,6 +8,7 @@
  */
 
 import type { TimePeriod } from '../types'
+import { getLocale } from '../i18n'
 
 export interface ScheduleSlot {
   period: TimePeriod
@@ -128,6 +129,19 @@ const SPECIALTY_MATCH: Array<{ pattern: RegExp; templateId: string }> = [
 
 export function getTemplateById(id: string): RoutineTemplate {
   return TEMPLATES.find(t => t.id === id) ?? TEMPLATES[TEMPLATES.length - 1]
+}
+
+const TEMPLATE_LABELS_EN: Record<string, string> = {
+  workaholic: 'Workaholic',
+  social: 'Social',
+  creative: 'Creative',
+  homebody: 'Homebody',
+  explorer: 'Explorer',
+}
+
+export function getTemplateLabel(templateId: string): string {
+  if (getLocale() === 'en') return TEMPLATE_LABELS_EN[templateId] ?? templateId
+  return TEMPLATES.find(t => t.id === templateId)?.label ?? templateId
 }
 
 export function matchTemplate(specialty: string): RoutineTemplate {

@@ -2,6 +2,7 @@ import type { PlacedItem, BuildingPlacement, Rotation, GroupDef, LightPointDef, 
 import { genId } from './TownMapConfig'
 import type { TownEditor } from './TownEditor'
 import type { Command } from './UndoStack'
+import { getLocale } from '../i18n'
 
 const SVG_ROTATE = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6"/><path d="M21.34 13.72A10 10 0 1 1 18.57 4.93L21.5 8"/></svg>'
 const SVG_FLIP_X = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M16 7l4 5-4 5"/><path d="M8 7l-4 5 4 5"/></svg>'
@@ -77,17 +78,17 @@ export class PropertyInspector {
 
     const d = item.data
 
-    this.addTitle('资产属性')
-    this.addInfoRow('模型', d.modelKey)
+    this.addTitle(getLocale() === 'en' ? 'Properties' : '资产属性')
+    this.addInfoRow(getLocale() === 'en' ? 'Model' : '模型', d.modelKey)
     if (item.kind === 'building') {
-      this.addInfoRow('尺寸', `${(d as BuildingPlacement).widthCells}×${(d as BuildingPlacement).depthCells}`)
+      this.addInfoRow(getLocale() === 'en' ? 'Size' : '尺寸', `${(d as BuildingPlacement).widthCells}×${(d as BuildingPlacement).depthCells}`)
     }
 
     this.addDivider()
     this.addPositionAndTransformRows(item)
 
     this.addDivider()
-    this.addSectionTitle('缩放')
+    this.addSectionTitle(getLocale() === 'en' ? 'Scale' : '缩放')
     this.addScaleSlider(item)
 
     this.addDivider()
@@ -129,14 +130,14 @@ export class PropertyInspector {
     this.el.innerHTML = ''
     this.currentItemId = null
 
-    this.addTitle(`多选属性 (${items.length} 个资产)`)
+    this.addTitle(getLocale() === 'en' ? `Multi-select (${items.length})` : `多选属性 (${items.length} 个资产)`)
 
     this.addDivider()
-    this.addSectionTitle('对齐')
+    this.addSectionTitle(getLocale() === 'en' ? 'Align' : '对齐')
     this.addAlignmentSection(items)
 
     this.addDivider()
-    this.addSectionTitle('旋转')
+    this.addSectionTitle(getLocale() === 'en' ? 'Rotate' : '旋转')
     this.addMultiTransformSection(items)
 
     this.addDivider()
@@ -151,11 +152,11 @@ export class PropertyInspector {
     this.el.innerHTML = ''
     this.currentItemId = null
 
-    this.addTitle(`组合属性 (${group.memberIds.length} 个成员)`)
+    this.addTitle(getLocale() === 'en' ? `Group (${group.memberIds.length})` : `组合属性 (${group.memberIds.length} 个成员)`)
 
     const hint = document.createElement('div')
     hint.style.cssText = 'font-size:11px;color:var(--text-muted);margin-bottom:8px;'
-    hint.textContent = '双击进入编辑组合内模型'
+    hint.textContent = getLocale() === 'en' ? 'Double-click to edit group' : '双击进入编辑组合内模型'
     this.el.appendChild(hint)
 
     this.addDivider()
@@ -183,13 +184,13 @@ export class PropertyInspector {
         <input type="number" class="pi-num-input" id="pi-gelev" value="${elev}" step="0.1" />
       </div>
       <div class="pi-transform-btns">
-        <button class="pi-icon-btn" id="pg-snap" data-tip="吸附：放到目标顶部">
+        <button class="pi-icon-btn" id="pg-snap" data-tip="${getLocale() === 'en' ? 'Snap to top' : '吸附：放到目标顶部'}">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8"/><path d="M8 6l4-4 4 4"/><rect x="4" y="14" width="16" height="6" rx="1"/></svg>
         </button>
-        <button class="pi-icon-btn" id="pg-join" data-tip="拼接：贴到目标侧面">
+        <button class="pi-icon-btn" id="pg-join" data-tip="${getLocale() === 'en' ? 'Join side' : '拼接：贴到目标侧面'}">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="8" height="12" rx="1"/><rect x="14" y="6" width="8" height="12" rx="1"/><path d="M10 12h4"/><path d="M12 10l2 2-2 2"/></svg>
         </button>
-        <button class="pi-icon-btn" id="pg-ground" data-tip="落地：重置到地面">
+        <button class="pi-icon-btn" id="pg-ground" data-tip="${getLocale() === 'en' ? 'Ground' : '落地：重置到地面'}">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 18v-8"/><path d="M8 14l4 4 4-4"/><line x1="4" y1="22" x2="20" y2="22"/></svg>
         </button>
       </div>
@@ -204,15 +205,15 @@ export class PropertyInspector {
         <input type="number" class="pi-num-input" id="pi-gangle" value="0" step="90" disabled />
       </div>
       <div class="pi-transform-btns">
-        <button class="pi-icon-btn" data-tip="整组旋转 90°" id="pg-rotate">${SVG_ROTATE}</button>
-        <button class="pi-icon-btn" data-tip="整组水平翻转" id="pg-flipx">${SVG_FLIP_X}</button>
-        <button class="pi-icon-btn" data-tip="整组垂直翻转" id="pg-flipz">${SVG_FLIP_Z}</button>
+        <button class="pi-icon-btn" data-tip="${getLocale() === 'en' ? 'Rotate Group 90°' : '整组旋转 90°'}" id="pg-rotate">${SVG_ROTATE}</button>
+        <button class="pi-icon-btn" data-tip="${getLocale() === 'en' ? 'Flip Group H' : '整组水平翻转'}" id="pg-flipx">${SVG_FLIP_X}</button>
+        <button class="pi-icon-btn" data-tip="${getLocale() === 'en' ? 'Flip Group V' : '整组垂直翻转'}" id="pg-flipz">${SVG_FLIP_Z}</button>
       </div>
     `
     this.el.appendChild(angleRow)
 
     this.addDivider()
-    this.addSectionTitle('缩放')
+    this.addSectionTitle(getLocale() === 'en' ? 'Scale' : '缩放')
     const scaleRow = document.createElement('div')
     scaleRow.className = 'pi-scale-row'
     scaleRow.innerHTML = `
@@ -229,12 +230,12 @@ export class PropertyInspector {
     actionWrap.className = 'pi-group-btns'
     const ungroupBtn = document.createElement('button')
     ungroupBtn.className = 'pi-group-btn btn-primary'
-    ungroupBtn.textContent = '取消组合'
+    ungroupBtn.textContent = getLocale() === 'en' ? 'Ungroup' : '取消组合'
     ungroupBtn.addEventListener('click', () => this.editor.ungroupSelected())
     actionWrap.appendChild(ungroupBtn)
     const delBtn = document.createElement('button')
     delBtn.className = 'pi-group-btn'
-    delBtn.innerHTML = `${SVG_DELETE} 删除组合`
+    delBtn.innerHTML = `${SVG_DELETE} ${getLocale() === 'en' ? 'Delete Group' : '删除组合'}`
     delBtn.style.color = 'var(--status-error)'
     delBtn.style.borderColor = 'rgba(255,68,102,0.2)'
     delBtn.addEventListener('click', () => this.editor.deleteSelected())
@@ -416,25 +417,25 @@ export class PropertyInspector {
       {
         label: 'X', axis: 'x', distSvg: SVG_DISTRIBUTE_H,
         buttons: [
-          { mode: 'min', tip: '左对齐', svg: SVG_ALIGN_LEFT },
-          { mode: 'center', tip: '水平居中', svg: SVG_ALIGN_CENTER_H },
-          { mode: 'max', tip: '右对齐', svg: SVG_ALIGN_RIGHT },
+          { mode: 'min', tip: getLocale() === 'en' ? 'Align Left' : '左对齐', svg: SVG_ALIGN_LEFT },
+          { mode: 'center', tip: getLocale() === 'en' ? 'Center H' : '水平居中', svg: SVG_ALIGN_CENTER_H },
+          { mode: 'max', tip: getLocale() === 'en' ? 'Align Right' : '右对齐', svg: SVG_ALIGN_RIGHT },
         ],
       },
       {
         label: 'Y', axis: 'y', distSvg: SVG_DISTRIBUTE_V,
         buttons: [
-          { mode: 'min', tip: '上对齐', svg: SVG_ALIGN_TOP },
-          { mode: 'center', tip: '垂直居中', svg: SVG_ALIGN_CENTER_V },
-          { mode: 'max', tip: '下对齐', svg: SVG_ALIGN_BOTTOM },
+          { mode: 'min', tip: getLocale() === 'en' ? 'Align Top' : '上对齐', svg: SVG_ALIGN_TOP },
+          { mode: 'center', tip: getLocale() === 'en' ? 'Center V' : '垂直居中', svg: SVG_ALIGN_CENTER_V },
+          { mode: 'max', tip: getLocale() === 'en' ? 'Align Bottom' : '下对齐', svg: SVG_ALIGN_BOTTOM },
         ],
       },
       {
         label: 'Z', axis: 'z', distSvg: SVG_DISTRIBUTE_Z,
         buttons: [
-          { mode: 'max', tip: '顶对齐', svg: SVG_ALIGN_Z_TOP },
-          { mode: 'center', tip: '高度居中', svg: SVG_ALIGN_Z_MID },
-          { mode: 'min', tip: '底对齐', svg: SVG_ALIGN_Z_BOT },
+          { mode: 'max', tip: getLocale() === 'en' ? 'Top' : '顶对齐', svg: SVG_ALIGN_Z_TOP },
+          { mode: 'center', tip: getLocale() === 'en' ? 'Center Z' : '高度居中', svg: SVG_ALIGN_Z_MID },
+          { mode: 'min', tip: getLocale() === 'en' ? 'Bottom' : '底对齐', svg: SVG_ALIGN_Z_BOT },
         ],
       },
     ]
@@ -465,7 +466,7 @@ export class PropertyInspector {
       const distBtn = document.createElement('button')
       distBtn.className = 'pi-icon-btn'
       distBtn.innerHTML = row.distSvg
-      distBtn.dataset.tip = `${row.label} 等距分布`
+      distBtn.dataset.tip = getLocale() === 'en' ? `Distribute ${row.label}` : `${row.label} 等距分布`
       distBtn.addEventListener('click', () => {
         this.editor.editorScene.distributeItems(items, row.axis)
       })
@@ -493,7 +494,7 @@ export class PropertyInspector {
     const rotBtn = document.createElement('button')
     rotBtn.className = 'pi-icon-btn'
     rotBtn.innerHTML = SVG_ROTATE
-    rotBtn.dataset.tip = '全部旋转 90°'
+    rotBtn.dataset.tip = getLocale() === 'en' ? 'Rotate All 90°' : '全部旋转 90°'
     rotBtn.addEventListener('click', () => {
       this.editor.rotateSelected()
       this.updateMulti(items)
@@ -503,7 +504,7 @@ export class PropertyInspector {
     const flipXBtn = document.createElement('button')
     flipXBtn.className = 'pi-icon-btn'
     flipXBtn.innerHTML = SVG_FLIP_X
-    flipXBtn.dataset.tip = '全部水平翻转'
+    flipXBtn.dataset.tip = getLocale() === 'en' ? 'Flip All H' : '全部水平翻转'
     flipXBtn.addEventListener('click', () => {
       for (const it of items) this.editor.editorScene.flipItemX(it)
     })
@@ -512,7 +513,7 @@ export class PropertyInspector {
     const flipZBtn = document.createElement('button')
     flipZBtn.className = 'pi-icon-btn'
     flipZBtn.innerHTML = SVG_FLIP_Z
-    flipZBtn.dataset.tip = '全部垂直翻转'
+    flipZBtn.dataset.tip = getLocale() === 'en' ? 'Flip All V' : '全部垂直翻转'
     flipZBtn.addEventListener('click', () => {
       for (const it of items) this.editor.editorScene.flipItemZ(it)
     })
@@ -523,7 +524,7 @@ export class PropertyInspector {
   }
 
   private addMultiScaleSection(items: PlacedItem[]): void {
-    this.addSectionTitle('缩放')
+    this.addSectionTitle(getLocale() === 'en' ? 'Scale' : '缩放')
     const row = document.createElement('div')
     row.className = 'pi-scale-row'
     row.innerHTML = `
@@ -565,13 +566,13 @@ export class PropertyInspector {
 
     const groupBtn = document.createElement('button')
     groupBtn.className = 'pi-group-btn btn-primary'
-    groupBtn.textContent = '组合 Ctrl+G'
+    groupBtn.textContent = getLocale() === 'en' ? 'Group Ctrl+G' : '组合 Ctrl+G'
     groupBtn.addEventListener('click', () => this.editor.groupSelected())
     wrap.appendChild(groupBtn)
 
     const delBtn = document.createElement('button')
     delBtn.className = 'pi-group-btn'
-    delBtn.innerHTML = `${SVG_DELETE} 删除选中`
+    delBtn.innerHTML = `${SVG_DELETE} ${getLocale() === 'en' ? 'Delete' : '删除选中'}`
     delBtn.style.color = 'var(--status-error)'
     delBtn.style.borderColor = 'rgba(255,68,102,0.2)'
     delBtn.addEventListener('click', () => this.editor.deleteSelected())
@@ -637,13 +638,13 @@ export class PropertyInspector {
         <input type="number" class="pi-num-input" id="pi-elev" value="${elev}" step="0.1" />
       </div>
       <div class="pi-transform-btns" id="pi-snap-btns">
-        <button class="pi-icon-btn" id="pi-snap" data-tip="吸附：放到目标顶部">
+        <button class="pi-icon-btn" id="pi-snap" data-tip="${getLocale() === 'en' ? 'Snap to top' : '吸附：放到目标顶部'}">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8"/><path d="M8 6l4-4 4 4"/><rect x="4" y="14" width="16" height="6" rx="1"/></svg>
         </button>
-        <button class="pi-icon-btn" id="pi-join" data-tip="拼接：贴到目标侧面">
+        <button class="pi-icon-btn" id="pi-join" data-tip="${getLocale() === 'en' ? 'Join side' : '拼接：贴到目标侧面'}">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="8" height="12" rx="1"/><rect x="14" y="6" width="8" height="12" rx="1"/><path d="M10 12h4"/><path d="M12 10l2 2-2 2"/></svg>
         </button>
-        <button class="pi-icon-btn" id="pi-ground" data-tip="落地：重置到地面">
+        <button class="pi-icon-btn" id="pi-ground" data-tip="${getLocale() === 'en' ? 'Ground' : '落地：重置到地面'}">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 18v-8"/><path d="M8 14l4 4 4-4"/><line x1="4" y1="22" x2="20" y2="22"/></svg>
         </button>
       </div>
@@ -778,14 +779,14 @@ export class PropertyInspector {
     const rotBtn = document.createElement('button')
     rotBtn.className = 'pi-icon-btn'
     rotBtn.innerHTML = SVG_ROTATE
-    rotBtn.dataset.tip = '旋转 90°'
+    rotBtn.dataset.tip = getLocale() === 'en' ? 'Rotate 90°' : '旋转 90°'
     rotBtn.addEventListener('click', () => { this.editor.rotateSelected(); this.update(item) })
     btns.appendChild(rotBtn)
 
     const flipXBtn = document.createElement('button')
     flipXBtn.className = 'pi-icon-btn'
     flipXBtn.innerHTML = SVG_FLIP_X
-    flipXBtn.dataset.tip = '水平翻转'
+    flipXBtn.dataset.tip = getLocale() === 'en' ? 'Flip H' : '水平翻转'
     if ((d as { flipX?: boolean }).flipX) flipXBtn.classList.add('active')
     flipXBtn.addEventListener('click', () => { this.editor.editorScene.flipItemX(item); this.update(item) })
     btns.appendChild(flipXBtn)
@@ -793,7 +794,7 @@ export class PropertyInspector {
     const flipZBtn = document.createElement('button')
     flipZBtn.className = 'pi-icon-btn'
     flipZBtn.innerHTML = SVG_FLIP_Z
-    flipZBtn.dataset.tip = '垂直翻转'
+    flipZBtn.dataset.tip = getLocale() === 'en' ? 'Flip V' : '垂直翻转'
     if ((d as { flipZ?: boolean }).flipZ) flipZBtn.classList.add('active')
     flipZBtn.addEventListener('click', () => { this.editor.editorScene.flipItemZ(item); this.update(item) })
     btns.appendChild(flipZBtn)
@@ -869,13 +870,13 @@ export class PropertyInspector {
     const titleSpan = document.createElement('span')
     titleSpan.className = 'pi-section-title'
     titleSpan.style.margin = '0'
-    titleSpan.textContent = `灯光 (${lights?.length ?? 0})`
+    titleSpan.textContent = `${getLocale() === 'en' ? 'Lights' : '灯光'} (${lights?.length ?? 0})`
     headerRow.appendChild(titleSpan)
 
     const addBtn = document.createElement('button')
     addBtn.className = 'pi-icon-btn'
     addBtn.style.cssText = 'font-size:11px;padding:3px 10px;position:relative;white-space:nowrap;flex-shrink:0;width:auto;'
-    addBtn.textContent = '+ 添加'
+    addBtn.textContent = getLocale() === 'en' ? '+ Add' : '+ 添加'
     headerRow.appendChild(addBtn)
     this.el.appendChild(headerRow)
 
@@ -885,10 +886,10 @@ export class PropertyInspector {
     addBtn.appendChild(dropdownMenu)
 
     const typeOptions: { label: string; type: LightType }[] = [
-      { label: '窗户灯', type: 'window' },
-      { label: '路灯', type: 'street' },
-      { label: '车前灯', type: 'vehicle_head' },
-      { label: '车尾灯', type: 'vehicle_tail' },
+      { label: getLocale() === 'en' ? 'Window' : '窗户灯', type: 'window' },
+      { label: getLocale() === 'en' ? 'Street' : '路灯', type: 'street' },
+      { label: getLocale() === 'en' ? 'Headlight' : '车前灯', type: 'vehicle_head' },
+      { label: getLocale() === 'en' ? 'Taillight' : '车尾灯', type: 'vehicle_tail' },
     ]
     for (const opt of typeOptions) {
       const optBtn = document.createElement('div')
@@ -927,7 +928,7 @@ export class PropertyInspector {
     if (!lights || lights.length === 0) {
       const hint = document.createElement('div')
       hint.style.cssText = 'font-size:11px;color:var(--text-muted);margin-bottom:4px;'
-      hint.textContent = '无灯光配置'
+      hint.textContent = getLocale() === 'en' ? 'No lights' : '无灯光配置'
       this.el.appendChild(hint)
       return
     }
@@ -941,7 +942,7 @@ export class PropertyInspector {
       const SVG_LIGHT_STREET = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="3"/><line x1="12" y1="8" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>'
       const SVG_LIGHT_VEHICLE = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>'
       const typeIconSvg = light.type === 'window' ? SVG_LIGHT_WINDOW : light.type === 'street' ? SVG_LIGHT_STREET : SVG_LIGHT_VEHICLE
-      const typeLabel = light.type === 'window' ? '窗户灯' : light.type === 'street' ? '路灯' : light.type === 'vehicle_head' ? '车前灯' : '车尾灯'
+      const typeLabel = light.type === 'window' ? (getLocale() === 'en' ? 'Window' : '窗户灯') : light.type === 'street' ? (getLocale() === 'en' ? 'Street' : '路灯') : light.type === 'vehicle_head' ? (getLocale() === 'en' ? 'Headlight' : '车前灯') : (getLocale() === 'en' ? 'Taillight' : '车尾灯')
 
       const cardHeader = document.createElement('div')
       cardHeader.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;'
@@ -957,7 +958,7 @@ export class PropertyInspector {
       relocBtn.className = 'pi-icon-btn'
       relocBtn.style.cssText = 'font-size:10px;padding:1px 4px;'
       relocBtn.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>'
-      relocBtn.title = '重新放置'
+      relocBtn.title = getLocale() === 'en' ? 'Relocate' : '重新放置'
       relocBtn.addEventListener('click', () => {
         this.editor.editorScene.enterLightPlaceMode(item, light.type, (offset) => {
           light.offsetX = Math.round(offset.x * 100) / 100
@@ -1009,9 +1010,9 @@ export class PropertyInspector {
       const colorDistRow = document.createElement('div')
       colorDistRow.className = 'pi-light-grid'
       colorDistRow.innerHTML = `
-        <div class="pi-num-field"><span class="pi-num-label">色</span><input type="color" class="pi-color-input" value="${this.hexNumToStr(light.color)}" /></div>
-        <div class="pi-num-field"><span class="pi-num-label">距</span><input type="number" class="pi-num-input" data-field="distance" value="${light.distance}" step="1" /></div>
-        <div class="pi-num-field"><span class="pi-num-label">强</span><input type="number" class="pi-num-input" data-field="intensity" value="${light.intensity}" step="0.1" /></div>
+        <div class="pi-num-field"><span class="pi-num-label">${getLocale() === 'en' ? 'C' : '色'}</span><input type="color" class="pi-color-input" value="${this.hexNumToStr(light.color)}" /></div>
+        <div class="pi-num-field"><span class="pi-num-label">${getLocale() === 'en' ? 'D' : '距'}</span><input type="number" class="pi-num-input" data-field="distance" value="${light.distance}" step="1" /></div>
+        <div class="pi-num-field"><span class="pi-num-label">${getLocale() === 'en' ? 'I' : '强'}</span><input type="number" class="pi-num-input" data-field="intensity" value="${light.intensity}" step="0.1" /></div>
       `
       card.appendChild(colorDistRow)
 
@@ -1039,7 +1040,7 @@ export class PropertyInspector {
   private addAnimationSection(item: PlacedItem): void {
     const d = item.data as any
 
-    this.addSectionTitle('动画')
+    this.addSectionTitle(getLocale() === 'en' ? 'Animation' : '动画')
 
     const toggleRow = document.createElement('div')
     toggleRow.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:8px;'
@@ -1047,7 +1048,7 @@ export class PropertyInspector {
     toggle.className = 'pi-toggle' + (d.animated ? ' active' : '')
     const label = document.createElement('span')
     label.style.cssText = 'font-size:12px;color:var(--text-secondary,#ccc);cursor:pointer;user-select:none;'
-    label.textContent = '启用动画'
+    label.textContent = getLocale() === 'en' ? 'Animation' : '启用动画'
     toggleRow.appendChild(toggle)
     toggleRow.appendChild(label)
     this.el.appendChild(toggleRow)
@@ -1073,13 +1074,13 @@ export class PropertyInspector {
     routeRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;'
     const routeInfo = document.createElement('span')
     routeInfo.style.cssText = 'font-size:11px;color:var(--text-muted);'
-    routeInfo.textContent = `路线: ${route.waypoints.length} 个航点`
+    routeInfo.textContent = getLocale() === 'en' ? `Route: ${route.waypoints.length} pts` : `路线: ${route.waypoints.length} 个航点`
     routeRow.appendChild(routeInfo)
 
     const editRouteBtn = document.createElement('button')
     editRouteBtn.className = 'pi-icon-btn'
     editRouteBtn.style.cssText = 'font-size:11px;padding:3px 10px;white-space:nowrap;flex-shrink:0;width:auto;'
-    editRouteBtn.textContent = '编辑路线'
+    editRouteBtn.textContent = getLocale() === 'en' ? 'Edit Route' : '编辑路线'
     editRouteBtn.addEventListener('click', () => {
       this.editor.editorScene.enterRouteEditMode(item, (waypoints) => {
         route.waypoints = waypoints
@@ -1097,7 +1098,7 @@ export class PropertyInspector {
     loopToggle.className = 'pi-toggle' + (route.loop ? ' active' : '')
     const loopLabel = document.createElement('span')
     loopLabel.style.cssText = 'font-size:12px;color:var(--text-secondary,#ccc);cursor:pointer;user-select:none;'
-    loopLabel.textContent = '循环路线'
+    loopLabel.textContent = getLocale() === 'en' ? 'Loop' : '循环路线'
     loopRow.appendChild(loopToggle)
     loopRow.appendChild(loopLabel)
     this.el.appendChild(loopRow)
@@ -1116,13 +1117,13 @@ export class PropertyInspector {
     const fwdAngleDeg = Math.round((route.forwardAngle ?? 0) * 180 / Math.PI)
     const fwdLabel = document.createElement('span')
     fwdLabel.style.cssText = 'font-size:11px;color:var(--text-muted);'
-    fwdLabel.textContent = `前方: ${fwdAngleDeg}°`
+    fwdLabel.textContent = getLocale() === 'en' ? `Forward: ${fwdAngleDeg}°` : `前方: ${fwdAngleDeg}°`
     fwdRow.appendChild(fwdLabel)
     const fwdBtn = document.createElement('button')
     fwdBtn.className = 'pi-icon-btn'
     fwdBtn.style.cssText = 'font-size:10px;padding:2px 8px;white-space:nowrap;flex-shrink:0;margin-left:auto;'
-    fwdBtn.title = '点击模型车头标记前方方向'
-    fwdBtn.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg> 标记前方'
+    fwdBtn.title = getLocale() === 'en' ? 'Click model front to mark forward direction' : '点击模型车头标记前方方向'
+    fwdBtn.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg> ' + (getLocale() === 'en' ? 'Mark Front' : '标记前方')
     fwdBtn.addEventListener('click', () => {
       this.editor.editorScene.enterForwardMarkMode(item, (forwardAngle) => {
         route.forwardAngle = Math.round(forwardAngle * 1000) / 1000
@@ -1137,18 +1138,18 @@ export class PropertyInspector {
     const speedTitle = document.createElement('div')
     speedTitle.className = 'pi-section-title'
     speedTitle.style.cssText = 'margin-top:4px;margin-bottom:6px;font-size:10px;'
-    speedTitle.textContent = '速度'
+    speedTitle.textContent = getLocale() === 'en' ? 'Speed' : '速度'
     this.el.appendChild(speedTitle)
 
     const speedRow = document.createElement('div')
     speedRow.className = 'pi-angle-row'
     speedRow.innerHTML = `
       <div class="pi-num-field">
-        <span class="pi-num-label">最小</span>
+        <span class="pi-num-label">${getLocale() === 'en' ? 'Min' : '最小'}</span>
         <input type="number" class="pi-num-input" id="pi-anim-smin" value="${route.speedMin}" step="0.5" />
       </div>
       <div class="pi-num-field">
-        <span class="pi-num-label">最大</span>
+        <span class="pi-num-label">${getLocale() === 'en' ? 'Max' : '最大'}</span>
         <input type="number" class="pi-num-input" id="pi-anim-smax" value="${route.speedMax}" step="0.5" />
       </div>
     `
@@ -1170,7 +1171,7 @@ export class PropertyInspector {
     laneRow.className = 'pi-angle-row'
     laneRow.innerHTML = `
       <div class="pi-num-field">
-        <span class="pi-num-label">车道</span>
+        <span class="pi-num-label">${getLocale() === 'en' ? 'Lane' : '车道'}</span>
         <input type="number" class="pi-num-input" id="pi-anim-lane" value="${route.laneOffset}" step="0.1" />
       </div>
     `
@@ -1188,7 +1189,7 @@ export class PropertyInspector {
     row.className = 'pi-delete-row'
     const btn = document.createElement('button')
     btn.className = 'pi-delete-btn'
-    btn.innerHTML = `${SVG_DELETE} 删除资产`
+    btn.innerHTML = `${SVG_DELETE} ${getLocale() === 'en' ? 'Delete' : '删除资产'}`
     btn.addEventListener('click', () => this.editor.deleteSelected())
     row.appendChild(btn)
     this.el.appendChild(row)
