@@ -113,18 +113,6 @@ https://github.com/user-attachments/assets/fa6563ae-e78b-49b1-ae7b-8a8a96738341
 
 ## 快速安装
 
-### QClaw 桌面端用户
-
-插件随 QClaw 预装。如需更新：
-
-1. 在 QClaw 中卸载当前 Agentshire 插件
-2. 重新安装最新版本
-3. 重启 QClaw（确保 `openclaw-gateway` 进程已完全停止）
-
-> **提示**：你的数据（聊天历史、Agent 配置、管家工作区）存储在 `~/.qclaw/`，卸载重装不会丢失。
-
-### OpenClaw CLI 用户
-
 > **⚠️ 插件尚未发布到 npm。** 请使用下面的 **link 安装** 方式。
 
 ```bash
