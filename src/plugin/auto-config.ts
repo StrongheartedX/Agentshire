@@ -82,11 +82,7 @@ export async function ensureTownAgentConfig(): Promise<void> {
     );
 
     let dirty = false;
-    let workspaceDir: string | undefined;
-
-    if (!hasAgent || !hasBinding) {
-      workspaceDir = ensureTownWorkspace();
-    }
+    const workspaceDir = ensureTownWorkspace();
 
     if (!hasAgent) {
       cfg.agents = cfg.agents ?? {};
