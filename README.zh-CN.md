@@ -113,17 +113,17 @@ https://github.com/user-attachments/assets/fa6563ae-e78b-49b1-ae7b-8a8a96738341
 
 ## 快速安装
 
-> **⚠️ 插件尚未发布到 npm。** 请使用下面的 **link 安装** 方式。
+```bash
+openclaw plugins install agentshire
+```
+
+就这样。重启 Gateway，小镇会自动在浏览器打开。
+
+### 备选：Link 安装（开发用）
 
 ```bash
-# 1. 克隆仓库
 git clone https://github.com/Agentshire/Agentshire.git
-cd Agentshire
-
-# 2. 安装依赖
-npm install
-
-# 3. Link 安装到 OpenClaw / QClaw
+cd Agentshire && npm install
 openclaw plugins install --link .
 ```
 
@@ -143,8 +143,10 @@ openclaw plugins install --link .
 ### 更新
 
 ```bash
-cd Agentshire && git pull && npm install
+openclaw plugins install agentshire
 ```
+
+Link 安装用户：`cd Agentshire && git pull && npm install`。
 
 然后重启 Gateway（或重启 QClaw）。
 

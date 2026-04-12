@@ -113,19 +113,17 @@ https://github.com/user-attachments/assets/fa6563ae-e78b-49b1-ae7b-8a8a96738341
 
 ## Quick Install
 
-> **⚠️ The plugin has not been published to npm yet.** Use the **link install** method below.
+```bash
+openclaw plugins install agentshire
+```
 
-### Link Install
+That's it. Restart the Gateway and the town opens automatically.
+
+### Alternative: Link Install (for development)
 
 ```bash
-# 1. Clone the repository
 git clone https://github.com/Agentshire/Agentshire.git
-cd Agentshire
-
-# 2. Install dependencies
-npm install
-
-# 3. Link-install into OpenClaw / QClaw
+cd Agentshire && npm install
 openclaw plugins install --link .
 ```
 
@@ -145,8 +143,10 @@ openclaw plugins install --link .
 ### Update
 
 ```bash
-cd Agentshire && git pull && npm install
+openclaw plugins install agentshire
 ```
+
+Or for link installs: `cd Agentshire && git pull && npm install`.
 
 Then restart the Gateway (or restart QClaw).
 
