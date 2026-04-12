@@ -113,11 +113,27 @@ https://github.com/user-attachments/assets/fa6563ae-e78b-49b1-ae7b-8a8a96738341
 
 ## 快速安装
 
+### OpenClaw CLI
+
 ```bash
 openclaw plugins install agentshire
 ```
 
-就这样。重启 Gateway，小镇会自动在浏览器打开。
+### QClaw 桌面端
+
+QClaw 没有全局 `openclaw` CLI，需要使用内置的 wrapper 脚本：
+
+**macOS:**
+```bash
+bash ~/Library/Application\ Support/QClaw/openclaw/config/skills/qclaw-openclaw/scripts/openclaw-mac.sh plugins install agentshire
+```
+
+**Windows:**
+```cmd
+%LOCALAPPDATA%\QClaw\openclaw\config\skills\qclaw-openclaw\scripts\openclaw-win.cmd plugins install agentshire
+```
+
+然后重启 QClaw。小镇会自动在 `http://localhost:55210` 打开。
 
 ### 备选：Link 安装（开发用）
 

@@ -113,11 +113,27 @@ https://github.com/user-attachments/assets/fa6563ae-e78b-49b1-ae7b-8a8a96738341
 
 ## Quick Install
 
+### OpenClaw CLI
+
 ```bash
 openclaw plugins install agentshire
 ```
 
-That's it. Restart the Gateway and the town opens automatically.
+### QClaw Desktop
+
+QClaw has no global `openclaw` CLI. Use the built-in wrapper script:
+
+**macOS:**
+```bash
+bash ~/Library/Application\ Support/QClaw/openclaw/config/skills/qclaw-openclaw/scripts/openclaw-mac.sh plugins install agentshire
+```
+
+**Windows:**
+```cmd
+%LOCALAPPDATA%\QClaw\openclaw\config\skills\qclaw-openclaw\scripts\openclaw-win.cmd plugins install agentshire
+```
+
+Then restart QClaw. The town opens automatically at `http://localhost:55210`.
 
 ### Alternative: Link Install (for development)
 
