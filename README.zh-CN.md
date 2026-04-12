@@ -121,7 +121,7 @@ openclaw plugins install agentshire
 
 ### QClaw 桌面端
 
-直接克隆到 QClaw 的插件扩展目录：
+克隆到 QClaw 的插件扩展目录并安装依赖。插件**必须**在 extensions 目录下才能正常运行，其他位置 gateway 不会识别。
 
 **macOS:**
 ```bash
@@ -132,7 +132,7 @@ cd agentshire && npm install
 
 **Windows:**
 ```cmd
-cd %LOCALAPPDATA%\QClaw\openclaw\config\extensions
+cd %APPDATA%\QClaw\openclaw\config\extensions
 git clone https://github.com/Agentshire/Agentshire.git agentshire
 cd agentshire && npm install
 ```

@@ -121,7 +121,7 @@ openclaw plugins install agentshire
 
 ### QClaw Desktop
 
-Clone directly into the QClaw extensions directory:
+Clone into the QClaw extensions directory and install dependencies. The plugin **must** be in the extensions directory to work — other locations will not be recognized by the gateway.
 
 **macOS:**
 ```bash
@@ -132,7 +132,7 @@ cd agentshire && npm install
 
 **Windows:**
 ```cmd
-cd %LOCALAPPDATA%\QClaw\openclaw\config\extensions
+cd %APPDATA%\QClaw\openclaw\config\extensions
 git clone https://github.com/Agentshire/Agentshire.git agentshire
 cd agentshire && npm install
 ```
