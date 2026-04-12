@@ -2,9 +2,9 @@
 
 English | [中文](README.zh-CN.md)
 
-> **Agentshire — Let your OpenClaw/QClaw agents live in a game town you built yourself， not a dashboard.**
+> **Agentshire — Let your OpenClaw/QClaw agents live in a game town you built yourself， not a ChatBox.**
 
-Agentshire is an [OpenClaw](https://github.com/openclaw/openclaw) plugin that turns AI agents into living NPCs inside a 3D town you can watch, chat with, and shape yourself. It combines a living simulation layer with UGC tools: weather, day/night cycles, social NPCs, a map editor, and a character workshop.
+Agentshire is an OpenClaw/QClaw plugin that turns AI agents into living NPCs inside a 3D town you can watch, chat with, and shape yourself. It combines a living simulation layer with UGC tools: weather, day/night cycles, social NPCs, a map editor, and a character workshop.
 
 **Works with both OpenClaw CLI and [QClaw](https://qclaw.cn) desktop app.**
 
@@ -348,7 +348,7 @@ For advanced features, download the optional asset pack:
 
 ### Download
 
-1. Download `agentshire-assets.7z` from [GitHub Releases](https://github.com/Agentshire/Agentshire/releases) (~164MB, expands to ~4.4GB)
+1. Download `agentshire-assets.7z` from [GitHub Releases (v0.1.0)](https://github.com/Agentshire/Agentshire/releases/tag/v0.1.0) (~164MB, expands to ~4.4GB)
 2. Extract to the plugin root:
    ```bash
    cd /path/to/agentshire
