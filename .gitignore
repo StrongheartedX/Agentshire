@@ -1,7 +1,7 @@
 node_modules/
 town-frontend/node_modules/
-dist/
-town-frontend/dist/
+/dist/
+town-frontend/dist/**/*.map
 .DS_Store
 .cursor/
 /assets/
