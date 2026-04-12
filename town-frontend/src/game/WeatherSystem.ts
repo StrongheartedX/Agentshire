@@ -172,15 +172,8 @@ const DAY_CURVES: Record<DayTheme, Record<TimePeriod, WeatherType>> = {
   auroraDay:    { dawn: 'clear',     morning: 'clear',     noon: 'clear',     afternoon: 'clear',     dusk: 'clear',     night: 'aurora' },
 }
 
-function seededRandom(seed: number): number {
-  let s = seed
-  s = (s ^ 0xDEADBEEF) + (s << 4); s = s ^ (s >> 10)
-  s = s + (s << 7); s = s ^ (s >> 13)
-  return ((s >>> 0) % 10000) / 10000
-}
-
-function pickDayTheme(dayCount: number): DayTheme {
-  const roll = seededRandom(dayCount + 1) * THEME_TOTAL
+function pickDayTheme(): DayTheme {
+  const roll = Math.random() * THEME_TOTAL
   let acc = 0
   for (const w of THEME_WEIGHTS) { acc += w.weight; if (roll < acc) return w.theme }
   return 'sunny'
@@ -240,7 +233,7 @@ export class WeatherSystem {
 
   setEnabled(enabled: boolean): void {
     this.enabled = enabled
-    if (!enabled) this.effects.setEnabled(false)
+    this.effects.setEnabled(enabled)
   }
 
   forceWeather(type: WeatherType): void {
@@ -288,7 +281,7 @@ export class WeatherSystem {
     // Roll day theme at new day, resolve weather at period change
     if (state.dayCount !== this.lastDayCount) {
       this.lastDayCount = state.dayCount
-      this.currentTheme = pickDayTheme(state.dayCount)
+      this.currentTheme = pickDayTheme()
       this.lastPeriod = null
     }
 

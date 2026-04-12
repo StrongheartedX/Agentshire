@@ -18,10 +18,10 @@ export interface WeatherVisualState {
 
 // ── Particle budget per profile ──
 
-const RAIN_COUNT:  Record<PerformanceProfile, number> = { low: 0, medium: 8000, high: 25000 }
-const SNOW_COUNT:  Record<PerformanceProfile, number> = { low: 0, medium: 4000, high: 12000 }
-const DUST_COUNT:  Record<PerformanceProfile, number> = { low: 0, medium: 3000, high: 10000 }
-const SPLASH_COUNT: Record<PerformanceProfile, number> = { low: 0, medium: 80, high: 200 }
+const RAIN_COUNT:  Record<PerformanceProfile, number> = { low: 8000, medium: 8000, high: 25000 }
+const SNOW_COUNT:  Record<PerformanceProfile, number> = { low: 4000, medium: 4000, high: 12000 }
+const DUST_COUNT:  Record<PerformanceProfile, number> = { low: 3000, medium: 3000, high: 10000 }
+const SPLASH_COUNT: Record<PerformanceProfile, number> = { low: 80, medium: 80, high: 200 }
 
 // ── Rain: LineSegments + vertex shader animation (zero CPU per-particle loop) ──
 
