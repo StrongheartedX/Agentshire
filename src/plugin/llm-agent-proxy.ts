@@ -47,7 +47,7 @@ function loadProvider(): ProviderConfig | null {
       const apiKey = resolveEnvRef(String(provider.apiKey), env);
       if (!apiKey) continue;
 
-      const apiFormat = provider.api === "openai" ? "openai" as const : "anthropic-messages" as const;
+      const apiFormat = provider.api?.startsWith("openai") ? "openai" as const : "anthropic-messages" as const;
       const models = Array.isArray(provider.models) ? provider.models : [];
       const model = models[0]?.id ?? "default";
 
