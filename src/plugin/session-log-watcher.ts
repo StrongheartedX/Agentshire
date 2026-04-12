@@ -156,7 +156,7 @@ export class SessionLogWatcher {
 
       const stopReason = (msg as any).stopReason as string | undefined;
       const hasToolCall = blocks.some(b => b.type === "toolCall");
-      if ((stopReason === "stop" || stopReason === "length") && !hasToolCall) {
+      if ((stopReason === "stop" || stopReason === "length" || stopReason === "aborted") && !hasToolCall) {
         this.lastFinalStopReason = stopReason;
       } else {
         this.lastFinalStopReason = null;
