@@ -45,7 +45,7 @@ export function useAgents() {
             name: entry.name || (entry.role === 'steward' ? t('steward') : t('resident')),
             avatarUrl: avatarUrl || fallbackAvatar,
             avatarId: avatarIdRaw || undefined,
-            specialty: entry.role === 'steward' ? (entry.bio || t('ai_steward')) : (entry.specialty || entry.industry || ''),
+            specialty: entry.role === 'steward' ? (entry.specialty || t('steward')) : (entry.specialty || entry.industry || ''),
             type: entry.role === 'steward' ? 'steward' : 'citizen',
             online: entry.role === 'steward' ? true : !!(entry.agentEnabled && entry.agentId),
             agentId: entry.agentId,

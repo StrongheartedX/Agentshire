@@ -1,5 +1,5 @@
 import type { CitizenWorkshopConfig, WorkshopCitizenConfig } from '../../data/CitizenWorkshopConfig'
-import { getLocale } from '../../i18n'
+import { getLocale, t } from '../../i18n'
 import { generateCitizenId, INDUSTRY_SPECIALTY_MAP } from '../../data/CitizenWorkshopConfig'
 import { getAllGroups } from '../../data/CharacterModelRegistry'
 
@@ -149,7 +149,7 @@ export class CitizenRoster {
     ]))
 
     list.appendChild(this.renderGroup('', [
-      this.renderItem({ type: 'steward' }, s.name, s.bio ? (getLocale() === 'en' ? 'Steward' : '管家') : '', s.avatarUrl, s.avatarId),
+      this.renderItem({ type: 'steward' }, s.name, s.bio ? t('steward') : '', s.avatarUrl, s.avatarId),
     ]))
 
     if (this.config.citizens.length > 0) {
