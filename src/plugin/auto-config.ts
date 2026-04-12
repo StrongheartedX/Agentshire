@@ -31,11 +31,20 @@ function ensureTownWorkspace(): string {
   mkdirSync(agentDir, { recursive: true });
 
   const pluginDir = getPluginDir();
+  const SDK_DEFAULT_MARKERS = [
+    "# SOUL.md - Who You Are",
+    "# IDENTITY.md - Who Am I?",
+  ];
   for (const file of readdirSync(templateDir)) {
     const src = join(templateDir, file);
     const dst = join(agentDir, file);
     if (!existsSync(dst)) {
       copyFileSync(src, dst);
+    } else {
+      const existing = readFileSync(dst, "utf-8");
+      if (SDK_DEFAULT_MARKERS.some((m) => existing.startsWith(m))) {
+        copyFileSync(src, dst);
+      }
     }
   }
 
