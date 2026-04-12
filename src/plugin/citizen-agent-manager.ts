@@ -95,18 +95,20 @@ function updateSoulFile(agentId: string, soulContent: string, name: string, spec
   syncSharedFiles(workspace);
 }
 
-function addAgentToConfig(agentId: string, citizenName: string): void {
+function addAgentToConfig(agentId: string, citizenName: string, specialty?: string): void {
   const cfg = loadOpenClawConfig();
   const agents: any[] = cfg.agents?.list ?? [];
   if (agents.some((a: any) => a.id === agentId)) return;
 
   if (!cfg.agents) cfg.agents = {};
   if (!cfg.agents.list) cfg.agents.list = [];
+  const identity: Record<string, string> = { name: citizenName };
+  if (specialty) identity.vibe = specialty;
   cfg.agents.list.push({
     id: agentId,
     name: citizenName,
     workspace: getAgentWorkspacePath(agentId),
-    identity: { name: citizenName },
+    identity,
   });
   saveOpenClawConfig(cfg);
   console.log(`[citizen-agent-manager] Added agent ${agentId} to openclaw.json`);
@@ -147,7 +149,7 @@ export async function applyAgentChanges(
         case "create": {
           if (!change.soulContent) throw new Error("soulContent is required for create");
           createAgentWorkspace(change.agentId, change.soulContent, change.citizenName, change.specialty);
-          addAgentToConfig(change.agentId, change.citizenName);
+          addAgentToConfig(change.agentId, change.citizenName, change.specialty);
           results.push({ citizenId: change.citizenId, action: "create", success: true, agentId: change.agentId });
           break;
         }
