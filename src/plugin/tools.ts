@@ -171,6 +171,7 @@ export function createTownTools(): OpenClawPluginToolFactory {
     {
       name: "town_set_weather",
       description:
+        "[Agentshire steward only — do NOT use if you are not the town steward agent] " +
         "Control the weather in the 3D town. " +
         "action=set: force a specific weather type. " +
         "action=reset: restore automatic weather cycle (恢复天气). " +
@@ -265,6 +266,7 @@ export function createTownTools(): OpenClawPluginToolFactory {
     {
       name: "create_task",
       description:
+        "[Agentshire steward only — do NOT use if you are not the town steward agent] " +
         "Create a task directory for a single-agent delegation. " +
         "Call this BEFORE create_plan. Returns the absolute path to use as projectDir in create_plan. " +
         "The directory is created under the steward's workspace/tasks/ with a timestamp suffix.",
@@ -292,6 +294,7 @@ export function createTownTools(): OpenClawPluginToolFactory {
     {
       name: "create_plan",
       description:
+        "[Agentshire steward only — do NOT use if you are not the town steward agent] " +
         "Create a structured execution plan for a multi-agent project or single-agent task. " +
         "Call create_project or create_task FIRST to get a projectDir, then call this. " +
         "Each step has agents, tasks, and a batch number. Steps with the same batch number run concurrently; lower batches run first and must all complete before the next batch starts. " +
@@ -380,6 +383,7 @@ export function createTownTools(): OpenClawPluginToolFactory {
     {
       name: "next_step",
       description:
+        "[Agentshire steward only — do NOT use if you are not the town steward agent] " +
         "Check the current plan progress and get instructions for the next step. " +
         "Call this after each batch of agents finishes. " +
         "Returns: what's done, what to do next (which agents to spawn with what tasks), " +
@@ -392,6 +396,7 @@ export function createTownTools(): OpenClawPluginToolFactory {
     {
       name: "mission_complete",
       description:
+        "[Agentshire steward only — do NOT use if you are not the town steward agent] " +
         "Unified completion handler — call this when agents finish work. " +
         "Automatically checks if other agents are still running or plan has pending steps. " +
         "All done → triggers departure animation + celebration + deliverable card. " +
