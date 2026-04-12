@@ -655,11 +655,15 @@ export class CitizenWorkshop {
     btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="cw-spin"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> ${getLocale() === 'en' ? 'Generating...' : '生成中...'}`
     btn.classList.add('disabled')
     try {
+      const ac = new AbortController()
+      const timer = setTimeout(() => ac.abort(), 120_000)
       const r = await fetch('/citizen-workshop/_api/generate-soul', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: c.name, bio: c.bio, specialty: c.specialty, industry: c.industry }),
+        signal: ac.signal,
       })
+      clearTimeout(timer)
       const d = await r.json()
       if (d.content) {
         c.customSoul = d.content

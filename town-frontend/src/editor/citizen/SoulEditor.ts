@@ -78,11 +78,15 @@ export class SoulEditor {
     btn.classList.add('disabled')
 
     try {
+      const ac = new AbortController()
+      const timer = setTimeout(() => ac.abort(), 120_000)
       const r = await fetch('/citizen-workshop/_api/generate-soul', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, bio, industry, specialty }),
+        signal: ac.signal,
       })
+      clearTimeout(timer)
       const d = await r.json()
       if (d.content && this.textarea) {
         this.textarea.value = d.content

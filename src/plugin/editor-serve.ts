@@ -892,6 +892,48 @@ function computeChangeset(
   return { totalCharacters: newChars.length, agentToCreate, agentToDisable, agentToUpdateSoul, stewardSoulUpdated, changes };
 }
 
+const SOUL_GEN_TIMEOUT_MS = 90_000;
+
+async function generateSoulViaAgent(system: string, user: string): Promise<string> {
+  const { getTownRuntime } = require("./runtime.js") as typeof import("./runtime.js");
+  const rt = getTownRuntime();
+  const cfg = rt.config.loadConfig() as any;
+  const sessionKey = `agent:town-steward:soul-gen:${Date.now()}`;
+  const message = `【系统指令】\n${system}\n\n【用户输入】\n${user}`;
+
+  let responseText = "";
+  const agentDone = rt.channel.reply.dispatchReplyWithBufferedBlockDispatcher({
+    ctx: rt.channel.reply.finalizeInboundContext({
+      Body: message,
+      RawBody: message,
+      CommandBody: message,
+      From: "agentshire:user",
+      To: "agentshire:steward",
+      SessionKey: sessionKey,
+      AccountId: "default",
+      OriginatingChannel: "agentshire",
+      ChatType: "direct",
+      SenderId: "user",
+      Provider: "agentshire",
+      Surface: "agentshire",
+    }),
+    cfg,
+    dispatcherOptions: {
+      deliver: async (payload: any) => {
+        const text = payload?.text ?? payload?.body;
+        if (text) responseText = text;
+      },
+    },
+  });
+
+  const timeout = new Promise<void>((_, reject) =>
+    setTimeout(() => reject(new Error("Soul generation timed out")), SOUL_GEN_TIMEOUT_MS),
+  );
+
+  await Promise.race([agentDone, timeout]);
+  return responseText;
+}
+
 async function handleCitizenWorkshopApi(
   req: any,
   res: any,
@@ -1128,25 +1170,30 @@ async function handleCitizenWorkshopApi(
     try {
       const { chat, isAvailable } = await import("./llm-agent-proxy.js");
       const { buildPersonaPrompt } = await import("./soul-prompt-template.js");
-      if (!isAvailable()) {
-        jsonRes(res, { error: "LLM 不可用，请检查 OpenClaw 是否已正确初始化" }, 503);
-        return true;
-      }
       const prompt = buildPersonaPrompt({ name, bio, specialty: specialty || "通用助手" });
-      const result = await chat({
-        system: prompt.system,
-        user: prompt.user,
-        maxTokens: 2000,
-        temperature: 0.8,
-        stop: [],
-      });
-      if (!result.text) {
-        jsonRes(res, { error: "LLM 返回为空" }, 500);
-        return true;
+
+      if (isAvailable()) {
+        const result = await chat({
+          system: prompt.system,
+          user: prompt.user,
+          maxTokens: 2000,
+          temperature: 0.8,
+          stop: [],
+        });
+        if (result.text) {
+          jsonRes(res, { content: result.text });
+          return true;
+        }
       }
-      jsonRes(res, { content: result.text });
+
+      const text = await generateSoulViaAgent(prompt.system, prompt.user);
+      if (text) {
+        jsonRes(res, { content: text });
+      } else {
+        jsonRes(res, { error: "LLM 返回为空" }, 500);
+      }
     } catch (err: any) {
-      console.error("[citizen-workshop] generate-soul LLM error:", err?.message);
+      console.error("[citizen-workshop] generate-soul error:", err?.message);
       jsonRes(res, { error: `生成失败: ${err?.message ?? "未知错误"}` }, 500);
     }
     return true;
