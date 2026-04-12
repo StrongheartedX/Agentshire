@@ -113,7 +113,7 @@ https://github.com/user-attachments/assets/fa6563ae-e78b-49b1-ae7b-8a8a96738341
 
 ## Quick Install
 
-> **⚠️ The plugin has not been published to npm yet.** `openclaw plugins install agentshire` is not available. Use the **link install** method below.
+> **⚠️ The plugin has not been published to npm yet.** Use the **link install** method below.
 
 ### Link Install
 
@@ -122,12 +122,14 @@ https://github.com/user-attachments/assets/fa6563ae-e78b-49b1-ae7b-8a8a96738341
 git clone https://github.com/Agentshire/Agentshire.git
 cd Agentshire
 
-# 2. Build the frontend
-cd town-frontend && npm install && npm run build && cd ..
+# 2. Install dependencies
+npm install
 
-# 3. Link-install into OpenClaw
+# 3. Link-install into OpenClaw / QClaw
 openclaw plugins install --link .
 ```
+
+> The frontend comes **pre-built** (`town-frontend/dist/`). No build step needed. Developers can rebuild with `npm run build:town`.
 
 ### What the plugin auto-configures on first start
 
@@ -142,17 +144,11 @@ openclaw plugins install --link .
 
 ### Update
 
-**QClaw users**: Uninstall and reinstall the plugin, then restart QClaw.
-
-**OpenClaw CLI users**:
-
 ```bash
-cd Agentshire && git pull
-cd town-frontend && npm install && npm run build && cd ..
-openclaw plugins install --link .
+cd Agentshire && git pull && npm install
 ```
 
-Then restart the Gateway.
+Then restart the Gateway (or restart QClaw).
 
 ---
 

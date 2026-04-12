@@ -120,12 +120,14 @@ https://github.com/user-attachments/assets/fa6563ae-e78b-49b1-ae7b-8a8a96738341
 git clone https://github.com/Agentshire/Agentshire.git
 cd Agentshire
 
-# 2. 构建前端
-cd town-frontend && npm install && npm run build && cd ..
+# 2. 安装依赖
+npm install
 
-# 3. Link 安装到 OpenClaw
+# 3. Link 安装到 OpenClaw / QClaw
 openclaw plugins install --link .
 ```
+
+> 前端已**预编译**（`town-frontend/dist/`），无需 build。开发者可用 `npm run build:town` 重新构建。
 
 ### 首次启动时插件自动配置
 
@@ -140,17 +142,11 @@ openclaw plugins install --link .
 
 ### 更新
 
-**QClaw 用户**：卸载并重新安装插件，然后重启 QClaw。
-
-**OpenClaw CLI 用户**：
-
 ```bash
-cd Agentshire && git pull
-cd town-frontend && npm install && npm run build && cd ..
-openclaw plugins install --link .
+cd Agentshire && git pull && npm install
 ```
 
-然后重启 Gateway。
+然后重启 Gateway（或重启 QClaw）。
 
 ---
 
