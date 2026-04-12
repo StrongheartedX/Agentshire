@@ -89,6 +89,12 @@ export async function ensureTownAgentConfig(): Promise<void> {
         identity: { name: "shire", emoji: "🏘️", vibe: "小镇管家，调度居民完成任务" },
       });
       dirty = true;
+    } else {
+      const entry = (cfg.agents?.list ?? []).find((a: any) => a.id === AGENT_ID);
+      if (entry?.identity && !entry.identity.vibe) {
+        entry.identity.vibe = "小镇管家，调度居民完成任务";
+        dirty = true;
+      }
     }
 
     if (!hasBinding) {
