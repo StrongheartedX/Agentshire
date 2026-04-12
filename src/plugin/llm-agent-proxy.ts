@@ -2,7 +2,7 @@
  * LLM proxy for implicit NPC behaviors and soul generation.
  * Reads provider config from OpenClaw runtime (rt.config.loadConfig()),
  * resolves env-templated API keys from the config's env section,
- * and makes direct HTTP calls. No process.env access.
+ * and makes direct HTTP calls. Falls back to process.env for QClaw compatibility.
  */
 
 import { getTownRuntime } from "./runtime.js";
@@ -31,7 +31,7 @@ const MAX_CONCURRENT = 2;
 const MAX_QUEUE = 10;
 
 function resolveEnvRef(value: string, env: Record<string, string>): string {
-  return value.replace(/\$\{(\w+)\}/g, (_, key) => env[key] ?? "");
+  return value.replace(/\$\{(\w+)\}/g, (_, key) => env[key] ?? process.env[key] ?? "");
 }
 
 function loadProvider(): ProviderConfig | null {
