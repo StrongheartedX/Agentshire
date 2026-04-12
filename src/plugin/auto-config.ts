@@ -86,7 +86,7 @@ export async function ensureTownAgentConfig(): Promise<void> {
         id: AGENT_ID,
         name: "shire",
         workspace: workspaceDir,
-        identity: { name: "shire", emoji: "🏘️", vibe: "小镇管家，调度居民完成任务" },
+        identity: { name: "shire", emoji: "🏘️" },
       });
       dirty = true;
     }

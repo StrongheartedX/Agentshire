@@ -103,7 +103,6 @@ function addAgentToConfig(agentId: string, citizenName: string, specialty?: stri
   if (!cfg.agents) cfg.agents = {};
   if (!cfg.agents.list) cfg.agents.list = [];
   const identity: Record<string, string> = { name: citizenName };
-  if (specialty) identity.vibe = specialty;
   cfg.agents.list.push({
     id: agentId,
     name: citizenName,
