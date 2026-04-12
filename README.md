@@ -121,19 +121,25 @@ openclaw plugins install agentshire
 
 ### QClaw Desktop
 
-QClaw has no global `openclaw` CLI. Use the built-in wrapper script:
+Clone directly into the QClaw extensions directory:
 
 **macOS:**
 ```bash
-bash ~/Library/Application\ Support/QClaw/openclaw/config/skills/qclaw-openclaw/scripts/openclaw-mac.sh plugins install agentshire
+cd ~/Library/Application\ Support/QClaw/openclaw/config/extensions
+git clone https://github.com/Agentshire/Agentshire.git agentshire
+cd agentshire && npm install
 ```
 
 **Windows:**
 ```cmd
-%LOCALAPPDATA%\QClaw\openclaw\config\skills\qclaw-openclaw\scripts\openclaw-win.cmd plugins install agentshire
+cd %LOCALAPPDATA%\QClaw\openclaw\config\extensions
+git clone https://github.com/Agentshire/Agentshire.git agentshire
+cd agentshire && npm install
 ```
 
 Then restart QClaw. The town opens automatically at `http://localhost:55210`.
+
+> The frontend comes **pre-built** (`town-frontend/dist/`). No build step needed.
 
 ### Alternative: Link Install (for development)
 
@@ -142,8 +148,6 @@ git clone https://github.com/Agentshire/Agentshire.git
 cd Agentshire && npm install
 openclaw plugins install --link .
 ```
-
-> The frontend comes **pre-built** (`town-frontend/dist/`). No build step needed. Developers can rebuild with `npm run build:town`.
 
 ### What the plugin auto-configures on first start
 

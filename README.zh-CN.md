@@ -121,19 +121,25 @@ openclaw plugins install agentshire
 
 ### QClaw 桌面端
 
-QClaw 没有全局 `openclaw` CLI，需要使用内置的 wrapper 脚本：
+直接克隆到 QClaw 的插件扩展目录：
 
 **macOS:**
 ```bash
-bash ~/Library/Application\ Support/QClaw/openclaw/config/skills/qclaw-openclaw/scripts/openclaw-mac.sh plugins install agentshire
+cd ~/Library/Application\ Support/QClaw/openclaw/config/extensions
+git clone https://github.com/Agentshire/Agentshire.git agentshire
+cd agentshire && npm install
 ```
 
 **Windows:**
 ```cmd
-%LOCALAPPDATA%\QClaw\openclaw\config\skills\qclaw-openclaw\scripts\openclaw-win.cmd plugins install agentshire
+cd %LOCALAPPDATA%\QClaw\openclaw\config\extensions
+git clone https://github.com/Agentshire/Agentshire.git agentshire
+cd agentshire && npm install
 ```
 
 然后重启 QClaw。小镇会自动在 `http://localhost:55210` 打开。
+
+> 前端已**预编译**（`town-frontend/dist/`），无需 build。
 
 ### 备选：Link 安装（开发用）
 
@@ -142,8 +148,6 @@ git clone https://github.com/Agentshire/Agentshire.git
 cd Agentshire && npm install
 openclaw plugins install --link .
 ```
-
-> 前端已**预编译**（`town-frontend/dist/`），无需 build。开发者可用 `npm run build:town` 重新构建。
 
 ### 首次启动时插件自动配置
 
