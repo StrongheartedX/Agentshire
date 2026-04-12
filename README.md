@@ -121,15 +121,18 @@ openclaw plugins install agentshire
 
 ### QClaw Desktop
 
-Clone into the QClaw extensions directory and install dependencies. The plugin **must** be in the extensions directory to work — other locations will not be recognized by the gateway.
+Clone into the QClaw **extensions** directory (where built-in plugins like `qclaw-plugin`, `lossless-claw` are located — **not** `~/.qclaw/plugins/`), install dependencies, then restart QClaw:
 
 ```bash
-cd <QClaw-extensions-directory>
+# Find the extensions directory (contains qclaw-plugin, lossless-claw, etc.)
+ls ~/Library/Application\ Support/QClaw/openclaw/config/extensions/  # macOS
+# Clone and install
+cd <extensions-directory>
 git clone https://github.com/Agentshire/Agentshire.git agentshire
 cd agentshire && npm install
 ```
 
-Then restart QClaw. The town opens automatically at `http://localhost:55210`.
+The town opens automatically at `http://localhost:55210` after restarting QClaw.
 
 > The frontend comes **pre-built** (`town-frontend/dist/`). No build step needed.
 

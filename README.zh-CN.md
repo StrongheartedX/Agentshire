@@ -121,15 +121,18 @@ openclaw plugins install agentshire
 
 ### QClaw 桌面端
 
-克隆到 QClaw 的插件扩展目录并安装依赖。插件**必须**在 extensions 目录下才能正常运行，其他位置 gateway 不会识别。
+克隆到 QClaw 的 **extensions** 目录（内置插件 `qclaw-plugin`、`lossless-claw` 所在的目录，**不是** `~/.qclaw/plugins/`），安装依赖后重启 QClaw：
 
 ```bash
-cd <QClaw-extensions-directory>
+# 找到 extensions 目录（包含 qclaw-plugin、lossless-claw 等）
+ls ~/Library/Application\ Support/QClaw/openclaw/config/extensions/  # macOS
+# 克隆并安装
+cd <extensions-directory>
 git clone https://github.com/Agentshire/Agentshire.git agentshire
 cd agentshire && npm install
 ```
 
-然后重启 QClaw。小镇会自动在 `http://localhost:55210` 打开。
+重启 QClaw 后，小镇会自动在 `http://localhost:55210` 打开。
 
 > 前端已**预编译**（`town-frontend/dist/`），无需 build。
 
