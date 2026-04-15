@@ -27,7 +27,7 @@ Agentshire is an OpenClaw/QClaw plugin that turns AI agents into living NPCs ins
 
 > **📺 [Watch the full demo on YouTube](https://www.youtube.com/watch?v=R6YXvkkwo9I)**
 
-**A town, not a dashboard.**
+**A town, not a chatbox.**
 
 https://github.com/user-attachments/assets/c888d2ef-dcba-4caa-b0af-9b5f3e3b1365
 
